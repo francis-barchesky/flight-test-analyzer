@@ -246,6 +246,8 @@ def main():
     skip_existing    = cfg.get("skip_existing", True)
     delete_after     = cfg.get("delete_zips_after", True)
     parallel_sorties = args.parallel_sorties or cfg.get("parallel_sorties", 1)
+    detected_cores   = os.cpu_count() or 1
+    workers          = workers or detected_cores
 
     if output_dir and not os.path.isabs(output_dir):
         output_dir = os.path.normpath(os.path.join(config_dir, output_dir))
@@ -263,10 +265,11 @@ def main():
     sortie_dirs = find_sortie_dirs(data_root)
 
     # Workers are divided across parallel sorties so total CPU usage stays bounded
-    workers_per_sortie = max(1, (workers or os.cpu_count() or 1) // max(1, parallel_sorties))
+    workers_per_sortie = max(1, workers // max(1, parallel_sorties))
 
     dry_tag = "  *** DRY RUN ***" if args.dry_run else ""
-    par_tag = f"  |  parallel={parallel_sorties}  workers/sortie={workers_per_sortie}" if parallel_sorties > 1 else f"  |  workers={workers_per_sortie}"
+    auto_tag = f" (auto/{detected_cores})" if not cfg.get("workers") else ""
+    par_tag = f"  |  parallel={parallel_sorties}  workers/sortie={workers_per_sortie}{auto_tag}" if parallel_sorties > 1 else f"  |  workers={workers_per_sortie}{auto_tag}"
     print(f"Batch  {data_root}  |  {len(sortie_dirs)} sortie(s)  |  trigger={trigger}{par_tag}{dry_tag}")
 
     if not sortie_dirs:
