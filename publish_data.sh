@@ -75,7 +75,7 @@ fi
 TIMESTAMP="$(date '+%Y-%m-%d %H:%M')"
 N="${#JSONS[@]}"
 git commit -m "data: ${N} sortie(s) — ${TIMESTAMP}"
-git push --force origin HEAD:data
+git push origin HEAD:data
 
 echo
 echo "Published ${N} JSON(s) to origin/data"
