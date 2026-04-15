@@ -22,6 +22,7 @@ import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import datetime
 
 
 # ── Sortie name from filename ──────────────────────────────────────────────────
@@ -355,9 +356,10 @@ def main():
         # ETA: average elapsed of timed sorties, divided by parallelism
         timed = [r["elapsed_s"] for r in results if r.get("elapsed_s")]
         if timed and pending > 0:
-            avg_s = sum(timed) / len(timed)
-            eta_s = avg_s * pending / max(1, parallel_sorties)
-            eta_tag = f"  ETA ~{_fmt_dur(eta_s)}"
+            avg_s  = sum(timed) / len(timed)
+            eta_s  = avg_s * pending / max(1, parallel_sorties)
+            eta_dt = datetime.fromtimestamp(time.time() + eta_s).strftime("%H:%M")
+            eta_tag = f"  ETA ~{_fmt_dur(eta_s)} ({eta_dt})"
         elif pending == 0:
             eta_tag = "  done"
         else:
