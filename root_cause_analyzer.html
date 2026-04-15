@@ -970,7 +970,7 @@ function renderFleetSummary(panel) {
   if (activeCats.length) {
     const topCat = activeCats.reduce((a,b) =>
       catCounts[a.key].reduce((s,v)=>s+v,0) >= catCounts[b.key].reduce((s,v)=>s+v,0) ? a : b);
-    html += '<div class="score"><div class="sv" style="color:' + topCat.color + '">' + topCat.short + '</div>' +
+    html += '<div class="score"><div class="sv" style="color:' + topCat.color + '">' + topCat.label + '</div>' +
             '<div class="sl">Most common</div></div>';
   }
   html += '</div></div>';
