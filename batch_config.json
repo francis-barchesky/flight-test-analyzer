@@ -1,0 +1,27 @@
+{
+  "_comment": "Batch config for pipeline.sh / run_batch.py",
+
+  "script": "analyze_iads.py",
+
+  "data_root": ".",
+
+  "output_dir": null,
+
+  "download_script": "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh",
+  "download_start_date": "2026-04-01",
+  "download_end_date":   "2026-04-14",
+  "download_pattern":    "*",
+
+  "trigger":       "afcsCapable",
+  "trigger_from":  1.0,
+  "trigger_to":    0.0,
+
+  "workers": 22,
+  "parallel_sorties": 3,
+
+  "plot_signals": "radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,casTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted",
+
+  "skip_existing": true,
+
+  "delete_zips_after": false
+}

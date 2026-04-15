@@ -1,0 +1,3222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flight Test Root Cause Analyzer</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: system-ui, sans-serif; background: #2b2b28; color: #cac8bf; min-height: 100vh; display: flex; flex-direction: column; }
+.header { background: #222220; color: #e8e6dd; padding: 12px 20px; display: flex; align-items: center; gap: 10px; border-bottom: 0.5px solid #3a3a37; }
+.header h1 { font-size: 15px; font-weight: 500; }
+.header-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.graph-badge { font-size: 11px; padding: 3px 8px; border-radius: 4px; background: #363633; color: #888780; border: 0.5px solid #4a4a47; }
+.graph-badge.loaded { background: #0F6E56; color: #9FE1CB; border-color: #1D9E75; }
+.export-btn { font-size: 12px; background: transparent; color: #cac8bf; border: 0.5px solid #4a4a47; border-radius: 6px; padding: 5px 12px; cursor: pointer; }
+.export-btn:hover { background: #363633; }
+.export-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.layout { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 48px); }
+.sidebar { width: 280px; min-width: 240px; background: #272725; border-right: 0.5px solid #3a3a37; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0; }
+.sidebar-section { padding: 12px 14px; border-bottom: 0.5px solid #3a3a37; }
+.sidebar-section h2 { font-size: 11px; font-weight: 500; color: #78766e; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 8px; }
+.drop-zone { display: block; border: 1.5px dashed #4a4a47; border-radius: 8px; padding: 14px 10px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; }
+.drop-zone:hover { border-color: #6B62D4; background: #2a2840; }
+.drop-zone.loaded { border-color: #1D9E75; background: #17352a; border-style: solid; }
+.drop-zone p { font-size: 13px; color: #96948c; margin-bottom: 3px; }
+.drop-zone small { font-size: 11px; color: #78766e; }
+.drop-zone input { display: none; }
+.status-box { font-size: 11px; padding: 5px 8px; border-radius: 5px; margin-top: 6px; background: #323230; color: #78766e; }
+.status-box.blue { background: #252340; color: #9B96E8; }
+.status-box.green { background: #17352a; color: #4CC9A0; }
+.status-box.red { background: #3a2020; color: #d97070; }
+.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+.stat { background: #323230; border-radius: 6px; padding: 6px 8px; }
+.stat-label { font-size: 10px; color: #78766e; margin-bottom: 1px; }
+.stat-value { font-size: 14px; font-weight: 500; color: #cac8bf; }
+.run-btn { width: 100%; padding: 9px; background: #534AB7; color: #fff; border: none; border-radius: 7px; font-size: 13px; font-weight: 500; cursor: pointer; }
+.run-btn:hover { background: #6B62D4; }
+.run-btn:disabled { background: #3a3a37; color: #606060; cursor: not-allowed; }
+.run-btn.running { background: #3C3489; }
+.window-input { width: 100%; border: 0.5px solid #3a3a37; border-radius: 6px; padding: 6px 8px; font-size: 12px; color: #cac8bf; background: #323230; }
+.window-input:focus { outline: none; border-color: #534AB7; }
+.main { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+.empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #606060; gap: 10px; text-align: center; padding: 60px 40px; }
+.empty-state p { font-size: 14px; }
+.empty-state small { font-size: 12px; }
+.progress-bar { background: #323230; border-radius: 6px; padding: 14px 16px; border: 0.5px solid #3a3a37; }
+.progress-bar .label { font-size: 12px; color: #96948c; margin-bottom: 8px; }
+.progress-bar .track { background: #3a3a37; border-radius: 4px; height: 4px; overflow: hidden; }
+.progress-bar .fill { background: #534AB7; height: 4px; border-radius: 4px; transition: width 0.3s; }
+.progress-bar .step { font-size: 11px; color: #78766e; margin-top: 6px; }
+.fault-card { background: #272725; border: 0.5px solid #3a3a37; border-radius: 10px; overflow: hidden; }
+.fault-header { padding: 12px 16px; border-bottom: 0.5px solid #3a3a37; display: flex; align-items: flex-start; gap: 10px; }
+.fault-badge { font-size: 10px; font-weight: 600; letter-spacing: 0.05em; padding: 3px 8px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+.fault-badge.unexpected-disengage { background: #4a2020; color: #d97070; }
+.fault-badge.unexpected-engage { background: #3a2810; color: #c8904a; }
+.fault-badge.failed-engage { background: #4a2020; color: #d97070; }
+.fault-title { font-size: 13px; font-weight: 500; color: #e2e0d7; }
+.fault-meta { font-size: 11px; color: #78766e; margin-top: 2px; font-family: monospace; }
+.fault-body { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.section-label { font-size: 10px; font-weight: 500; color: #78766e; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
+.concurrent-list { display: flex; flex-direction: column; gap: 4px; }
+.concurrent-item { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 4px 8px; border-radius: 5px; background: #323230; }
+.concurrent-item .sig { font-family: monospace; color: #9490d4; flex: 1; }
+.concurrent-item .edge { font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 3px; }
+.edge-rise { background: #253420; color: #6a9645; }
+.edge-fall { background: #2e2222; color: #a85555; }
+.concurrent-item .dt { font-size: 10px; color: #78766e; font-family: monospace; }
+.upstream-chain { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.upstream-sig { font-size: 11px; font-family: monospace; background: #252340; color: #9490d4; padding: 2px 7px; border-radius: 3px; }
+.upstream-pdi { font-size: 11px; font-family: monospace; background: #3a2810; color: #c8904a; padding: 2px 7px; border-radius: 3px; }
+.upstream-arrow { font-size: 10px; color: #4a4a47; }
+.root-cause-box { background: #252340; border: 0.5px solid #3d3a7a; border-radius: 8px; padding: 10px 14px; }
+.root-cause-box .rc-label { font-size: 10px; font-weight: 600; color: #9490d4; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 4px; }
+.root-cause-box .rc-text { font-size: 12px; color: #b0acd8; line-height: 1.6; }
+.summary-card { background: #272725; border: 0.5px solid #3a3a37; border-radius: 10px; padding: 14px 16px; }
+.summary-card h3 { font-size: 13px; font-weight: 500; margin-bottom: 8px; color: #e2e0d7; }
+.score-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.score { background: #323230; border-radius: 7px; padding: 8px 12px; min-width: 80px; }
+.score .sv { font-size: 20px; font-weight: 500; color: #cac8bf; }
+.score .sl { font-size: 11px; color: #78766e; margin-top: 1px; }
+.score.red .sv { color: #d97070; }
+.score.amber .sv { color: #c8904a; }
+.score.green .sv { color: #8ec860; }
+.no-faults { background: #1e3410; border: 0.5px solid #4a7a20; border-radius: 8px; padding: 14px 16px; color: #8ec860; font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <h1>Root Cause Analyzer</h1>
+  <div class="header-right">
+    <span class="graph-badge" id="graphBadge">No trace graph</span>
+    <button class="export-btn" id="exportSummaryBtn" onclick="exportSummary()" disabled>Print Summary</button>
+    <button class="export-btn" id="exportBtn" onclick="exportReport()" disabled>Print Detail</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+
+    <div class="sidebar-section">
+      <h2>Analysis data</h2>
+      <label for="analysisInput" class="drop-zone" id="analysisDropZone">
+        <p id="analysisText">Drop analysis.json</p>
+        <small id="analysisSub">or multiple files / folder</small>
+        <input type="file" id="analysisInput" multiple accept=".json">
+      </label>
+      <div style="display:flex;gap:5px;margin-top:5px">
+        <div class="status-box" id="analysisStatus" style="flex:1">Ready</div>
+        <button onclick="openDirectory()" title="Scan folder for all analysis_*.json files in subdirectories" style="flex-shrink:0;border:0.5px solid #3a3a37;background:#2e2e2c;border-radius:5px;padding:0 8px;font-size:11px;cursor:pointer;color:#96948c" id="openDirBtn">📂 Scan folder</button>
+      </div>
+    </div>
+
+    <div class="sidebar-section" id="queueSection" style="display:none">
+      <h2>File queue</h2>
+      <div id="queueList" style="display:flex;flex-direction:column;gap:2px"></div>
+    </div>
+
+    <div class="sidebar-section" id="supplementSection" style="display:none">
+      <h2>Supplement data <span style="color:#1D9E75;font-size:10px">(merge)</span></h2>
+      <label for="supplementInput" class="drop-zone" id="supplementDropZone">
+        <p id="supplementText">Drop supplemental JSON</p>
+        <small id="supplementSub">merges signals into active dataset</small>
+        <input type="file" id="supplementInput" multiple accept=".json">
+      </label>
+      <div class="status-box" id="supplementStatus">No supplement loaded</div>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Trace graph <span style="color:#1D9E75;font-size:10px">(optional)</span></h2>
+      <label for="graphInput" class="drop-zone" id="graphDropZone">
+        <p id="graphText">Drop traceData JSON</p>
+        <small id="graphSub">enables upstream tracing</small>
+        <input type="file" id="graphInput">
+      </label>
+      <div class="status-box" id="graphStatus">Not loaded</div>
+    </div>
+
+    <div class="sidebar-section" id="statsSection" style="display:none">
+      <h2>Dataset</h2>
+      <div class="stat-grid" id="statGrid"></div>
+    </div>
+
+    <div class="sidebar-section">
+      <h2>Settings</h2>
+      <div style="display:flex;flex-direction:column;gap:10px">
+
+        <!-- Exclude signals chips -->
+        <div>
+          <div style="font-size:11px;color:#78766e;margin-bottom:5px">Exclude signals
+            <span style="font-size:10px;color:#56544e;margin-left:3px">— treated as pilot-commanded, hidden</span>
+          </div>
+          <div id="excludeChips"
+               style="display:flex;flex-wrap:wrap;gap:4px;min-height:28px;background:#323230;border:0.5px solid #3a3a37;border-radius:6px;padding:5px 6px;cursor:text"
+               onclick="document.getElementById('excludeInput').focus()">
+          </div>
+          <div style="display:flex;gap:5px;margin-top:5px">
+            <input type="text" id="excludeInput" class="window-input" placeholder="signal name…"
+                   style="flex:1;font-size:11px;padding:4px 7px"
+                   onkeydown="handleExcludeKey(event)" autocomplete="off">
+            <button onclick="addExcludeChip()" style="font-size:11px;padding:4px 9px;border-radius:5px;background:#363633;color:#cac8bf;border:0.5px solid #4a4a47;cursor:pointer;white-space:nowrap">Add</button>
+          </div>
+        </div>
+
+        <!-- Max transitions stepper -->
+        <div>
+          <div style="font-size:11px;color:#78766e;margin-bottom:5px">Max transitions per episode</div>
+          <div style="display:flex;align-items:center;gap:0">
+            <button onclick="stepMaxTrans(-10)" style="width:28px;height:28px;background:#323230;border:0.5px solid #3a3a37;border-right:none;border-radius:5px 0 0 5px;color:#cac8bf;font-size:14px;cursor:pointer;line-height:1">−</button>
+            <input type="number" class="window-input" id="maxTrans" value="50" min="5" max="500" step="5"
+                   style="width:54px;text-align:center;border-radius:0;border-left:none;border-right:none;font-size:12px;padding:4px 4px">
+            <button onclick="stepMaxTrans(10)" style="width:28px;height:28px;background:#323230;border:0.5px solid #3a3a37;border-left:none;border-radius:0 5px 5px 0;color:#cac8bf;font-size:14px;cursor:pointer;line-height:1">+</button>
+          </div>
+        </div>
+
+      </div>
+      <button class="run-btn" id="runBtn" onclick="runAnalysis()" disabled style="margin-top:10px">Show episodes</button>
+    </div>
+
+    <div class="sidebar-section" id="plotSignalsSection" style="display:none">
+      <h2>Plot signals <span style="color:#1D9E75;font-size:10px">(from JSON)</span></h2>
+      <div id="plotSignalsList" style="display:flex;flex-direction:column;gap:5px"></div>
+      <div style="font-size:10px;color:#b4b2a9;margin-top:5px">Collected by --plot-signals when running analyze_iads.py. Re-run with additional signals to add more.</div>
+    </div>
+
+  </div>
+
+  <div class="main" id="mainPanel">
+    <div class="empty-state" id="emptyState">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>Drop analysis.json to begin</p>
+      <small>Run analyze_iads.py on your IADS ZIP first</small>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Fault profiling rules ──────────────────────────────────────────────────
+// Each rule is tested against the last dot-component of the signal name.
+// First match wins within each category.
+
+const AXIS_RULES = [
+  // Murray avionics axis prefixes (match signal suffix start: ailXxx, elevXxx, rudXxx)
+  { re: /^ail/i,                           label: 'Roll',           color: '#085041', bg: '#E1F5EE' },
+  { re: /^elev/i,                          label: 'Pitch',          color: '#3C3489', bg: '#EEEDFE' },
+  { re: /^rud/i,                           label: 'Yaw',            color: '#854F0B', bg: '#FAEEDA' },
+  // Generic / full-word fallbacks
+  { re: /pitch|^pit_/i,                    label: 'Pitch',          color: '#3C3489', bg: '#EEEDFE' },
+  { re: /roll|aileron/i,                   label: 'Roll',           color: '#085041', bg: '#E1F5EE' },
+  { re: /yaw|\byd\b|rudder/i,              label: 'Yaw',            color: '#854F0B', bg: '#FAEEDA' },
+  { re: /\bthr\b|\b_at\b|throttle|autothr/i, label: 'Autothrottle', color: '#6B2FA0', bg: '#F5EEFE' },
+  { re: /\bap\b|autopilot/i,               label: 'Autopilot',      color: '#A32D2D', bg: '#FCEBEB' },
+  { re: /\bfg\b|flightguid/i,              label: 'Flight Guidance', color: '#27500A', bg: '#EAF3DE' },
+  { re: /\bads\b/i,                        label: 'ADS',            color: '#444441', bg: '#f1efe8' },
+  { re: /\birs\b/i,                        label: 'IRS',            color: '#444441', bg: '#f1efe8' },
+  { re: /\bafcs\b/i,                       label: 'AFCS',           color: '#444441', bg: '#f1efe8' },
+];
+
+const FAULT_TYPE_RULES = [
+  { re: /xcd$|exceed/i,                    label: 'Limit exceeded'    },
+  { re: /monitor.*flag|flag$|monitorFlag/i, label: 'Monitor flag'     },
+  { re: /sensor.*fault|faultSensor/i,      label: 'Sensor fault'      },
+  { re: /redundan/i,                       label: 'Redundancy fault'   },
+  { re: /voted.*valid|valid.*voted/i,       label: 'Vote validity'     },
+  { re: /valid/i,                          label: 'Validity loss'      },
+  { re: /capable$/i,                       label: 'Capability lost'    },
+  { re: /engaged?$/i,                      label: 'Engage state'       },
+  { re: /monitor|fault/i,                  label: 'Monitor/Fault'      },
+];
+
+// ── Lane mode dissimilarity ────────────────────────────────────────────────
+const LANE_ENUM_SIGNALS = ['vertActiveEnum', 'latActiveEnum', 'atActiveEnum'];
+
+// Enum value definitions sourced from murray-flight-software generated headers
+// (fgModeVertAct.h, fgModeLatAct.h, atModeAct.h)
+const ENUM_DEFS = {
+  vertActiveEnum: [
+    { short: 'SBY',  full: 'standby' },
+    { short: 'PTCH', full: 'pitch' },
+    { short: 'VS',   full: 'verticalSpeed' },
+    { short: 'ALT',  full: 'altitudeHold' },
+    { short: 'ALTS', full: 'altitudeSelect' },
+    { short: 'GP',   full: 'glidePath' },
+    { short: 'VNAV', full: 'vnav' },
+    { short: 'T/O',  full: 'takeoff' },
+    { short: 'FLR',  full: 'flare' },
+    { short: 'VGP',  full: 'vgp' },
+    { short: 'FLC',  full: 'flc' },
+  ],
+  latActiveEnum: [
+    { short: 'SBY',  full: 'standby' },
+    { short: 'HDG',  full: 'heading' },
+    { short: 'NAV',  full: 'nav' },
+    { short: 'NAPR', full: 'navAppr' },
+    { short: 'T/O',  full: 'takeoff' },
+    { short: 'ALN',  full: 'align' },
+    { short: 'TRK',  full: 'track' },
+  ],
+  atActiveEnum: [
+    { short: 'SBY', full: 'standby' },
+    { short: 'T/O', full: 'takeOff' },
+    { short: 'SPD', full: 'speed' },
+    { short: 'RTD', full: 'retard' },
+    { short: 'LIM', full: 'lim' },
+    { short: 'THR', full: 'thrust' },
+  ],
+};
+
+function enumLabel(sigSuffix, val) {
+  if (val === undefined || val === null || val === '—') return val;
+  const def = ENUM_DEFS[sigSuffix];
+  if (!def) return String(val);
+  const entry = def[parseInt(val)];
+  return entry ? entry.short : String(val);
+}
+function enumFull(sigSuffix, val) {
+  if (val === undefined || val === null || val === '—') return String(val);
+  const def = ENUM_DEFS[sigSuffix];
+  if (!def) return String(val);
+  const entry = def[parseInt(val)];
+  return entry ? `${val}: ${entry.full}` : String(val);
+}
+
+function detectLaneDissimilarity(transitions) {
+  // Track per-suffix, per-lane current values as transitions arrive (already time-sorted)
+  const laneStates = {};
+  LANE_ENUM_SIGNALS.forEach(s => { laneStates[s] = {}; });
+  const events = [];
+  let preSnapshot = null;   // states captured just before trigger (dt < 0)
+
+  (transitions || []).forEach(t => {
+    const suffix = t.signal.split('.').pop();
+    if (!LANE_ENUM_SIGNALS.includes(suffix)) return;
+    const lane = t.signal.split('.')[0];
+
+    // Snapshot pre-trigger state: capture once when we cross from negative to non-negative dt
+    if (t.dt >= 0 && !preSnapshot) {
+      preSnapshot = {};
+      LANE_ENUM_SIGNALS.forEach(s => { preSnapshot[s] = { ...laneStates[s] }; });
+    }
+
+    laneStates[suffix][lane] = parseFloat(t.to);
+
+    const vals = Object.values(laneStates[suffix]);
+    if (vals.length >= 2 && new Set(vals).size > 1) {
+      events.push({
+        time:     parseFloat(t.time),
+        suffix,
+        snapshot: { ...laneStates[suffix] }
+      });
+    }
+  });
+
+  // If no post-trigger transitions existed, preSnapshot was never set
+  if (!preSnapshot) {
+    preSnapshot = {};
+    LANE_ENUM_SIGNALS.forEach(s => { preSnapshot[s] = { ...laneStates[s] }; });
+  }
+
+  const postStates = {};
+  LANE_ENUM_SIGNALS.forEach(s => { postStates[s] = { ...laneStates[s] }; });
+
+  const lanes = [...new Set(
+    LANE_ENUM_SIGNALS.flatMap(s => Object.keys(laneStates[s]))
+  )].sort();
+
+  return { events, preStates: preSnapshot, postStates, lanes };
+}
+
+// ── Inline SVG time-series plot ────────────────────────────────────────────
+// ── Micro event timeline ───────────────────────────────────────────────────
+function renderTimeline(concurrent, maxRows, triggerEvent) {
+  if (!concurrent.length && !triggerEvent) return '';
+  maxRows = maxRows || 20;
+
+  // Show all concurrent transitions — pre-trigger faults AND post-trigger assertions
+  // One row per unique signal suffix, sorted by earliest dt
+  const sfxMap = {};
+  concurrent.forEach(c => {
+    const sfx  = c.signal.split('.').pop();
+    const lane = c.signal.split('.')[0] || '';
+    if (!sfxMap[sfx]) sfxMap[sfx] = { sfx, lane, events: [], minDt: Infinity, maxDt: -Infinity, isTrigger: false };
+    sfxMap[sfx].events.push(c);
+    if (c.dt < sfxMap[sfx].minDt) sfxMap[sfx].minDt = c.dt;
+    if (c.dt > sfxMap[sfx].maxDt) sfxMap[sfx].maxDt = c.dt;
+  });
+
+  // Inject the trigger signal (afcsCapable 1→0) as its own row at dt=0
+  if (triggerEvent) {
+    const sfx  = triggerEvent.signal.split('.').pop();
+    const lane = triggerEvent.signal.split('.')[0] || '';
+    if (!sfxMap[sfx]) sfxMap[sfx] = { sfx, lane, events: [], minDt: 0, isTrigger: true };
+    sfxMap[sfx].events.push(triggerEvent);
+    sfxMap[sfx].isTrigger = true;
+    if (0 < sfxMap[sfx].minDt) sfxMap[sfx].minDt = 0;
+  }
+
+  if (!Object.keys(sfxMap).length) return '';
+
+  // Sort by earliest dt; always pin trigger row last (dt=0, isTrigger)
+  const rows = Object.values(sfxMap)
+    .sort((a, b) => {
+      if (a.isTrigger && !b.isTrigger) return 1;
+      if (!a.isTrigger && b.isTrigger) return -1;
+      return a.minDt - b.minDt;
+    })
+    .slice(0, maxRows);
+
+  if (!rows.length) return '';
+
+  const ROW_H  = 13, PAD_R = 14, PAD_T = 18, PAD_B = 20;
+  const PLOT_W = 560;   // logical coordinate width for the event marker area
+  // PAD_L grows to fit the longest signal name (monospace 7px ≈ 4.5px/char + 8px gap)
+  const maxLabelChars = Math.max(...rows.map(r => r.sfx.length), 8);
+  const PAD_L  = Math.ceil(maxLabelChars * 4.5) + 8;
+  const W      = PAD_L + PLOT_W + PAD_R;
+  const nRows  = rows.length;
+  const H      = PAD_T + nRows * ROW_H + PAD_B;
+  const iW     = PLOT_W;
+
+  // X-axis: full window — earliest pre-trigger fault through latest post-trigger assertion
+  const nonTrig = rows.filter(r => !r.isTrigger);
+  const rawMin  = Math.min(...nonTrig.map(r => r.minDt), -1e-9);
+  const rawMax  = Math.max(...nonTrig.map(r => r.maxDt),  1e-9);
+  const dtMin   = Math.min(rawMin * 1.08, -0.1);
+  const dtMax   = Math.max(rawMax * 1.08,  0.1);
+  const dtRange = dtMax - dtMin;
+
+  // Adaptive tick format: ms when window < 2 s, else seconds
+  const useMs  = Math.abs(dtRange) < 2;
+  const fmtDt  = dt => useMs
+    ? (dt * 1000).toFixed(0) + 'ms'
+    : (dt >= 0 ? '+' : '') + dt.toFixed(2) + 's';
+
+  const px = dt => (PAD_L + (dt - dtMin) / dtRange * iW).toFixed(1);
+  const py = i  => PAD_T + i * ROW_H + ROW_H / 2;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">`;
+
+  // Plot area
+  svg += `<rect x="${PAD_L}" y="${PAD_T}" width="${iW}" height="${nRows * ROW_H}" fill="#f9f9f7" rx="2"/>`;
+
+  // Alternating row stripes
+  rows.forEach((_, i) => {
+    if (i % 2 === 0) svg += `<rect x="${PAD_L}" y="${PAD_T + i * ROW_H}" width="${iW}" height="${ROW_H}" fill="#f5f5f0"/>`;
+  });
+
+  // Trigger marker at dt = 0 (right edge = afcsCapable going false)
+  const tx = px(0);
+  svg += `<line x1="${tx}" y1="${PAD_T - 6}" x2="${tx}" y2="${PAD_T + nRows * ROW_H}" stroke="#A32D2D" stroke-width="1.5" stroke-dasharray="3,2"/>`;
+  svg += `<text x="${tx}" y="${PAD_T - 8}" text-anchor="end" font-size="7" fill="#A32D2D" font-family="monospace">afcsCapable↓</text>`;
+
+  // Signal rows
+  rows.forEach((r, i) => {
+    const y     = py(i);
+    const color = r.lane.startsWith('FCC') ? '#534AB7' : '#444441';
+
+    // Separator line above trigger row
+    if (r.isTrigger) {
+      svg += `<line x1="${PAD_L}" y1="${PAD_T + i * ROW_H - 1}" x2="${PAD_L + iW}" y2="${PAD_T + i * ROW_H - 1}" stroke="#A32D2D" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+    }
+
+    // Full signal name — no truncation, PAD_L is sized to fit
+    const label = r.sfx;
+    const labelColor = r.isTrigger ? '#A32D2D' : color;
+    svg += `<text x="${PAD_L - 5}" y="${y}" text-anchor="end" dominant-baseline="middle" ` +
+           `font-size="7" font-family="monospace" fill="${labelColor}">${label}</text>`;
+
+    // Transition markers — ▲ rise (filled up-triangle), ▼ fall (filled down-triangle)
+    r.events.forEach(c => {
+      const x  = parseFloat(px(c.dt));
+      const d  = 3;
+      const fc = labelColor;
+      if (c.to === 1) {
+        // Rise: ▲ up-triangle
+        svg += `<polygon points="${x},${y-d} ${x+d},${y+d} ${x-d},${y+d}" fill="${fc}"/>`;
+      } else {
+        // Fall: ▼ down-triangle
+        svg += `<polygon points="${x},${y+d} ${x+d},${y-d} ${x-d},${y-d}" fill="${fc}"/>`;
+      }
+    });
+  });
+
+  // X axis ticks — labels sit above the axis line (inside SVG, never clipped)
+  const axisY  = PAD_T + nRows * ROW_H;
+  const nTicks = 5;
+  for (let i = 0; i <= nTicks; i++) {
+    const dt = dtMin + dtRange * i / nTicks;
+    const x  = px(dt);
+    svg += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY + 3}" stroke="#d3d1c7" stroke-width="0.5"/>`;
+    svg += `<text x="${x}" y="${axisY + 12}" text-anchor="middle" dominant-baseline="auto" font-size="7" fill="#888780" font-family="monospace">${fmtDt(dt)}</text>`;
+  }
+
+  svg += '</svg>';
+  return `<div style="background:#f9f9f7;border-radius:6px;padding:6px 10px;overflow:visible;width:100%">${svg}</div>`;
+}
+
+// ── Enum step plot (built from episode transitions, no CSV data needed) ────
+function renderEnumPlot(transitions, sigSuffix, triggerTime, initialStates) {
+  // Collect per-lane transitions for this enum suffix
+  const laneEvents = {};
+  (transitions || []).forEach(t => {
+    if (t.signal.split('.').pop() !== sigSuffix) return;
+    const lane = t.signal.split('.')[0];
+    if (!laneEvents[lane]) laneEvents[lane] = [];
+    laneEvents[lane].push({ t: parseFloat(t.time), v: parseFloat(t.to), dt: t.dt });
+  });
+  // Seed from initialStates so lanes with no transitions still render as flat lines
+  Object.keys(initialStates || {}).forEach(lane => {
+    if (!laneEvents[lane]) laneEvents[lane] = [];
+  });
+  const lanes = Object.keys(laneEvents).sort();
+  if (!lanes.length) return '';
+
+  const enumDef = ENUM_DEFS[sigSuffix];
+
+  // All values that appear (transitions + initial states)
+  const initVals = Object.values(initialStates || {}).map(v => parseFloat(v)).filter(v => !isNaN(v));
+  const allVals  = [
+    ...lanes.flatMap(l => laneEvents[l].map(e => e.v)),
+    ...initVals
+  ];
+  const uniqueValsPresent = [...new Set(allVals.map(Math.round))].sort((a, b) => a - b);
+
+  // Longest y-axis label → left padding
+  const maxLblLen = uniqueValsPresent.reduce((mx, v) => {
+    const lbl = enumDef ? (enumDef[v]?.short || String(v)) : String(v);
+    return Math.max(mx, lbl.length);
+  }, 1);
+
+  // Dynamic height: 28px per distinct value, minimum 130px
+  const nVals = Math.max(2, uniqueValsPresent.length);
+  const W   = 680;
+  const pad = { l: Math.max(40, maxLblLen * 7 + 12), r: 96, t: 18, b: 28 };
+  const H   = Math.max(130, nVals * 28 + pad.t + pad.b);
+  const iW  = W - pad.l - pad.r;
+  const iH  = H - pad.t - pad.b;
+
+  // Value range
+  const vMin = (allVals.length ? Math.min(...allVals) : 0) - 0.5;
+  const vMax = (allVals.length ? Math.max(...allVals) : 1) + 0.5;
+  const vRange = vMax - vMin || 1;
+
+  // Time range
+  const allDts = lanes.flatMap(l => laneEvents[l].map(e => e.dt));
+  const dtMin  = Math.min(...allDts, -2);
+  const dtMax  = Math.max(...allDts,  2);
+  const dtRange = dtMax - dtMin || 1;
+
+  const px = dt => (pad.l + (dt - dtMin) / dtRange * iW).toFixed(1);
+  const py = v  => (pad.t + iH - (v - vMin) / vRange * iH).toFixed(1);
+
+  const laneColors = ['#6B62D4', '#4CC9A0', '#D4924A', '#E07070', '#9490d4', '#5BBCB0'];
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}" style="display:block;overflow:visible">`;
+  svg += `<rect x="${pad.l}" y="${pad.t}" width="${iW}" height="${iH}" fill="#1e1e1c" rx="3"/>`;
+
+  // Subtle enum-value gridlines
+  uniqueValsPresent.forEach(v => {
+    const y = py(v);
+    svg += `<line x1="${pad.l}" y1="${y}" x2="${pad.l + iW}" y2="${y}" stroke="#2a2a28" stroke-width="0.8"/>`;
+  });
+
+  // Trigger line
+  const tx = px(0);
+  svg += `<line x1="${tx}" y1="${pad.t}" x2="${tx}" y2="${pad.t + iH}" stroke="#8C2020" stroke-width="1.2" stroke-dasharray="4,2"/>`;
+
+  // Step lines per lane
+  lanes.forEach((lane, li) => {
+    const color  = laneColors[li % laneColors.length];
+    const evs    = laneEvents[lane].sort((a, b) => a.dt - b.dt);
+    const initVal = (initialStates && initialStates[lane] !== undefined)
+      ? parseFloat(initialStates[lane])
+      : (evs.length ? evs[0].v : 0);
+    let prevV = initVal;
+    let path  = `M${px(dtMin)},${py(prevV)}`;
+    evs.forEach(e => { path += ` H${px(e.dt)} V${py(e.v)}`; prevV = e.v; });
+    path += ` H${px(dtMax)}`;
+    svg += `<path d="${path}" fill="none" stroke="${color}" stroke-width="2"/>`;
+
+    // Right-edge label: "LANE: MODE"
+    const modeLbl = enumDef ? (enumDef[Math.round(prevV)]?.short || String(Math.round(prevV))) : String(Math.round(prevV));
+    svg += `<text x="${pad.l + iW + 6}" y="${py(prevV)}" dominant-baseline="middle" font-size="9" fill="${color}" font-family="monospace">${lane}: ${modeLbl}</text>`;
+  });
+
+  // Y-axis: tick + label for each unique value
+  uniqueValsPresent.forEach(v => {
+    const y     = py(v);
+    const lbl   = enumDef ? (enumDef[v]?.short || String(v)) : String(v);
+    const title = enumDef ? (enumDef[v] ? `${v}: ${enumDef[v].full}` : String(v)) : String(v);
+    svg += `<line x1="${pad.l - 4}" y1="${y}" x2="${pad.l}" y2="${y}" stroke="#555553" stroke-width="0.8"/>`;
+    svg += `<text x="${pad.l - 7}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="9" fill="#96948c" font-family="monospace"><title>${title}</title>${lbl}</text>`;
+  });
+
+  // X-axis: −2 / 0 / +2 labels
+  [dtMin, 0, dtMax].forEach(dt => {
+    const x = px(dt);
+    const lbl = (dt === 0) ? '0s' : (dt > 0 ? `+${dt.toFixed(0)}s` : `${dt.toFixed(0)}s`);
+    svg += `<text x="${x}" y="${pad.t + iH + 16}" text-anchor="middle" font-size="9" fill="#78766e" font-family="monospace">${lbl}</text>`;
+  });
+
+  // Signal name title
+  svg += `<text x="${pad.l}" y="${pad.t - 5}" font-size="10" font-weight="500" fill="#96948c" font-family="monospace">${sigSuffix}</text>`;
+
+  svg += '</svg>';
+  return `<div style="background:#1e1e1c;border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box">${svg}</div>`;
+}
+
+function renderPlot(points, label, triggerTime) {
+  if (!points || points.length < 2) return '';
+  const W = 700, H = 52;
+  const pad = { l: 42, r: 10, t: 10, b: 16 };
+  const iW = W - pad.l - pad.r, iH = H - pad.t - pad.b;
+
+  const xs = points.map(p => p[0]), ys = points.map(p => p[1]);
+  const xMin = Math.min(...xs), xMax = Math.max(...xs);
+  const yMin = Math.min(...ys), yMax = Math.max(...ys);
+  const xRange = xMax - xMin || 1, yRange = yMax - yMin || 1;
+
+  // Adaptive y-axis formatter: integers when range ≥ 10, 1 decimal when range ≥ 1, 2 decimals otherwise
+  const fmtY = v => yRange >= 10 ? Math.round(v).toString()
+                  : yRange >= 1  ? v.toFixed(1)
+                  :                v.toFixed(2);
+
+  const px = x => (pad.l + (x - xMin) / xRange * iW).toFixed(1);
+  const py = y => (pad.t + iH - (y - yMin) / yRange * iH).toFixed(1);
+  const pathD = points.map((p, i) => (i === 0 ? 'M' : 'L') + px(p[0]) + ',' + py(p[1])).join(' ');
+
+  const yMidVal = (yMin + yMax) / 2;
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
+  svg += `<rect x="${pad.l}" y="${pad.t}" width="${iW}" height="${iH}" fill="#f5f5f0" rx="2"/>`;
+  const yMidPx = py(yMidVal);
+  svg += `<line x1="${pad.l}" y1="${yMidPx}" x2="${pad.l + iW}" y2="${yMidPx}" stroke="#d3d1c7" stroke-width="0.5" stroke-dasharray="2,3"/>`;
+  if (triggerTime != null) {
+    const tNum = parseFloat(triggerTime);
+    if (!isNaN(tNum) && tNum >= xMin && tNum <= xMax) {
+      const tx = px(tNum);
+      svg += `<line x1="${tx}" y1="${pad.t}" x2="${tx}" y2="${pad.t + iH}" stroke="#A32D2D" stroke-width="1" stroke-dasharray="3,2"/>`;
+    }
+  }
+  svg += `<path d="${pathD}" fill="none" stroke="#534AB7" stroke-width="1.5" stroke-linejoin="round"/>`;
+  svg += `<text x="${pad.l - 4}" y="${py(yMax)}"   text-anchor="end" dominant-baseline="middle" font-size="9" fill="#888780" font-family="monospace">${fmtY(yMax)}</text>`;
+  svg += `<text x="${pad.l - 4}" y="${yMidPx}"     text-anchor="end" dominant-baseline="middle" font-size="9" fill="#b4b2a9" font-family="monospace">${fmtY(yMidVal)}</text>`;
+  svg += `<text x="${pad.l - 4}" y="${py(yMin)}"   text-anchor="end" dominant-baseline="middle" font-size="9" fill="#888780" font-family="monospace">${fmtY(yMin)}</text>`;
+  svg += `<text x="${pad.l}" y="${H - 3}" text-anchor="start" font-size="9" fill="#888780" font-family="monospace">${xMin.toFixed(0)}s</text>`;
+  svg += `<text x="${pad.l + iW}" y="${H - 3}" text-anchor="end" font-size="9" fill="#888780" font-family="monospace">${xMax.toFixed(0)}s</text>`;
+  svg += `<text x="${pad.l}" y="${pad.t - 3}" font-size="9" fill="#534AB7" font-family="monospace" font-weight="500">${label}</text>`;
+  svg += '</svg>';
+  return `<div style="background:#f9f9f7;border-radius:6px;padding:8px 10px;overflow:hidden;margin-top:2px;width:100%">${svg}</div>`;
+}
+
+function profileEpisode(concurrent) {
+  const seen = new Set();
+  const rows = [];
+
+  concurrent.forEach(c => {
+    const suffix = c.signal.split('.').pop();
+    // Only characterize signals that represent fault assertions:
+    //   - rising edge (0→1) for monitor/fault/exceeded flags, or NotEngage assertions
+    //   - falling edge (1→0) for validity signals (always), or capable/engage only pre-trigger
+    //     (post-trigger capable/engage drops are cascade effects of afcsCapable, not root causes)
+    const isFaultAssert = c.to === 1 && /monitor|flag|fault|xcd|exceed|debounce.*out|NotEngage/i.test(suffix);
+    const isCapLoss     = c.to === 0 && (
+      /valid/i.test(suffix) ||
+      (/capable|engage/i.test(suffix) && c.dt < 0)
+    );
+    if (!isFaultAssert && !isCapLoss) return;
+
+    let axis = null, faultType = null;
+    for (const r of AXIS_RULES)       { if (r.re.test(suffix)) { axis      = r; break; } }
+    for (const r of FAULT_TYPE_RULES) { if (r.re.test(suffix)) { faultType = r.label; break; } }
+    // Fallback: engage/capability signals with no specific axis → AFCS
+    if (!axis && /engage|capable/i.test(suffix)) axis = { label: 'AFCS', color: '#444441', bg: '#f1efe8' };
+    if (!axis && !faultType) return;
+
+    const key = (axis?.label||'?') + '|' + (faultType||'?');
+    if (seen.has(key)) return;
+    seen.add(key);
+
+    rows.push({ axis, faultType: faultType||'Unknown', signal: suffix, dt: c.dt });
+  });
+
+  // Sort: axis known first, then by dt
+  rows.sort((a, b) => {
+    if (a.axis && !b.axis) return -1;
+    if (!a.axis && b.axis) return 1;
+    return a.dt - b.dt;
+  });
+  return rows;
+}
+
+let analysisData = null;
+let graphLoaded = false;
+document.addEventListener('DOMContentLoaded', () => renderExcludeChips());
+let nodeMap = {};
+let dstToSrc = {};
+let tpLookup = {};
+let modelLowerMap = {};
+let faultResults = [];
+let allFaultResults = [];
+let activePlotSignals = new Set();
+let analysisQueue = [];      // [{ name, data }, ...]
+let activeQueueIdx  = -1;
+let summaryMode     = false;
+let lastDirHandle   = null;  // FileSystemDirectoryHandle — persisted in IndexedDB
+
+// ── IndexedDB helpers (for persisting dir handle across reloads) ───────────
+function idbOpen() {
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('rca_v1', 1);
+    req.onupgradeneeded = e => e.target.result.createObjectStore('kv');
+    req.onsuccess  = e => res(e.target.result);
+    req.onerror    = () => rej(req.error);
+  });
+}
+function idbGet(db, key) {
+  return new Promise((res, rej) => {
+    const req = db.transaction('kv').objectStore('kv').get(key);
+    req.onsuccess = e => res(e.target.result);
+    req.onerror   = () => rej(req.error);
+  });
+}
+function idbPut(db, key, val) {
+  return new Promise((res, rej) => {
+    const tx = db.transaction('kv', 'readwrite');
+    tx.objectStore('kv').put(val, key);
+    tx.oncomplete = res;
+    tx.onerror    = () => rej(tx.error);
+  });
+}
+
+// Restore last directory handle on page load (only if permission still granted)
+;(async () => {
+  try {
+    const db     = await idbOpen();
+    const handle = await idbGet(db, 'lastDir');
+    if (handle && (await handle.queryPermission({ mode: 'read' })) === 'granted') {
+      lastDirHandle = handle;
+    }
+  } catch(e) { /* storage not available or permission revoked — ignore */ }
+})();
+
+const API = 'https://api.anthropic.com/v1/messages';
+
+const SYSTEM_PROMPT = `You are a flight test data analyst specializing in AFCS mode logic for fixed-wing aircraft in a DO-178C context.
+
+You will receive structured fault data extracted from IADS telemetry. For each fault event, reason about the most probable root cause.
+
+Each fault includes:
+- The faulting signal, transition type, and timestamp
+- Concurrent boolean signal changes within a time window (ranked by proximity)
+- Upstream signal chain from the trace graph (if available)
+
+For each fault, provide:
+1. ROOT CAUSE HYPOTHESIS: The most likely cause in 1-2 sentences, citing specific signal names
+2. CONFIDENCE: HIGH / MEDIUM / LOW with a one-line justification
+3. RECOMMENDED ACTION: One specific thing to check in the trace-analyzer
+
+Be concise and specific. Always cite signal names. If upstream PDI constants are present, flag them as a possible misconfiguration cause.
+
+Respond in this exact JSON format (no preamble, no markdown fences):
+{
+  "faults": [
+    {
+      "fault_id": 0,
+      "root_cause": "...",
+      "confidence": "HIGH|MEDIUM|LOW",
+      "confidence_reason": "...",
+      "recommended_action": "..."
+    }
+  ],
+  "overall_summary": "One paragraph summarizing the most likely system-level failure mode across all faults."
+}`;
+
+// ── File input wiring ──────────────────────────────────────────────────────
+document.getElementById('analysisInput').addEventListener('change', function() {
+  if (this.files && this.files.length) { [...this.files].forEach(loadAnalysisFile); this.value = ''; }
+});
+document.getElementById('graphInput').addEventListener('change', function() {
+  if (this.files && this.files[0]) { loadGraphFile(this.files[0]); this.value = ''; }
+});
+document.getElementById('supplementInput').addEventListener('change', function() {
+  if (this.files && this.files.length) { [...this.files].forEach(loadSupplementFile); this.value = ''; }
+});
+
+['analysisDropZone','graphDropZone','supplementDropZone'].forEach(id => {
+  const zone = document.getElementById(id);
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const files = [...e.dataTransfer.files];
+    if (!files.length) return;
+    if (id === 'analysisDropZone')   files.filter(f => f.name.endsWith('.json')).forEach(loadAnalysisFile);
+    if (id === 'graphDropZone')      loadGraphFile(files[0]);
+    if (id === 'supplementDropZone') files.filter(f => f.name.endsWith('.json')).forEach(loadSupplementFile);
+  });
+});
+
+// ── Load analysis.json ─────────────────────────────────────────────────────
+function setStatus(id, msg, color) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = 'status-box' + (color ? ' ' + color : '');
+}
+
+function loadAnalysisFile(file) {
+  setStatus('analysisStatus', 'Reading ' + file.name + '...', 'blue');
+  file.text().then(text => {
+    setStatus('analysisStatus', 'Parsing ' + file.name + '...', 'blue');
+    return new Promise((res, rej) => setTimeout(() => {
+      try { res(JSON.parse(text)); } catch(e) { rej(e); }
+    }, 0));
+  }).then(data => routeJsonData(file.name, data))
+    .catch(e => setStatus('analysisStatus', 'Error (' + file.name + '): ' + e.message, 'red'));
+}
+
+function routeJsonData(name, data) {
+  // Trace graph JSON has nodes[] + edges[]; everything else is an analysis file
+  if (Array.isArray(data.nodes) && Array.isArray(data.edges)) {
+    applyGraphData(data, name).catch(e => setStatus('graphStatus', 'Error: ' + e.message, 'red'));
+  } else {
+    addToQueue(name, data);
+  }
+}
+
+// Recursively collect all analysis_*.json file handles under a directory
+async function collectAnalysisHandles(dirHandle, out) {
+  for await (const [name, handle] of dirHandle.entries()) {
+    if (handle.kind === 'directory') {
+      await collectAnalysisHandles(handle, out);
+    } else if (handle.kind === 'file' && /^analysis.*\.json$/i.test(name)) {
+      out.push(handle);
+    }
+  }
+}
+
+async function openDirectory() {
+  if (!window.showDirectoryPicker) {
+    // Fallback: plain multi-file picker (no recursion possible)
+    document.getElementById('analysisInput').click();
+    return;
+  }
+  try {
+    const opts = { mode: 'read' };
+    if (lastDirHandle) opts.startIn = lastDirHandle;
+    else opts.startIn = 'documents';
+    const dir = await window.showDirectoryPicker(opts);
+
+    // Persist for next session
+    lastDirHandle = dir;
+    idbOpen().then(db => idbPut(db, 'lastDir', dir)).catch(() => {});
+
+    setStatus('analysisStatus', 'Scanning…', 'blue');
+    const handles = [];
+    await collectAnalysisHandles(dir, handles);
+
+    if (!handles.length) {
+      setStatus('analysisStatus', 'No analysis_*.json files found in folder', 'red');
+      return;
+    }
+
+    // Sort by filename so sorties load in order
+    handles.sort((a, b) => a.name.localeCompare(b.name));
+    setStatus('analysisStatus', `Loading ${handles.length} file(s)…`, 'blue');
+    for (const h of handles) loadAnalysisFile(await h.getFile());
+  } catch(e) {
+    if (e.name !== 'AbortError') setStatus('analysisStatus', 'Folder error: ' + e.message, 'red');
+  }
+}
+
+// ── Queue management ───────────────────────────────────────────────────────
+function addToQueue(name, data) {
+  const existing = analysisQueue.findIndex(q => q.name === name);
+  if (existing >= 0) {
+    analysisQueue[existing].data = data;
+    activateQueueItem(existing);
+  } else {
+    analysisQueue.push({ name, data });
+    activateQueueItem(analysisQueue.length - 1);
+  }
+  document.getElementById('exportSummaryBtn').disabled = false;
+}
+
+function activateQueueItem(idx) {
+  summaryMode    = false;
+  activeQueueIdx = idx;
+  setActiveData(analysisQueue[idx].data, analysisQueue[idx].name);
+  renderQueue();
+}
+
+function activateSummary() {
+  summaryMode    = true;
+  activeQueueIdx = -1;
+  renderQueue();
+  const panel = document.getElementById('mainPanel');
+  renderFleetSummary(panel);
+}
+
+function removeFromQueue(idx) {
+  analysisQueue.splice(idx, 1);
+  if (!analysisQueue.length) { activeQueueIdx = -1; renderQueue(); return; }
+  const next = Math.min(activeQueueIdx, analysisQueue.length - 1);
+  activateQueueItem(next);
+}
+
+function renderQueue() {
+  const section = document.getElementById('queueSection');
+  const list    = document.getElementById('queueList');
+  if (analysisQueue.length < 2) { section.style.display = 'none'; return; }
+  section.style.display = 'block';
+  list.innerHTML = '';
+
+  // Data Summary button at top
+  const sumRow = document.createElement('div');
+  sumRow.style.cssText = 'display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:5px;cursor:pointer;margin-bottom:4px;' +
+    (summaryMode ? 'background:#252340;border:0.5px solid #3d3a7a' : 'background:#2e2e2c');
+  sumRow.innerHTML =
+    '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="' + (summaryMode ? '#9490d4' : '#78766e') + '" stroke-width="2">' +
+    '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>' +
+    '<rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>' +
+    '<span style="flex:1;font-size:11px;font-weight:500;color:' + (summaryMode ? '#9490d4' : '#96948c') + '">Data Summary</span>' +
+    '<span style="font-size:10px;color:' + (summaryMode ? '#7a78b8' : '#78766e') + '">' + analysisQueue.length + ' sorties</span>';
+  sumRow.onclick = activateSummary;
+  list.appendChild(sumRow);
+
+  // Individual sortie rows
+  analysisQueue.forEach((item, idx) => {
+    const active = !summaryMode && idx === activeQueueIdx;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:5px;padding:5px 7px;border-radius:5px;cursor:pointer;' +
+      (active ? 'background:#252340;border:0.5px solid #3d3a7a' : 'background:#323230');
+    row.innerHTML =
+      '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="' + (active ? '#9490d4' : '#78766e') +
+        '" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>' +
+        '<polyline points="14 2 14 8 20 8"/></svg>' +
+      '<span style="flex:1;font-size:11px;font-family:monospace;color:' + (active ? '#9490d4' : '#96948c') +
+        ';overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + item.name + '">' + item.name + '</span>';
+    if (!active) {
+      const x = document.createElement('span');
+      x.textContent = '×';
+      x.style.cssText = 'font-size:14px;color:#78766e;line-height:1;padding:0 2px;flex-shrink:0';
+      x.onclick = e => { e.stopPropagation(); removeFromQueue(idx); };
+      row.appendChild(x);
+    }
+    row.onclick = () => { if (!active) activateQueueItem(idx); };
+    list.appendChild(row);
+  });
+}
+
+// ── Data Summary ──────────────────────────────────────────────────────────
+const FLEET_CATS = [
+  { key: 'VALIDITY_LOSS',  short: 'VAL',  label: 'Validity Loss',     color: '#A32D2D' },
+  { key: 'RESP_MONITOR',    short: 'RMON', label: 'Resp. Monitor',     color: '#C26A30' },
+  { key: 'CMD_MONITOR',    short: 'CMON', label: 'Cmd. Monitor',      color: '#7A4A8C' },
+  { key: 'MONITOR_FAULT',  short: 'MFLG', label: 'Monitor Flag',      color: '#4A6A8C' },
+  { key: 'MISTRIM',        short: 'MST',  label: 'Mistrim',           color: '#8C7A2D' },
+  { key: 'CAP_LOST',       short: 'CAP',  label: 'Cap. Lost',         color: '#6B62D4' },
+  { key: 'PILOT_CMD',      short: 'PLCD', label: 'Pilot Cmd.',        color: '#2D7A4A' },
+  { key: 'UNKNOWN',        short: 'UNK',  label: 'Unknown',           color: '#666460' },
+];
+
+function inferAxis(fault) {
+  const ev  = ((fault.exitType||{}).evidence || '').toLowerCase();
+  const sig = (fault.signal || '').toLowerCase().split('.').pop();
+  const check = ev || sig;
+  if (/ail|roll|lat/.test(check))                return 'LAT';
+  if (/elev|pitch|vert/.test(check))             return 'VERT';
+  if (/\bat\b|throttl|thrust|torq|spd/.test(check)) return 'AT';
+  return 'AFCS';
+}
+
+function renderFleetSummary(panel) {
+  panel.innerHTML = '';
+  const emptyEl = document.getElementById('emptyState');
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  const PALETTE = ['#6B62D4','#4CC9A0','#D4924A','#E07070','#9490d4','#5BBCB0','#C8A040','#C080B0','#70A8D0','#A0C060'];
+
+  // Compute faults for every loaded sortie
+  const sorties = analysisQueue.map((item, idx) => ({
+    name:   item.name.replace(/\.json$/i, ''),
+    idx,
+    faults: detectFaults(item.data, Infinity),
+  }));
+  const totalFaults = sorties.reduce((s, sd) => s + sd.faults.length, 0);
+
+  // Category counts [catKey][sortieIdx]
+  const catCounts = {};
+  FLEET_CATS.forEach(c => { catCounts[c.key] = new Array(sorties.length).fill(0); });
+  sorties.forEach((sd, si) => {
+    sd.faults.forEach(f => {
+      const cat = (f.exitType||{}).category || 'UNKNOWN';
+      (catCounts[cat] || catCounts['UNKNOWN'])[si]++;
+    });
+  });
+  const activeCats = FLEET_CATS.filter(c => catCounts[c.key].reduce((s,v) => s+v, 0) > 0);
+  const maxCount   = Math.max(1, ...activeCats.map(c => catCounts[c.key].reduce((s,v) => s+v, 0)));
+
+  // ── Header ────────────────────────────────────────────────────────────────
+  let html = '<div class="summary-card" style="margin-bottom:12px">';
+  html += '<h3 style="margin:0 0 10px">Data Summary</h3>';
+  html += '<div class="score-row">';
+  html += '<div class="score red"><div class="sv">' + totalFaults + '</div><div class="sl">Total faults</div></div>';
+  html += '<div class="score"><div class="sv">' + sorties.length + '</div><div class="sl">Sorties</div></div>';
+  const sortsWithFaults = sorties.filter(sd => sd.faults.length > 0).length;
+  html += '<div class="score"><div class="sv">' + sortsWithFaults + '</div><div class="sl">Sorties affected</div></div>';
+  if (activeCats.length) {
+    const topCat = activeCats.reduce((a,b) =>
+      catCounts[a.key].reduce((s,v)=>s+v,0) >= catCounts[b.key].reduce((s,v)=>s+v,0) ? a : b);
+    html += '<div class="score"><div class="sv" style="color:' + topCat.color + '">' + topCat.short + '</div>' +
+            '<div class="sl">Most common</div></div>';
+  }
+  html += '</div></div>';
+
+  // ── Histogram ─────────────────────────────────────────────────────────────
+  if (activeCats.length) {
+    html += '<div class="summary-card" style="margin-bottom:12px">';
+    html += '<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Fault Category Distribution</div>';
+
+    const W=580, H=170, pL=32, pR=16, pT=14, pB=50;
+    const iW=W-pL-pR, iH=H-pT-pB;
+    const groupW = iW / activeCats.length;
+    const barW   = Math.min(48, groupW * 0.6);
+    const cx = i => pL + (i + 0.5) * groupW;
+    const py = v => pT + iH - (v / maxCount) * iH;
+
+    let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">`;
+    svg += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#1e1e1c" rx="3"/>`;
+
+    // Gridlines
+    for (let i = 0; i <= 4; i++) {
+      const v = Math.round(maxCount * i / 4);
+      const y = py(v);
+      svg += `<line x1="${pL}" y1="${y}" x2="${pL+iW}" y2="${y}" stroke="#2e2e2c" stroke-width="0.8"/>`;
+      svg += `<text x="${pL-4}" y="${y}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">${v}</text>`;
+    }
+
+    // Stacked bars (segment per sortie)
+    activeCats.forEach((cat, ci) => {
+      const total = catCounts[cat.key].reduce((s,v) => s+v, 0);
+      let stackY  = pT + iH;
+      sorties.forEach((sd, si) => {
+        const cnt = catCounts[cat.key][si];
+        if (!cnt) return;
+        const bH = (cnt / maxCount) * iH;
+        stackY -= bH;
+        svg += `<rect x="${(cx(ci)-barW/2).toFixed(1)}" y="${stackY.toFixed(1)}" width="${barW}" height="${bH.toFixed(1)}" fill="${PALETTE[si%PALETTE.length]}" rx="1" opacity="0.88">` +
+               `<title>${sd.name}: ${cnt}× ${cat.label}</title></rect>`;
+      });
+      // Count label
+      if (total) svg += `<text x="${cx(ci).toFixed(1)}" y="${(py(total)-4).toFixed(1)}" text-anchor="middle" font-size="9" font-weight="600" fill="${cat.color}" font-family="monospace">${total}</text>`;
+      // X label (angled)
+      const lx = cx(ci).toFixed(1), ly = (pT+iH+8).toFixed(1);
+      svg += `<text x="${lx}" y="${ly}" text-anchor="end" font-size="9" fill="#96948c" font-family="monospace" transform="rotate(-35,${lx},${ly})">${cat.label}</text>`;
+    });
+
+    svg += '</svg>';
+    html += svg;
+
+    // Sortie legend
+    html += '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">';
+    sorties.forEach((sd, si) => {
+      html += `<span onclick="activateQueueItem(${sd.idx})" style="display:flex;align-items:center;gap:4px;font-size:10px;color:#96948c;cursor:pointer">` +
+              `<span style="width:9px;height:9px;border-radius:2px;background:${PALETTE[si%PALETTE.length]};display:inline-block"></span>` +
+              `<span style="font-family:monospace">${sd.name}</span><span style="color:#78766e">(${sd.faults.length})</span></span>`;
+    });
+    html += '</div></div>';
+  }
+
+  // ── Per-sortie fault list ─────────────────────────────────────────────────
+  html += '<div class="summary-card">';
+  html += '<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Faults by Sortie</div>';
+
+  sorties.forEach((sd, si) => {
+    const col = PALETTE[si % PALETTE.length];
+    html += `<div style="margin-bottom:12px">`;
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;cursor:pointer" onclick="activateQueueItem(${sd.idx})">` +
+            `<span style="width:9px;height:9px;border-radius:2px;background:${col};display:inline-block;flex-shrink:0"></span>` +
+            `<span style="font-size:12px;font-weight:500;font-family:monospace;color:#cac8bf">${sd.name}</span>` +
+            `<span style="font-size:11px;color:#78766e">${sd.faults.length} fault${sd.faults.length!==1?'s':''}</span>` +
+            `</div>`;
+
+    const isGround = /(?:^|[_])G\d{2,5}/i.test(sd.name);
+    if (sd.faults.length === 0) {
+      html += `<div style="font-size:11px;color:#78766e;padding:4px 12px">${isGround ? 'Ground recording — no disengagements expected' : 'No faults detected'}</div>`;
+    } else {
+      html += `<table style="width:100%;border-collapse:collapse;font-size:11px">`;
+      html += `<thead><tr>` +
+              `<th style="text-align:left;padding:3px 8px;color:#666460;font-weight:400;border-bottom:0.5px solid #2e2e2c">Ep</th>` +
+              `<th style="text-align:left;padding:3px 8px;color:#666460;font-weight:400;border-bottom:0.5px solid #2e2e2c">Category</th>` +
+              `<th style="text-align:left;padding:3px 8px;color:#666460;font-weight:400;border-bottom:0.5px solid #2e2e2c">Evidence</th>` +
+              `<th style="text-align:left;padding:3px 8px;color:#666460;font-weight:400;border-bottom:0.5px solid #2e2e2c">Axis</th>` +
+              `<th style="text-align:left;padding:3px 8px;color:#666460;font-weight:400;border-bottom:0.5px solid #2e2e2c">Conf.</th>` +
+              `</tr></thead><tbody>`;
+      sd.faults.forEach(f => {
+        const et    = f.exitType || {};
+        const catDef = FLEET_CATS.find(c => c.key === et.category) || FLEET_CATS[FLEET_CATS.length-1];
+        const axis  = inferAxis(f);
+        const axisColor = { LAT:'#6B62D4', VERT:'#4CC9A0', AT:'#D4924A', AFCS:'#96948c' }[axis];
+        const ev    = et.evidence || '—';
+        const conf  = et.confirmed ? '<span style="color:#5d8e3a;font-weight:600">✓</span>'
+                    : (et.category && !['UNKNOWN','PILOT_CMD'].includes(et.category)
+                        ? '<span style="color:#78766e">✗</span>' : '<span style="color:#666460">—</span>');
+        html += `<tr onclick="activateQueueItem(${sd.idx})" style="cursor:pointer;border-bottom:0.5px solid #252523" onmouseover="this.style.background='#2e2e2c'" onmouseout="this.style.background=''">` +
+                `<td style="padding:4px 8px;color:#78766e;font-family:monospace">${f.episode}</td>` +
+                `<td style="padding:4px 8px"><span style="font-family:monospace;font-size:10px;padding:1px 5px;border-radius:3px;background:${catDef.color}28;color:${catDef.color}">${et.label||catDef.label}</span></td>` +
+                `<td style="padding:4px 8px;font-family:monospace;color:#96948c">${ev}</td>` +
+                `<td style="padding:4px 8px;font-family:monospace;font-size:10px;color:${axisColor};font-weight:600">${axis}</td>` +
+                `<td style="padding:4px 8px">${conf}</td>` +
+                `</tr>`;
+      });
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+  });
+  html += '</div>';
+
+  const wrap = document.createElement('div');
+  wrap.innerHTML = html;
+  panel.appendChild(wrap);
+}
+
+function setActiveData(data, displayName) {
+  analysisData = data;
+  const hasEpisodes = (data.episodes||[]).length > 0;
+  const epCount   = hasEpisodes ? data.episodes.length : 0;
+  const epTrans   = hasEpisodes ? data.episodes.reduce((s,e) => s + (e.transitions||[]).length, 0) : 0;
+  const flatTrans = (data.transitions||[]).length;
+
+  document.getElementById('analysisDropZone').classList.add('loaded');
+  document.getElementById('analysisText').textContent = data.filename || displayName;
+  document.getElementById('analysisSub').textContent =
+    (data.total_rows||0).toLocaleString() + ' rows · ' +
+    (data.bool_channels||[]).length + ' boolean · ' +
+    (hasEpisodes ? epCount + ' episodes' : flatTrans + ' transitions');
+  setStatus('analysisStatus',
+    'Loaded — ' + (data.bool_channels||[]).length + ' bool · ' +
+    (hasEpisodes ? epCount + ' ep · ' + epTrans + ' trans' : flatTrans + ' trans') +
+    ' · ' + (data.duration_s||'?') + 's', 'green');
+
+  document.getElementById('statsSection').style.display = 'block';
+  document.getElementById('supplementSection').style.display = 'block';
+  document.getElementById('statGrid').innerHTML =
+    stat((data.total_rows||0).toLocaleString(), 'Rows') +
+    stat(data.duration_s ? data.duration_s + 's' : 'N/A', 'Duration') +
+    stat((data.bool_channels||[]).length, 'Bool signals') +
+    stat(hasEpisodes ? epCount : flatTrans, hasEpisodes ? 'Episodes' : 'Transitions') +
+    (data.processing_time_s != null ? stat(data.processing_time_s + 's', 'Analysis time') : '') +
+    (data.generated_at ? stat(new Date(data.generated_at).toLocaleTimeString(), 'Generated') : '');
+
+  document.getElementById('runBtn').disabled = false;
+  const emptyEl = document.getElementById('emptyState');
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  // Discover plot signals
+  const plotSigSet = new Set();
+  (data.episodes || []).forEach(ep => Object.keys(ep.plots || {}).forEach(s => plotSigSet.add(s)));
+  activePlotSignals = new Set(plotSigSet);
+  const plotSection = document.getElementById('plotSignalsSection');
+  const plotList    = document.getElementById('plotSignalsList');
+  plotList.innerHTML = '';
+  if (plotSigSet.size > 0) {
+    plotSigSet.forEach(sig => {
+      const lbl = sig.split('.').pop();
+      const row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;font-size:12px;cursor:pointer;user-select:none';
+      row.innerHTML = '<input type="checkbox" data-sig="' + sig + '" checked style="cursor:pointer">' +
+        '<span style="font-family:monospace;color:#3C3489">' + lbl + '</span>';
+      plotList.appendChild(row);
+      row.querySelector('input').addEventListener('change', onPlotSignalToggle);
+    });
+    plotSection.style.display = 'block';
+  } else {
+    plotSection.style.display = 'none';
+  }
+
+  // Auto-refresh results if already displaying
+  if (allFaultResults.length > 0) runAnalysis();
+}
+
+function stat(val, label) {
+  return '<div class="stat"><div class="stat-label">' + label + '</div><div class="stat-value">' + val + '</div></div>';
+}
+
+// ── Load trace graph ───────────────────────────────────────────────────────
+function loadGraphFile(file) {
+  setStatus('graphStatus', 'Reading ' + file.name + '...', 'blue');
+  document.getElementById('graphText').textContent = 'Loading graph...';
+  document.getElementById('graphSub').textContent = (file.size/1024/1024).toFixed(1) + ' MB — indexing';
+  file.text().then(text => {
+    setStatus('graphStatus', 'Parsing JSON...', 'blue');
+    return new Promise((res, rej) => setTimeout(() => {
+      try { res(JSON.parse(text)); } catch(e) { rej(e); }
+    }, 0));
+  }).then(data => applyGraphData(data, file.name))
+    .catch(e => setStatus('graphStatus', 'Error: ' + e.message, 'red'));
+}
+
+function applyGraphData(data, name) {
+  setStatus('graphStatus', 'Indexing ' + (data.nodes||[]).length.toLocaleString() + ' nodes...', 'blue');
+  return new Promise(res => {
+    const nodes = data.nodes || [];
+    const edges = data.edges || [];
+    nodeMap = {}; dstToSrc = {}; tpLookup = {}; modelLowerMap = {};
+    const total = nodes.length + edges.length;
+    const CHUNK = 8000;
+    let i = 0;
+    function tick() {
+      const end = Math.min(i + CHUNK, total);
+      for (; i < end; i++) {
+        if (i < nodes.length) {
+          const n = nodes[i];
+          nodeMap[n.key] = n;
+          modelLowerMap[n.model.toLowerCase()] = n.model;
+          if (n.isTestPoint && n.testPointName) {
+            const k = n.model.toLowerCase() + '|' + n.testPointName.toLowerCase();
+            if (!tpLookup[k]) tpLookup[k] = [];
+            tpLookup[k].push(n);
+          }
+        } else {
+          const e = edges[i - nodes.length];
+          if (!dstToSrc[e.dstKey]) dstToSrc[e.dstKey] = [];
+          dstToSrc[e.dstKey].push(e.srcKey);
+        }
+      }
+      const pct = Math.round(i / total * 100);
+      setStatus('graphStatus', 'Indexing... ' + pct + '%', 'blue');
+      if (i < total) setTimeout(tick, 0);
+      else res({ data, nodes, edges });
+    }
+    setTimeout(tick, 0);
+  }).then(({ data, nodes, edges }) => {
+    graphLoaded = true;
+    document.getElementById('graphDropZone').classList.add('loaded');
+    document.getElementById('graphText').textContent = 'Trace graph loaded';
+    document.getElementById('graphSub').textContent =
+      nodes.length.toLocaleString() + ' nodes · ' + edges.length.toLocaleString() + ' edges';
+    document.getElementById('graphBadge').textContent = data.buildVersion || name;
+    document.getElementById('graphBadge').classList.add('loaded');
+    setStatus('graphStatus',
+      'Build ' + (data.buildVersion||'unknown') + ' · ' +
+      (data.stats?.totalTestPoints||0).toLocaleString() + ' testpoints', 'green');
+  });
+}
+
+// ── IADS name → model/signal ───────────────────────────────────────────────
+function iadsToModel(name) {
+  const parts = name.split('.');
+  if (parts.length < 3) return { model: null, signal: name, rawModel: null };
+
+  let mg = parts[1];
+
+  // Strip common prefixes
+  if (mg.startsWith('g_')) mg = mg.slice(2);
+
+  // Strip common suffixes (try each in order, stop on first match)
+  const SUFFIXES = ['_mdlrefdw', '_mdlref_dw', '_mdlrefdw_rt', '_mdlref', '_model', '_mdl'];
+  for (const sfx of SUFFIXES) {
+    const idx = mg.lastIndexOf(sfx);
+    if (idx > 0) { mg = mg.slice(0, idx); break; }
+  }
+
+  const rawModel = mg;
+  const mgLower  = mg.toLowerCase();
+  const signal   = parts[parts.length - 1];  // always use last component
+
+  // 1. Exact match
+  if (modelLowerMap[mgLower]) return { model: modelLowerMap[mgLower], signal, rawModel };
+
+  // 2. Fuzzy: graph model key contains extracted name or vice versa
+  const keys = Object.keys(modelLowerMap);
+  const fuzzy = keys.find(k => k.includes(mgLower) || mgLower.includes(k));
+  if (fuzzy) return { model: modelLowerMap[fuzzy], signal, rawModel, fuzzy: true };
+
+  return { model: null, signal, rawModel };
+}
+
+function traceUpstream(startKeys, maxDepth, maxNodes) {
+  const MAX_N  = maxNodes || 6000;
+  const MAX_D  = maxDepth || 50;
+  const visited = new Set();
+  let frontier  = startKeys.slice();
+  const results = [];
+  for (let hop = 1; hop <= MAX_D; hop++) {
+    if (visited.size >= MAX_N) break;
+    const next = [];
+    frontier.forEach(key => {
+      if (visited.has(key)) return;
+      visited.add(key);
+      (dstToSrc[key] || []).forEach(pk => {
+        const pn = nodeMap[pk];
+        if (pn && !visited.has(pk)) { results.push({ hop, node: pn }); next.push(pk); }
+      });
+    });
+    frontier = next;
+    if (!frontier.length) break;
+  }
+  return results;
+}
+
+function getUpstream(iadsName) {
+  if (!graphLoaded) return { tps: [], pdis: [], hopMap: {} };
+  const { model, signal } = iadsToModel(iadsName);
+  if (!model) return { tps: [], pdis: [], hopMap: {} };
+  const startNodes = tpLookup[model.toLowerCase() + '|' + signal.toLowerCase()] || [];
+  if (!startNodes.length) return { tps: [], pdis: [], hopMap: {} };
+  const upstream = traceUpstream(startNodes.map(n => n.key), 50, 6000);
+  const seen = new Set();
+  const tps = [], pdis = [];
+  const hopMap = {};  // normalizedName → min hop distance
+  upstream.forEach(({ hop, node }) => {
+    const k = node.model + '|' + (node.testPointName || node.blockName);
+    if (seen.has(k)) return;
+    seen.add(k);
+    if (node.isTestPoint && node.testPointName) {
+      tps.push({ hop, name: node.testPointName, model: node.model });
+      // Store hop by name, stripped variant, and last-segment short name
+      const n        = node.testPointName.toLowerCase();
+      const nStripped = n.replace(/_p\d+$|_dup\d*$/, '');
+      const lastSeg  = nStripped.replace(/^.*_/, '');
+      const keys = [n, nStripped];
+      if (lastSeg !== nStripped) keys.push(lastSeg);
+      keys.forEach(v => {
+        if (!(v in hopMap) || hop < hopMap[v]) hopMap[v] = hop;
+      });
+    }
+    if (node.isPDI && node.pdiName) pdis.push({ hop, name: node.pdiName, path: node.blockPath });
+  });
+  return { tps, pdis: pdis.slice(0, 10), hopMap };
+}
+
+// ── Initiating fault detection via trace graph ────────────────────────────
+// Score each concurrent signal on four axes:
+//   1. Upstream chain confirmation (is it structurally connected to afcsCapable?)
+//   2. Pre-trigger timing (asserted before the trigger = causal, not cascade)
+//   3. Signal pattern (MonFlag/fault rising = asserted fault; Capable/Engaged falling = cascade)
+//   4. Hop distance (fewer hops from trigger = more direct cause)
+function findInitiatingFault(concurrent, triggerSignal, debounceSignal) {
+  if (!concurrent.length) return null;
+  const byTime     = [...concurrent].sort((a, b) => a.dt - b.dt);
+  const triggerSfx = triggerSignal.split('.').pop().toLowerCase();
+
+  if (!graphLoaded) {
+    const FAULT_RE      = /monitor|flag|fault|xcd|exceed|mistrim|wrap/i;
+    const PROTECTION_RE = /torq.*lim|torquelim/i;
+    const c = byTime.find(c => {
+      const sfx = c.signal.split('.').pop();
+      if (PROTECTION_RE.test(sfx)) return false;
+      return (c.to === 1 && FAULT_RE.test(sfx)) || (c.to === 0 && /capable|valid|engaged/i.test(sfx));
+    });
+    return c ? { signal: c, confidence: 'LOW',
+                 reason: 'Earliest fault-asserting transition — load trace graph to confirm' } : null;
+  }
+
+  // When a DebounceOut signal has been confirmed, trace from it instead of afcsCapable.
+  // DebounceOut sits much closer to the physical fault — its upstream chain will surface the
+  // relevant monitor inputs (sensor errors, threshold PDIs) rather than the full AFCS tree.
+  const traceTarget    = debounceSignal || triggerSignal;
+  const traceTargetSfx = traceTarget.split('.').pop();
+  const { tps, pdis, hopMap } = getUpstream(traceTarget);
+
+  // Resolve IADS suffix → min hop distance in the upstream graph
+  const hopForSuffix = sfx => {
+    const s = sfx.toLowerCase();
+    if (s in hopMap) return hopMap[s];
+    // Fully-qualified TP names embed the signal name (e.g. "Model_bus_signalName_p1")
+    let best = null;
+    for (const n of Object.keys(hopMap)) {
+      if (n.includes('_' + s + '_') || n.endsWith('_' + s) || n.endsWith(s)) {
+        if (best === null || hopMap[n] < best) best = hopMap[n];
+      }
+    }
+    return best;
+  };
+
+  const FAULT_RE      = /monitor|flag|fault|xcd|exceed|mistrim|wrap/i;
+  const CASCADE_RE    = /capable|engaged|active/i;
+  // Protection mechanisms — normal servo/system protection, not fault initiators
+  const PROTECTION_RE = /torq.*lim|torquelim/i;
+
+  const scored = byTime.filter(c => !PROTECTION_RE.test(c.signal.split('.').pop())).map(c => {
+    const sfx         = c.signal.split('.').pop();
+    const hop         = hopForSuffix(sfx);
+    const inChain     = hop !== null;
+    const isFaultAss  = c.to === 1 && FAULT_RE.test(sfx);
+    const isCascade   = c.to === 0 && CASCADE_RE.test(sfx) && sfx.toLowerCase() !== triggerSfx;
+    const isPreTrig   = c.dt < -0.01;   // asserted before the trigger fired
+
+    let score = 0;
+    if (inChain)    score += 100;
+    if (isPreTrig)  score += 60 + Math.min(Math.abs(c.dt) * 5, 40); // earlier → more causal
+    if (isFaultAss) score += 40;
+    if (isCascade)  score -= 60;   // effects, not causes
+    if (inChain && hop !== null) score += Math.max(0, 30 - hop * 2); // direct path bonus
+
+    return { c, score, hop, inChain, isFaultAss, isCascade, isPreTrig };
+  }).sort((a, b) => b.score - a.score);
+
+  const best = scored[0];
+  if (!best || best.score <= 0) return null;
+
+  let confidence, reason;
+  const hopStr = best.hop != null ? ` (${best.hop} hop${best.hop === 1 ? '' : 's'} from ${traceTargetSfx})` : '';
+  if (best.inChain && best.isPreTrig && best.isFaultAss) {
+    confidence = 'HIGH';
+    reason = `Pre-trigger fault assertion confirmed in upstream chain${hopStr}`;
+  } else if (best.inChain && best.isPreTrig) {
+    confidence = 'HIGH';
+    reason = `Pre-trigger signal confirmed in upstream chain${hopStr}`;
+  } else if (best.inChain && best.isFaultAss) {
+    confidence = 'HIGH';
+    reason = `Fault assertion confirmed in upstream chain${hopStr}`;
+  } else if (best.inChain) {
+    confidence = 'MEDIUM';
+    reason = `Signal in upstream chain${hopStr} — may be cascade`;
+  } else if (best.isPreTrig && best.isFaultAss) {
+    confidence = 'MEDIUM';
+    reason = 'Pre-trigger fault assertion — not found in trace graph (check model name mapping)';
+  } else {
+    confidence = 'LOW';
+    reason = 'Earliest fault-asserting pattern — no upstream confirmation';
+  }
+
+  const others = scored.slice(1, 6)
+    .filter(s => s.score > 0 && !s.isCascade)
+    .map(s => s.c);
+
+  return { signal: best.c, confidence, reason, hop: best.hop, others, pdis,
+           tracedFromDebounce: !!debounceSignal, traceTarget };
+}
+
+// ── Common upstream intersection for co-falling capable signals ───────────
+// When ≥2 *capable signals fall in the same episode, walk each one's upstream
+// chain via the trace graph and intersect the node sets. The intersection
+// surfaces signals that are structurally upstream of ALL failing capables —
+// these are the most likely common root-cause candidates.
+
+// Variant of getUpstream that falls back to a suffix scan of tpLookup when
+// iadsToModel can't resolve the full IADS name (e.g. 2-part "FCC1.atCapable").
+// For *capable signals the model output TP is a graph sink (no incoming edges);
+// substitute *CapDebounceOut which is internally connected and yields the same chain.
+function getUpstreamBySuffix(iadsName) {
+  const result = getUpstream(iadsName);
+  if (Object.keys(result.hopMap).length) return result;  // normal resolution worked
+
+  const rawSuffix = iadsName.split('.').pop().toLowerCase();
+
+  // *capable output TPs are graph sinks (no incoming edges) — go straight to
+  // *capdebounceout which is internally connected and walks to the same chain.
+  // For other signals, try the raw suffix first then fall back to nothing.
+  const suffixes = /capable$/.test(rawSuffix)
+    ? [rawSuffix.replace(/capable$/, 'capdebounceout'), rawSuffix]
+    : [rawSuffix];
+
+  const startKeys = [];
+  for (const suffix of suffixes) {
+    for (const key of Object.keys(tpLookup)) {
+      if (key.split('|')[1] === suffix) {
+        tpLookup[key].forEach(n => startKeys.push(n.key));
+      }
+    }
+    // Only stop when we have start keys that actually have upstream edges
+    if (startKeys.some(k => (dstToSrc[k] || []).length > 0)) break;
+    startKeys.length = 0;  // clear and try next suffix
+  }
+  if (!startKeys.length) { console.debug('[getUpstreamBySuffix] no startKeys found for', rawSuffix); return result; }
+  console.debug('[getUpstreamBySuffix]', rawSuffix, '→ using suffix fallback, startKeys:', startKeys.length);
+
+  const upstream = traceUpstream(startKeys, 50, 6000);
+  const seen = new Set();
+  const hopMap = {};
+  upstream.forEach(({ hop, node }) => {
+    const k = node.model + '|' + (node.testPointName || node.blockName);
+    if (seen.has(k)) return;
+    seen.add(k);
+    if (node.isTestPoint && node.testPointName) {
+      const n        = node.testPointName.toLowerCase();
+      const nStripped = n.replace(/_p\d+$|_dup\d*$/, '');
+      const lastSeg  = nStripped.replace(/^.*_/, '');
+      const keys = [n, nStripped];
+      if (lastSeg !== nStripped) keys.push(lastSeg);
+      keys.forEach(v => {
+        if (!(v in hopMap) || hop < hopMap[v]) hopMap[v] = hop;
+      });
+    }
+  });
+  return { tps: [], pdis: [], hopMap };
+}
+
+function findCommonUpstream(concurrent, triggerSignal) {
+  if (!graphLoaded) return null;
+
+  const triggerSuffix = (triggerSignal || '').split('.').pop().toLowerCase();
+
+  // Collect falling *capable* / *servoCapable* AND rising *servoNotCap* signals
+  // Deduplicated by suffix, excluding the trigger signal itself (other-lane copy)
+  const seenSfx = new Set();
+  const capSigs = concurrent
+    .filter(c => {
+      const sfx = c.signal.split('.').pop().toLowerCase();
+      const isCapFall    = c.to === 0 && /capable/i.test(sfx) && sfx !== triggerSuffix;
+      const isNotCapRise = c.to === 1 && /servonotcap$/i.test(sfx);
+      if (!isCapFall && !isNotCapRise) return false;
+      if (seenSfx.has(sfx)) return false;        // deduplicate across lanes
+      seenSfx.add(sfx);
+      return true;
+    })
+    .map(c => c.signal);
+
+  if (capSigs.length < 2) return null;
+
+  // Get upstream hopMap for each signal (with suffix fallback for sink TPs)
+  const maps = capSigs.map(sig => ({ sig, hopMap: getUpstreamBySuffix(sig).hopMap }));
+
+  console.debug('[findCommonUpstream] capSigs:', capSigs.map(s=>s.split('.').pop()));
+  maps.forEach(m => console.debug('  hopMap size for', m.sig.split('.').pop(), ':', Object.keys(m.hopMap).length,
+    '| first 5:', Object.entries(m.hopMap).sort((a,b)=>a[1]-b[1]).slice(0,5).map(e=>e[0]+'='+e[1]).join(', ')));
+
+  // Only intersect signals that have a non-empty upstream chain (skip sinks that yielded nothing)
+  const validMaps = maps.filter(m => Object.keys(m.hopMap).length > 0);
+  if (validMaps.length < 2) return null;
+
+  // Intersect: keep only keys present in every valid hopMap
+  const commonKeys = Object.keys(validMaps[0].hopMap)
+    .filter(k => validMaps.every(m => k in m.hopMap));
+
+  if (!commonKeys.length) return null;
+
+  // Sort by max-hop-across-all-targets (lower = closer to all capables = more direct common input)
+  const results = commonKeys
+    .map(k => ({
+      name:   k,
+      maxHop: Math.max(...validMaps.map(m => m.hopMap[k])),
+    }))
+    .filter(e => !/capable|debounceout|capfalling|engaged|_dup\d/i.test(e.name))   // drop cascade/internal nodes
+    .sort((a, b) => a.maxHop - b.maxHop)
+    .slice(0, 12);
+
+  return results.length
+    ? { results, signals: capSigs.map(s => s.split('.').pop()) }
+    : null;
+}
+
+// ── Supplement dataset merge ───────────────────────────────────────────────
+// Two modes:
+//   Episode mode  — supplement was run with the same --trigger; episodes matched by
+//                   trigger timestamp (±1 s tolerance).
+//   Flat mode     — supplement was run WITHOUT --trigger (just a transitions list);
+//                   transitions are matched to each primary episode by time window.
+function mergeSupplementData(primary, supplement) {
+  const merged = JSON.parse(JSON.stringify(primary));   // deep clone
+  let newSigs = 0, newPlots = 0, matchedEps = 0;
+
+  const isFlatSupplement =
+    !(supplement.episodes || []).length &&
+    (supplement.transitions || []).length > 0;
+
+  if (isFlatSupplement) {
+    // ── Flat mode: match by episode time window ──────────────────────────
+    // Sort all supplement transitions by time once for efficient slicing
+    const suppTrans = [...(supplement.transitions || [])]
+      .sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+
+    merged.episodes = (merged.episodes || []).map(ep => {
+      const epTimes = (ep.transitions || []).map(t => parseFloat(t.time));
+      if (!epTimes.length) return ep;
+
+      // Window: earliest transition - 2 s  →  latest transition + 2 s
+      const tMin = Math.min(...epTimes) - 2.0;
+      const tMax = Math.max(...epTimes) + 2.0;
+
+      const inWindow = suppTrans.filter(t => {
+        const tv = parseFloat(t.time);
+        return tv >= tMin && tv <= tMax;
+      });
+      if (!inWindow.length) return ep;
+      matchedEps++;
+
+      const existing = new Set((ep.transitions || []).map(t => t.signal + '|' + t.time));
+      const added    = inWindow.filter(t => !existing.has(t.signal + '|' + t.time));
+      newSigs += added.length;
+
+      const mergedTrans = [...(ep.transitions || []), ...added]
+        .sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+
+      return { ...ep, transitions: mergedTrans };
+    });
+
+  } else {
+    // ── Episode mode: match by trigger timestamp ─────────────────────────
+    const trigOf = ep => {
+      const trig = (ep.transitions || []).find(t =>
+        t.signal.toLowerCase().includes((primary.trigger?.signal || 'afcscapable').toLowerCase())
+      );
+      return trig ? parseFloat(trig.time) : null;
+    };
+
+    const suppEpsByTime = {};
+    (supplement.episodes || []).forEach(ep => {
+      const t = trigOf(ep);
+      if (t !== null) suppEpsByTime[t] = ep;
+    });
+
+    merged.episodes = (merged.episodes || []).map(ep => {
+      const t = trigOf(ep);
+      if (t === null) return ep;
+
+      const suppEp = suppEpsByTime[t] ||
+        Object.entries(suppEpsByTime).find(([st]) => Math.abs(parseFloat(st) - t) < 1)?.[1];
+      if (!suppEp) return ep;
+      matchedEps++;
+
+      const existing = new Set((ep.transitions || []).map(t2 => t2.signal + '|' + t2.time));
+      const added    = (suppEp.transitions || []).filter(t2 => !existing.has(t2.signal + '|' + t2.time));
+      newSigs += added.length;
+
+      const mergedTrans = [...(ep.transitions || []), ...added]
+        .sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+
+      const mergedPlots = { ...(ep.plots || {}) };
+      Object.entries(suppEp.plots || {}).forEach(([sig, pts]) => {
+        if (!mergedPlots[sig]) { mergedPlots[sig] = pts; newPlots++; }
+      });
+
+      return { ...ep, transitions: mergedTrans, plots: mergedPlots };
+    });
+  }
+
+  // Merge top-level bool_channels list
+  merged.bool_channels = [...new Set([
+    ...(primary.bool_channels   || []),
+    ...(supplement.bool_channels || [])
+  ])];
+
+  return { merged, matchedEps, newSigs, newPlots };
+}
+
+function loadSupplementFile(file) {
+  if (!analysisData) {
+    setStatus('supplementStatus', 'Load a primary dataset first', 'red');
+    return;
+  }
+  setStatus('supplementStatus', 'Reading ' + file.name + '...', 'blue');
+  file.text()
+    .then(text => new Promise((res, rej) => setTimeout(() => {
+      try { res(JSON.parse(text)); } catch(e) { rej(e); }
+    }, 0)))
+    .then(suppData => {
+      const hasEpisodes = (suppData.episodes || []).length > 0;
+      const hasTrans    = (suppData.transitions || []).length > 0;
+      if (!hasEpisodes && !hasTrans) {
+        setStatus('supplementStatus', 'No transitions found in supplement file', 'red');
+        return;
+      }
+      const { merged, matchedEps, newSigs, newPlots } = mergeSupplementData(analysisData, suppData);
+      // Apply the merged dataset to the active queue slot
+      analysisData = merged;
+      if (activeQueueIdx >= 0) analysisQueue[activeQueueIdx].data = merged;
+
+      document.getElementById('supplementDropZone').classList.add('loaded');
+      document.getElementById('supplementText').textContent = file.name;
+      document.getElementById('supplementSub').textContent =
+        matchedEps + ' episodes merged · +' + newSigs + ' transitions · +' + newPlots + ' plots';
+      setStatus('supplementStatus',
+        '+' + newSigs + ' transitions, +' + newPlots + ' plots across ' + matchedEps + ' episodes', 'green');
+
+      // Re-render immediately
+      if (allFaultResults.length > 0) runAnalysis();
+    })
+    .catch(e => setStatus('supplementStatus', 'Error: ' + e.message, 'red'));
+}
+
+// ── Core fault detection ───────────────────────────────────────────────────
+function detectFaults(data, windowSec) {
+  // Episode-based structure (analyze_iads.py --trigger output)
+  if ((data.episodes||[]).length > 0) {
+    return detectFaultsFromEpisodes(data, windowSec);
+  }
+  // Legacy flat-transitions fallback
+  return detectFaultsFlat(data, windowSec);
+}
+
+// ── Exit type classification ──────────────────────────────────────────────────
+// Returns { category, label, color, evidence, confirmed, debounceSignal }
+// confirmed = true when the fault persisted past the debounce timer
+// debounceSignal = full IADS name of the *DebounceOut that asserted (use for trace)
+function classifyExit(concurrent, triggerSignal) {
+  const sfxOf   = sig => sig.split('.').pop();
+  const sfxLow  = sig => sfxOf(sig).toLowerCase();
+  const preTrig = concurrent.filter(c => c.dt < -0.01);
+  const atTrig  = concurrent.filter(c => Math.abs(c.dt) <= 0.05);
+  const all     = concurrent; // full episode window for debounce confirmation
+
+  // Helper: find a debounce output for a given axis prefix (ail, elev, rud, at, pitchTrim…)
+  // DebounceOut can fire any time during the episode (may be slightly after trigger)
+  const findDebounce = axis => all.find(c =>
+    c.to === 1 && new RegExp('^' + axis + '.*debounce.*out$', 'i').test(sfxLow(c.signal))
+  );
+
+  // 1. Pilot-commanded disconnect — AP_DISC must assert BEFORE the trigger
+  // Only classify as pilot-commanded if no monitor flag fired before AP_DISC.
+  // A monitor flag that precedes AP_DISC means the disconnect was software-initiated.
+  const pilotDisc = preTrig.find(c => /ap.?disc|apdisc|disconnect/i.test(sfxLow(c.signal)));
+  if (pilotDisc) {
+    // Only classify as pilot-commanded if no monitor flag fired pre-trigger.
+    // Any pre-trigger monitor flag means the disconnect was software-initiated.
+    const hasMonFlag = [...preTrig, ...atTrig].some(c =>
+      c.to === 1 && /mon.?flag|monitorflag/i.test(sfxLow(c.signal))
+    );
+    if (!hasMonFlag) return {
+      category:       'PILOT_CMD',
+      label:          'Pilot-Commanded Disconnect',
+      color:          '#3B6D11',
+      evidence:       sfxOf(pilotDisc.signal),
+      confirmed:      true,
+      debounceSignal: null
+    };
+  }
+
+  // 2. Response monitor — *RespEng* gate deactivated (1→0) at/before trigger
+  // Prefer the axis that has a confirmed debounce output (the actual tripped monitor)
+  // over the closest-in-time candidate (which may be transient chatter on another axis).
+  const respEngCandidates = [...preTrig, ...atTrig].filter(c =>
+    c.to === 0 && /resp.?eng/i.test(sfxLow(c.signal))
+  );
+  const respEng = respEngCandidates.find(c => {
+    const m = sfxLow(c.signal).match(/^([a-z]+?)resp/i);
+    return m && findDebounce(m[1]);
+  }) || respEngCandidates[0];
+  if (respEng) {
+    const axisM  = sfxLow(respEng.signal).match(/^([a-z]+?)resp/i);
+    const axis   = axisM ? axisM[1] : '';
+    const dbSig  = findDebounce(axis);
+    return {
+      category:       'RESP_MONITOR',
+      label:          'Response Monitor Trip',
+      color:          '#854F0B',
+      evidence:       sfxOf(respEng.signal),
+      confirmed:      !!dbSig,
+      debounceSignal: dbSig ? dbSig.signal : null
+    };
+  }
+
+  // 3. Command monitor — *CmdEng* gate deactivated (1→0) at/before trigger
+  const cmdEng = [...preTrig, ...atTrig].find(c =>
+    c.to === 0 && /cmd.?eng/i.test(sfxLow(c.signal))
+  );
+  if (cmdEng) {
+    const axisM  = sfxLow(cmdEng.signal).match(/^([a-z]+?)cmd/i);
+    const axis   = axisM ? axisM[1] : '';
+    const dbSig  = findDebounce(axis);
+    // Cmd monitors may use MonFlag as confirmation if no dedicated DebounceOut
+    const cmdFlag = !dbSig ? all.find(c =>
+      c.to === 1 && new RegExp('^' + axis + '.*cmd.*mon.*flag$', 'i').test(sfxLow(c.signal))
+    ) : null;
+    const confirmer = dbSig || cmdFlag;
+    return {
+      category:       'CMD_MONITOR',
+      label:          'Command Monitor Trip',
+      color:          '#534AB7',
+      evidence:       sfxOf(cmdEng.signal),
+      confirmed:      !!confirmer,
+      debounceSignal: confirmer ? confirmer.signal : null
+    };
+  }
+
+  // 4. Generic MonFlag asserted
+  const monFlag = [...preTrig, ...atTrig].find(c =>
+    c.to === 1 && /mon.?flag|monitorflag/i.test(sfxLow(c.signal))
+  );
+  if (monFlag) return {
+    category: 'MONITOR_FAULT', label: 'Monitor Fault', color: '#A32D2D',
+    evidence: sfxOf(monFlag.signal), confirmed: true, debounceSignal: monFlag.signal
+  };
+
+  // 5. Mistrim — explicit mistrim assertion or threshold-exceeded flag.
+  // NOTE: Torque_Limiting is a protection mechanism (servo protection active), not a fault.
+  const mistrim = [...preTrig, ...atTrig].find(c =>
+    c.to === 1 && /mistrim|xcd/i.test(sfxLow(c.signal))
+  );
+  if (mistrim) return {
+    category: 'MISTRIM', label: 'Mistrim / Torque Limit', color: '#854F0B',
+    evidence: sfxOf(mistrim.signal), confirmed: true, debounceSignal: mistrim.signal
+  };
+
+  // 6. Sensor / data validity loss — *valid* falling pre-trigger
+  // Covers adsSelValid, pfdDataValid, irsVotedValid, fccSelfHealthy, etc.
+  // Pick the earliest (most causal) validity drop; prefer named sensor sources.
+  // Include atTrig (dt ≤ 0.05s) since validity often drops simultaneously with afcsCapable.
+  const validLost = [...preTrig, ...atTrig]
+    .filter(c => c.to === 0 && /valid|healthy|health/i.test(sfxLow(c.signal)))
+    .sort((a, b) => a.dt - b.dt)[0];   // earliest pre-trigger or simultaneous
+  if (validLost) {
+    // Infer sensor source from signal name prefix for the label
+    const sfx = sfxLow(validLost.signal);
+    const src = sfx.startsWith('ads') ? 'ADS'
+              : sfx.startsWith('irs') ? 'IRS'
+              : sfx.startsWith('pfd') ? 'PFD'
+              : sfx.startsWith('fcc') ? 'FCC'
+              : sfx.startsWith('adc') ? 'ADC'
+              : sfx.startsWith('gps') ? 'GPS'
+              : null;
+    const label = src ? src + ' Validity Loss' : 'Sensor Validity Loss';
+    return {
+      category:       'VALIDITY_LOSS',
+      label,
+      color:          '#A32D2D',
+      evidence:       sfxOf(validLost.signal),
+      confirmed:      true,
+      debounceSignal: null
+    };
+  }
+
+  // 7. Upstream capability lost — *capable* falling pre-trigger (cascade / mode inhibit)
+  const capLost = preTrig.find(c => c.to === 0 && /capable/i.test(sfxLow(c.signal)));
+  if (capLost) return {
+    category: 'CAP_LOST', label: 'Upstream Capability Lost', color: '#534AB7',
+    evidence: sfxOf(capLost.signal), confirmed: false, debounceSignal: null
+  };
+
+  return { category: 'UNKNOWN', label: 'Unknown Exit', color: '#888780',
+           evidence: null, confirmed: false, debounceSignal: null };
+}
+
+function detectFaultsFromEpisodes(data, windowSec) {
+  const faults = [];
+  (data.episodes || []).forEach(ep => {
+    const trans = ep.transitions || [];
+    if (!trans.length) return;
+
+    // With the pre-trigger lookback, trans[0] is no longer the trigger —
+    // find it by matching data.trigger.signal/from/to
+    const trigMeta  = data.trigger || {};
+    const trigSig   = (trigMeta.signal || 'afcsCapable').toLowerCase();
+    const trigFrom  = trigMeta.from != null ? trigMeta.from : 1;
+    const trigTo    = trigMeta.to   != null ? trigMeta.to   : 0;
+    const triggerIdx = trans.findIndex(t =>
+      t.signal.toLowerCase().endsWith('.' + trigSig) || t.signal.toLowerCase() === trigSig
+      ? parseFloat(t.from) === trigFrom && parseFloat(t.to) === trigTo
+      : false
+    );
+    if (triggerIdx < 0) return;   // episode missing trigger — skip
+    const trigger = trans[triggerIdx];
+    const t = parseFloat(trigger.time);
+
+    // All other transitions in the episode — bool only (0/1), enums shown in Lane Mode States
+    const concurrent = trans
+      .filter((other, idx) => idx !== triggerIdx && other.signal !== trigger.signal)
+      .map(other => ({
+        signal:  other.signal,
+        from:    parseFloat(other.from),
+        to:      parseFloat(other.to),
+        dt:      parseFloat(other.time) - t,
+        abs_dt:  Math.abs(parseFloat(other.time) - t)
+      }))
+      .filter(c => c.abs_dt <= windowSec)
+      .filter(c => (c.from === 0 || c.from === 1) && (c.to === 0 || c.to === 1))
+      .sort((a, b) => a.abs_dt - b.abs_dt);
+
+    // ── Exit type classification ───────────────────────────────────────────
+    // Examine concurrent bool transitions to determine the nature of the exit
+    const exitType = classifyExit(concurrent, trigger.signal);
+
+    faults.push({
+      fault_id:      faults.length,
+      episode:       ep.episode,
+      signal:        trigger.signal,
+      time:          trigger.time,
+      from:          parseFloat(trigger.from),
+      to:            parseFloat(trigger.to),
+      type:          'unexpected-disengage',
+      label:         'AFCS Cap. Lost',
+      duration_s:    ep.duration_s,
+      end_time:      ep.end_time,
+      concurrent:    concurrent,   // full list; render slices by maxTrans
+      triggerEvent:  { signal: trigger.signal, from: parseFloat(trigger.from), to: parseFloat(trigger.to), dt: 0, abs_dt: 0 },
+      exitType,
+      upstream:      getUpstream(trigger.signal),
+      dissimilarity: detectLaneDissimilarity(ep.transitions || []),
+      plots:         ep.plots || {}
+    });
+  });
+  return faults;
+}
+
+function detectFaultsFlat(data, windowSec) {
+  const transitions = data.transitions || [];
+  const faults = [];
+
+  transitions.forEach((tr, idx) => {
+    const t    = parseFloat(tr.time);
+    const from = parseFloat(tr.from);
+    const to   = parseFloat(tr.to);
+    if (isNaN(from) || isNaN(to)) return;
+
+    const isDisengage = from === 1 && to === 0;
+    const isEngage    = from === 0 && to === 1;
+    if (!isDisengage && !isEngage) return;
+
+    const concurrent = [];
+    transitions.forEach((other, oidx) => {
+      if (oidx === idx) return;
+      const ot = parseFloat(other.time);
+      const dt = ot - t;
+      if (dt < -windowSec || dt > windowSec) return;
+      concurrent.push({ signal: other.signal, from: parseFloat(other.from),
+                        to: parseFloat(other.to), dt, abs_dt: Math.abs(dt) });
+    });
+    concurrent.sort((a, b) => a.abs_dt - b.abs_dt);
+
+    faults.push({
+      fault_id: faults.length,
+      signal: tr.signal, time: tr.time, from, to,
+      type:  isDisengage ? 'unexpected-disengage' : 'unexpected-engage',
+      label: isDisengage ? 'Unexpected disengage' : 'Unexpected engage',
+      concurrent: concurrent.slice(0, 8),
+      upstream: getUpstream(tr.signal)
+    });
+  });
+  return faults;
+}
+
+// ── Exclude chips ──────────────────────────────────────────────────────────
+const DEFAULT_EXCLUDE = ['apQuickDisconnect', 'togaPb', 'apPb'];
+let excludeList = [...DEFAULT_EXCLUDE];
+
+function renderExcludeChips() {
+  const container = document.getElementById('excludeChips');
+  if (!container) return;
+  container.innerHTML = excludeList.map((sig, i) =>
+    `<span style="display:inline-flex;align-items:center;gap:3px;font-size:10px;font-family:monospace;` +
+    `background:#2d2b48;color:#9490d4;border:0.5px solid #4a4880;border-radius:3px;padding:1px 4px 1px 6px">` +
+    `${sig}` +
+    `<span onclick="removeExcludeChip(${i})" style="cursor:pointer;color:#6a68a0;font-size:11px;line-height:1;margin-left:1px" title="Remove">×</span>` +
+    `</span>`
+  ).join('');
+}
+
+function addExcludeChip() {
+  const input = document.getElementById('excludeInput');
+  const val = (input.value || '').trim();
+  if (!val) return;
+  val.split(',').map(s => s.trim()).filter(Boolean).forEach(s => {
+    if (!excludeList.includes(s)) excludeList.push(s);
+  });
+  input.value = '';
+  renderExcludeChips();
+}
+
+function removeExcludeChip(i) {
+  excludeList.splice(i, 1);
+  renderExcludeChips();
+}
+
+function handleExcludeKey(e) {
+  if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addExcludeChip(); }
+  if (e.key === 'Backspace' && !e.target.value && excludeList.length) {
+    excludeList.pop(); renderExcludeChips();
+  }
+}
+
+function stepMaxTrans(delta) {
+  const el = document.getElementById('maxTrans');
+  const v = Math.min(500, Math.max(5, (parseInt(el.value) || 50) + delta));
+  el.value = v;
+}
+
+function parseExcludePatterns() {
+  return excludeList.map(s => s.trim().toLowerCase()).filter(Boolean);
+}
+
+function episodeHasExcludeSignal(fault, patterns) {
+  if (!patterns.length) return false;
+  return fault.concurrent.some(c => {
+    const suffix = c.signal.split('.').pop().toLowerCase();
+    return patterns.some(p => suffix === p || c.signal.toLowerCase().includes(p));
+  });
+}
+
+function onPlotSignalToggle() {
+  activePlotSignals = new Set(
+    [...document.querySelectorAll('#plotSignalsList input[type=checkbox]:checked')]
+      .map(cb => cb.dataset.sig)
+  );
+  // Live re-render if episodes are already showing
+  if (allFaultResults.length > 0) {
+    const panel    = document.getElementById('mainPanel');
+    const max      = parseInt(document.getElementById('maxTrans').value) || 50;
+    const excludes = parseExcludePatterns();
+    faultResults   = allFaultResults.filter(f => !episodeHasExcludeSignal(f, excludes));
+    renderResults(panel, faultResults, max, analysisData, allFaultResults.length);
+  }
+}
+
+// ── Run analysis ───────────────────────────────────────────────────────────
+function runAnalysis() {
+  if (!analysisData) return;
+
+  const btn      = document.getElementById('runBtn');
+  const panel    = document.getElementById('mainPanel');
+  const max      = parseInt(document.getElementById('maxTrans').value) || 50;
+  const excludes = parseExcludePatterns();
+
+  btn.disabled = true;
+  panel.innerHTML = '';
+
+  allFaultResults = detectFaults(analysisData, Infinity);
+  faultResults    = allFaultResults.filter(f => !episodeHasExcludeSignal(f, excludes));
+
+  if (!allFaultResults.length) {
+    // Detect ground recording: filename or queue name starts with G followed by digits
+    const recName = analysisData.filename || analysisQueue[activeQueueIdx]?.name || '';
+    const isGround = /(?:^|[_\/\\])G\d{2,5}/i.test(recName);
+
+    const bools = (analysisData.bool_channels || []).map(c => (c.name || c).toLowerCase());
+    const hasEpisodesKey = Array.isArray(analysisData.episodes);
+    const hasCapable = bools.some(n => /capable/.test(n));
+
+    let msg = '';
+    let msgStyle = 'background:#2d2d1e;border-color:#5a5a30;color:#a0a060';  // neutral yellow
+
+    if (isGround) {
+      // Ground recording — no disengagements expected, this is normal
+      msg = '<b>Ground recording — no AFCS disengagement events expected.</b> ' +
+            'The AFCS remained capable for the entire ground run. ' +
+            '<span style="font-size:11px;color:#78766e">This is normal for G-prefix datasets.</span>';
+      msgStyle = 'background:#1e2a1e;border-color:#3a5a3a;color:#6a9645';  // green — all good
+    } else if (!hasEpisodesKey) {
+      msg = '<b>No episodes key in JSON</b> — re-run analyze_iads.py with <code>--trigger afcsCapable</code>.';
+      msgStyle = 'background:#2e1e1e;border-color:#5a3030;color:#a05050';
+    } else if (!hasCapable) {
+      msg = '<b>afcsCapable not found in this recording.</b> ' +
+            'The signal may not have been recorded in these ZIP files. ' +
+            'Bool signals detected: <span style="font-family:monospace;font-size:11px">' +
+            (bools.length ? bools.slice(0,12).join(', ') + (bools.length > 12 ? ' …' : '') : '(none)') + '</span>';
+      msgStyle = 'background:#2e1e1e;border-color:#5a3030;color:#a05050';
+    } else {
+      // Capable present but no 1→0 drops — check sysNotEngage
+      const allTrans = analysisData.transitions || [];
+      const sysRises = allTrans.filter(t =>
+        /sysnotengage/i.test((t.signal||'').split('.').pop()) && t.to === 1
+      );
+      const sysInBools = bools.some(n => /sysnotengage/i.test(n));
+
+      let sysHtml = '';
+      if (!sysInBools) {
+        sysHtml = '<br><span style="font-size:11px;color:#78766e">sysNotEngage not recorded in this dataset.</span>';
+      } else if (!sysRises.length) {
+        sysHtml = '<br><span style="font-size:11px;color:#78766e">sysNotEngage recorded but never asserted — system was always engage-able.</span>';
+      } else {
+        const times = sysRises.map(t => (+t.time).toFixed(2)).join(', ');
+        sysHtml = '<br><div style="margin-top:6px;background:#2d2410;border:0.5px solid #6a5020;border-radius:6px;padding:7px 10px;font-size:12px;color:#b07828">' +
+          '<b>sysNotEngage asserted ' + sysRises.length + ' time' + (sysRises.length > 1 ? 's' : '') + '</b> — re-run with <code>--trigger sysNotEngage</code> to analyze.<br>' +
+          '<span style="font-size:11px;font-family:monospace">t = ' + times + '</span>' +
+          '</div>';
+      }
+
+      msg = '<b>afcsCapable present but no 1→0 transitions found.</b> ' +
+            'The AFCS remained capable for the entire recording.' + sysHtml;
+      msgStyle = 'background:#2d2410;border-color:#6a5020;color:#b07828';
+    }
+
+    panel.innerHTML = '<div class="no-faults" style="' + msgStyle + '">' + msg + '</div>';
+    btn.disabled = false;
+    return;
+  }
+
+  renderResults(panel, faultResults, max, analysisData, allFaultResults.length);
+  document.getElementById('exportBtn').disabled = false;
+  document.getElementById('exportSummaryBtn').disabled = analysisQueue.length < 1;
+  btn.disabled = false;
+  btn.textContent = 'Refresh';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function showProgress(panel, msg, pct) {
+  panel.innerHTML = '<div class="progress-bar">' +
+    '<div class="label">' + msg + '</div>' +
+    '<div class="track"><div class="fill" style="width:' + pct + '%"></div></div>' +
+    '<div class="step">' + pct + '%</div>' +
+    '</div>';
+}
+
+// ── Flight phase detection ─────────────────────────────────────────────────
+//
+// Phase definitions (enum indices from ENUM_DEFS):
+//   APPROACH : latActive = 3 (navAppr)  AND/OR  vertActive = 5 (glidePath)
+//   LANDING  : vertActive = 8 (flare)   OR  latActive = 5 (align)  OR  atActive = 3 (retard)
+//
+// Source: mode_transitions (globally captured before episodes were extracted)
+// Falls back to scanning all episode transitions when mode_transitions absent.
+
+const PHASE_MODES = {
+  APPROACH: [
+    { sig: 'latActive',  val: 3, label: 'navAppr',   axis: 'LAT' },
+    { sig: 'vertActive', val: 5, label: 'glidePath',  axis: 'VERT' },
+  ],
+  LANDING: [
+    { sig: 'vertActive', val: 8, label: 'flare',   axis: 'VERT' },
+    { sig: 'latActive',  val: 5, label: 'align',   axis: 'LAT' },
+    { sig: 'atActive',   val: 3, label: 'retard',  axis: 'AT' },
+  ],
+};
+
+function detectFlightPhases(data) {
+  // Collect mode transitions from mode_transitions (preferred) or episode windows
+  let modeTrans = (data.mode_transitions || []).slice();
+  if (!modeTrans.length) {
+    (data.episodes || []).forEach(ep =>
+      (ep.transitions || []).forEach(t => {
+        if (_MODE_SUFFIXES_JS.has(t.signal.split('.').pop())) modeTrans.push(t);
+      })
+    );
+  }
+  modeTrans.sort((a, b) => parseFloat(a.time) - parseFloat(b.time));
+
+  // ── Per-lane state tracking ────────────────────────────────────────────────
+  // laneState['FCC1A'] = { latActive:0, vertActive:0, atActive:0 }
+  // laneState['FCC1B'] = { ... }
+  const laneState   = {};  // lane → { latActive, vertActive, atActive }
+  const lanesSeen   = new Set();
+
+  // allEvents: one entry per transition, carrying lane + base key + value
+  const allEvents = [];
+
+  modeTrans.forEach(t => {
+    const sfx  = t.signal.split('.').pop();
+    if (!_MODE_SUFFIXES_JS.has(sfx)) return;
+    const lane = _laneOf(t.signal);
+    const base = _baseModeSfx(sfx);   // 'latActive' | 'vertActive' | 'atActive'
+    const tv   = parseFloat(t.time);
+    const val  = parseFloat(t.to);
+    lanesSeen.add(lane);
+    if (!laneState[lane]) laneState[lane] = { latActive: 0, vertActive: 0, atActive: 0 };
+    allEvents.push({ t: tv, lane, base, sfx: _normModeSfx(sfx), v: val });
+  });
+
+  allEvents.sort((a, b) => a.t - b.t);
+  if (!allEvents.length) return [];
+
+  // Primary lane for phase detection: prefer FCC1A, then FCC1B, then whatever appeared first
+  const PRIMARY_PREF = ['FCC1A', 'FCC1B'];
+  const primaryLane  = PRIMARY_PREF.find(l => lanesSeen.has(l)) || [...lanesSeen][0];
+
+  // Phase detection state — driven by primary lane only
+  const primState = { latActive: 0, vertActive: 0, atActive: 0 };
+
+  const phases = [];
+  let openPhase = null;
+
+  const phaseTypeFor = (st) => {
+    const isLanding  = st.vertActive === 8 || st.latActive === 5 || st.atActive === 3;
+    const isApproach = !isLanding && (st.latActive === 3 || st.vertActive === 5);
+    return isLanding ? 'LANDING' : isApproach ? 'APPROACH' : null;
+  };
+
+  const closePhase = (t) => {
+    if (!openPhase) return;
+    openPhase.end = t;
+    openPhase.duration_s = Math.round((t - openPhase.start) * 10) / 10;
+    phases.push(openPhase);
+    openPhase = null;
+  };
+
+  allEvents.forEach(ev => {
+    // Always update full lane state
+    if (laneState[ev.lane]) laneState[ev.lane][ev.base] = ev.v;
+
+    // Phase detection: only primary lane drives open/close
+    if (ev.lane === primaryLane) {
+      primState[ev.base] = ev.v;
+      const pType = phaseTypeFor(primState);
+      if (openPhase && openPhase.type !== pType) closePhase(ev.t);
+      if (!openPhase && pType) {
+        openPhase = { type: pType, start: ev.t, end: null, duration_s: null, activeModes: [] };
+      }
+    }
+
+    // Track active mode labels (from primary lane) during this phase
+    if (openPhase) {
+      const defs = PHASE_MODES[openPhase.type] || [];
+      openPhase.activeModes = defs
+        .filter(d => primState[d.sig] === d.val)
+        .map(d => d.label);
+    }
+  });
+  if (openPhase) closePhase(allEvents.at(-1).t + 1);
+
+  // Annotate phases with overlapping fault episodes and plot data
+  const episodes = data.episodes || [];
+  phases.forEach(ph => {
+    ph.faults = episodes.filter(ep => {
+      const t = parseFloat(ep.start_time);
+      return t >= ph.start - 1 && t <= (ph.end || Infinity) + 1;
+    });
+
+    // Pull plot signals from all episode windows that overlap this phase
+    ph.altEntry = null; ph.altExit = null; ph.gndSpdEntry = null;
+    ph.casEntry = null; ph.casTargetEntry = null;
+    ph.flapEntry = null; ph.hdgEntry = null;
+    ph.latDevPts = []; ph.vertDevPts = [];
+    ph.pitchActPts = []; ph.pitchCmdPts = [];
+    ph.rollActPts  = []; ph.rollCmdPts  = [];
+    ph.touchdownLat = null; ph.touchdownLon = null;
+
+    // Merge plot points from all overlapping episodes into phase-scoped arrays
+    const phasePlots = {};
+    for (const ep of episodes) {
+      if (!ep.plots) continue;
+      Object.entries(ep.plots).forEach(([sig, pts]) => {
+        if (!phasePlots[sig]) phasePlots[sig] = [];
+        pts.forEach(p => {
+          if (p[0] >= ph.start - 1 && p[0] <= (ph.end || Infinity) + 1) phasePlots[sig].push(p);
+        });
+      });
+    }
+    // De-duplicate and sort each merged series
+    Object.keys(phasePlots).forEach(sig => {
+      const seen = new Set();
+      phasePlots[sig] = phasePlots[sig]
+        .filter(p => { const k = p[0]; return seen.has(k) ? false : (seen.add(k), true); })
+        .sort((a, b) => a[0] - b[0]);
+    });
+
+    const inPhase = pts => pts ? pts.filter(p => p[0] >= ph.start && p[0] <= (ph.end || ph.start + 9999)) : [];
+
+    const rad = inPhase(phasePlots['radAltVoted'] || phasePlots['radAlt']);
+    if (rad.length) {
+      ph.altEntry = Math.round(rad[0][1]);
+      ph.altExit  = Math.round(rad.at(-1)[1]);
+    }
+
+    const spd = inPhase(phasePlots['gndSpdVoted'] || phasePlots['gndSpd']);
+    if (spd.length) ph.gndSpdEntry = Math.round(spd[0][1]);
+
+    const cas = inPhase(phasePlots['casVoted']);
+    if (cas.length) ph.casEntry = Math.round(cas[0][1]);
+
+    const casT = inPhase(phasePlots['casTarget']);
+    if (casT.length) ph.casTargetEntry = Math.round(casT[0][1]);
+
+    const flap = inPhase(phasePlots['flapAngleVoted']);
+    if (flap.length) ph.flapEntry = +flap[0][1].toFixed(1);
+
+    const hdg = inPhase(phasePlots['magHeadingVoted']);
+    if (hdg.length) ph.hdgEntry = Math.round(hdg[0][1]);
+
+    // Lateral / vertical deviation
+    ph.latDevPts  = inPhase(phasePlots['latDevSel']);
+    ph.vertDevPts = inPhase(phasePlots['vertDevSel']);
+
+    // Attitude actual vs commanded
+    ph.pitchActPts = inPhase(phasePlots['pitchAngleVoted']);
+    ph.pitchCmdPts = inPhase(phasePlots['fgPitchCmd']);
+    ph.rollActPts  = inPhase(phasePlots['rollAngleVoted']);
+    ph.rollCmdPts  = inPhase(phasePlots['fgRollCmd']);
+
+    const devStats = pts => {
+      if (!pts.length) return null;
+      const vals = pts.map(p => p[1]);
+      const maxAbs = Math.max(...vals.map(Math.abs));
+      const rms    = Math.sqrt(vals.reduce((s, v) => s + v * v, 0) / vals.length);
+      const last   = vals.at(-1);
+      return { maxAbs: +maxAbs.toFixed(3), rms: +rms.toFixed(3), last: +last.toFixed(3) };
+    };
+    ph.latDevStats  = devStats(ph.latDevPts);
+    ph.vertDevStats = devStats(ph.vertDevPts);
+
+    // Tracking error: actual − commanded (interpolated to actual timestamps)
+    const trackingError = (actPts, cmdPts) => {
+      if (!actPts.length || !cmdPts.length) return null;
+      // Build a lookup for cmd value at each act timestamp via linear interpolation
+      const errPts = [];
+      let ci = 0;
+      for (const [t, vAct] of actPts) {
+        while (ci < cmdPts.length - 1 && cmdPts[ci + 1][0] <= t) ci++;
+        let vCmd;
+        if (ci >= cmdPts.length - 1) {
+          vCmd = cmdPts.at(-1)[1];
+        } else if (cmdPts[ci][0] >= t) {
+          vCmd = cmdPts[ci][1];
+        } else {
+          const dt = cmdPts[ci+1][0] - cmdPts[ci][0];
+          const frac = dt > 0 ? (t - cmdPts[ci][0]) / dt : 0;
+          vCmd = cmdPts[ci][1] + frac * (cmdPts[ci+1][1] - cmdPts[ci][1]);
+        }
+        errPts.push([t, vAct - vCmd]);
+      }
+      return { pts: errPts, stats: devStats(errPts) };
+    };
+    ph.pitchError = trackingError(ph.pitchActPts, ph.pitchCmdPts);
+    ph.rollError  = trackingError(ph.rollActPts,  ph.rollCmdPts);
+
+    // Touchdown lat/lon — last available GNSS point within the landing phase.
+    // GNSS_Latitude (coarse integer deg) + GNSS_Latitude_Fine (fractional deg) must be summed.
+    if (ph.type === 'LANDING') {
+      const combineGnss = (coarseKey, fineKey) => {
+        const coarsePts = inPhase(phasePlots[coarseKey]);
+        const finePts   = inPhase(phasePlots[fineKey]);
+        if (!coarsePts.length && !finePts.length) return null;
+        // Use the last time that both (or either) are available
+        const lastT = Math.max(
+          coarsePts.length ? coarsePts.at(-1)[0] : -Infinity,
+          finePts.length   ? finePts.at(-1)[0]   : -Infinity,
+        );
+        const nearest = (pts, t) => {
+          if (!pts.length) return 0;
+          return pts.reduce((best, p) => Math.abs(p[0]-t) < Math.abs(best[0]-t) ? p : best)[1];
+        };
+        return nearest(coarsePts, lastT) + nearest(finePts, lastT);
+      };
+      const lat = combineGnss('GNSS_Latitude',  'GNSS_Latitude_Fine');
+      const lon = combineGnss('GNSS_Longitude', 'GNSS_Longitude_Fine');
+      if (lat !== null && lon !== null) {
+        ph.touchdownLat = +lat.toFixed(6);
+        ph.touchdownLon = +lon.toFixed(6);
+      }
+    }
+
+    // Key signal events during the phase window (monitor/validity/mode changes)
+    ph.events = modeTrans
+      .filter(t => {
+        const tv = parseFloat(t.time);
+        return tv >= ph.start && tv <= (ph.end || Infinity);
+      })
+      .concat(
+        episodes.flatMap(ep =>
+          (ep.transitions || []).filter(t => {
+            const tv = parseFloat(t.time);
+            return tv >= ph.start && tv <= (ph.end || Infinity);
+          })
+        )
+      )
+      .filter((t, i, arr) => arr.findIndex(x => x.signal === t.signal && x.time === t.time) === i) // dedup
+      .sort((a, b) => parseFloat(a.time) - parseFloat(b.time))
+      .slice(0, 40);
+  });
+
+  return phases;
+}
+
+// Match both bare names and IADS 'Enum'-suffixed forms (e.g. vertActiveEnum)
+const _MODE_SUFFIXES_JS = new Set([
+  'latActive', 'vertActive', 'atActive',
+  'latActiveEnum', 'vertActiveEnum', 'atActiveEnum',
+]);
+// Normalise a mode signal suffix to the ENUM_DEFS key (always *Enum)
+const _normModeSfx  = sfx => sfx.endsWith('Enum') ? sfx : sfx + 'Enum';
+// Base name without Enum suffix for state machine keys
+const _baseModeSfx  = sfx => sfx.endsWith('Enum') ? sfx.slice(0, -4) : sfx;
+// FCC lane prefix from full signal path (FCC1A, FCC1B, …)
+const _laneOf       = sig => sig.split('.')[0] || '';
+
+function renderFlightPhases(data, container) {
+  const phases = detectFlightPhases(data);
+  if (!phases.length) return;
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;margin-bottom:6px';
+
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;gap:8px';
+  hdr.innerHTML =
+    '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#6B62D4" stroke-width="1.8" stroke-linecap="round">' +
+    '<path d="M3 17 L8 12 L13 15 L21 7"/><polyline points="17 7 21 7 21 11"/></svg>' +
+    '<span style="font-size:11px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.06em">Flight Phases</span>';
+  wrap.appendChild(hdr);
+
+  phases.forEach((ph, pi) => {
+    const isApproach = ph.type === 'APPROACH';
+    const accentColor = isApproach ? '#6B62D4' : '#4CC9A0';
+    const bgColor     = isApproach ? '#1e1c38' : '#172a22';
+    const borderColor = isApproach ? '#2e2a60' : '#1e4a38';
+    const typeLabel   = isApproach ? 'APPROACH' : 'LANDING';
+    const modesStr    = ph.activeModes.join(' + ') || (isApproach ? 'navAppr / glidePath' : 'flare / align / retard');
+
+    const card = document.createElement('div');
+    card.style.cssText = `background:${bgColor};border:0.5px solid ${borderColor};border-radius:9px;overflow:hidden`;
+
+    // ── Header ──
+    let hdrHtml = `<div style="padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:0.5px solid ${borderColor}">`;
+    hdrHtml += `<span style="font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;border-radius:3px;background:${accentColor}28;color:${accentColor}">${typeLabel}</span>`;
+    hdrHtml += `<span style="font-family:monospace;font-size:11px;color:#cac8bf">${modesStr}</span>`;
+    hdrHtml += `<span style="margin-left:auto;font-family:monospace;font-size:10px;color:#78766e">t=${ph.start.toFixed(1)}`;
+    if (ph.end) hdrHtml += ` → ${ph.end.toFixed(1)}`;
+    hdrHtml += `</span>`;
+    if (ph.duration_s !== null) {
+      hdrHtml += `<span style="font-size:10px;padding:1px 6px;border-radius:3px;background:#323230;color:#96948c;font-family:monospace">${ph.duration_s}s</span>`;
+    }
+    hdrHtml += `</div>`;
+
+    // ── Metrics row ──
+    let metricsHtml = `<div style="padding:8px 14px;display:flex;flex-wrap:wrap;gap:14px 20px;border-bottom:0.5px solid ${borderColor}">`;
+    const metric = (v, lbl) => `<div style="display:flex;flex-direction:column;gap:1px">` +
+      `<span style="font-size:13px;font-weight:500;font-family:monospace;color:#cac8bf">${v}</span>` +
+      `<span style="font-size:10px;color:#78766e">${lbl}</span></div>`;
+    if (ph.altEntry        !== null) metricsHtml += metric(ph.altEntry        + ' ft',  'Entry AGL');
+    if (ph.altExit         !== null) metricsHtml += metric(ph.altExit         + ' ft',  'Exit AGL');
+    if (ph.casEntry        !== null) metricsHtml += metric(ph.casEntry        + ' kt',  'Entry CAS');
+    if (ph.casTargetEntry  !== null) metricsHtml += metric(ph.casTargetEntry  + ' kt',  'CAS Target');
+    if (ph.gndSpdEntry     !== null) metricsHtml += metric(ph.gndSpdEntry     + ' kt',  'Gnd Spd');
+    if (ph.flapEntry       !== null) metricsHtml += metric(ph.flapEntry       + '°',    'Flap');
+    if (ph.hdgEntry        !== null) metricsHtml += metric(ph.hdgEntry        + '°',    'Heading');
+    metricsHtml += metric(ph.faults.length > 0
+      ? `<span style="color:#d97070">${ph.faults.length}</span>`
+      : `<span style="color:#5d8e3a">0</span>`, 'Faults');
+    if (ph.latDevStats)  metricsHtml += metric(ph.latDevStats.maxAbs,  'Lat Dev Max');
+    if (ph.latDevStats)  metricsHtml += metric(ph.latDevStats.rms,     'Lat Dev RMS');
+    if (ph.vertDevStats) metricsHtml += metric(ph.vertDevStats.maxAbs, 'Vert Dev Max');
+    if (ph.vertDevStats) metricsHtml += metric(ph.vertDevStats.rms,    'Vert Dev RMS');
+    if (ph.pitchError?.stats) metricsHtml += metric(ph.pitchError.stats.maxAbs + '°', 'Pitch Err Max');
+    if (ph.pitchError?.stats) metricsHtml += metric(ph.pitchError.stats.rms    + '°', 'Pitch Err RMS');
+    if (ph.rollError?.stats)  metricsHtml += metric(ph.rollError.stats.maxAbs  + '°', 'Roll Err Max');
+    if (ph.rollError?.stats)  metricsHtml += metric(ph.rollError.stats.rms     + '°', 'Roll Err RMS');
+    metricsHtml += `</div>`;
+
+    // ── Deviation sparkline ──
+    const hasDevData = ph.latDevPts.length || ph.vertDevPts.length;
+    let sparkHtml = '';
+    if (hasDevData) {
+      const W = 560, H = 80, pL = 36, pR = 8, pT = 8, pB = 20;
+      const iW = W - pL - pR, iH = H - pT - pB;
+      const allPts = [...ph.latDevPts, ...ph.vertDevPts];
+      const tMin = ph.start, tMax = ph.end || (tMin + 1);
+      const vals  = allPts.map(p => p[1]);
+      const vMax  = Math.max(Math.abs(Math.min(...vals)), Math.abs(Math.max(...vals)), 0.001) * 1.15;
+      const tx = t => pL + (t - tMin) / (tMax - tMin) * iW;
+      const vy = v => pT + iH / 2 - (v / vMax) * (iH / 2);
+
+      const polyline = pts => pts.length < 2 ? '' :
+        `<polyline points="${pts.map(p => `${tx(p[0]).toFixed(1)},${vy(p[1]).toFixed(1)}`).join(' ')}" fill="none" stroke-width="1.2" stroke-linejoin="round"/>`;
+
+      let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">`;
+      svg += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#1a1a18" rx="2"/>`;
+      // Zero line
+      svg += `<line x1="${pL}" y1="${(pT + iH/2).toFixed(1)}" x2="${pL+iW}" y2="${(pT + iH/2).toFixed(1)}" stroke="#3a3a37" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+      // Y axis labels
+      svg += `<text x="${pL-3}" y="${(pT+iH/2).toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">0</text>`;
+      svg += `<text x="${pL-3}" y="${pT}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">${vMax.toFixed(2)}</text>`;
+      svg += `<text x="${pL-3}" y="${pT+iH}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">-${vMax.toFixed(2)}</text>`;
+      // Time axis labels
+      svg += `<text x="${pL}" y="${pT+iH+12}" text-anchor="middle" font-size="8" fill="#666460" font-family="monospace">+0s</text>`;
+      if (tMax > tMin) svg += `<text x="${pL+iW}" y="${pT+iH+12}" text-anchor="middle" font-size="8" fill="#666460" font-family="monospace">+${(tMax-tMin).toFixed(0)}s</text>`;
+      // Lines
+      if (ph.latDevPts.length  > 1) svg += `<g stroke="#6B62D4">${polyline(ph.latDevPts)}</g>`;
+      if (ph.vertDevPts.length > 1) svg += `<g stroke="#4CC9A0">${polyline(ph.vertDevPts)}</g>`;
+      svg += `</svg>`;
+
+      sparkHtml += `<div style="padding:8px 14px;border-bottom:0.5px solid ${borderColor}">`;
+      sparkHtml += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:5px">`;
+      sparkHtml += `<span style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em">Deviation</span>`;
+      if (ph.latDevPts.length)  sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#9490d4"><span style="display:inline-block;width:14px;height:2px;background:#6B62D4;border-radius:1px"></span>Lateral (latDevSel)</span>`;
+      if (ph.vertDevPts.length) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#4CC9A0"><span style="display:inline-block;width:14px;height:2px;background:#4CC9A0;border-radius:1px"></span>Vertical (vertDevSel)</span>`;
+      sparkHtml += `</div>${svg}</div>`;
+    }
+
+    // ── Touchdown point ──
+    let tdHtml = '';
+    if (ph.touchdownLat !== null && ph.touchdownLon !== null) {
+      const mapUrl = `https://maps.google.com/?q=${ph.touchdownLat},${ph.touchdownLon}&t=k`;
+      tdHtml = `<div style="padding:8px 14px;border-bottom:0.5px solid ${borderColor}">` +
+        `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Touchdown Point</div>` +
+        `<div style="display:flex;align-items:center;gap:10px;font-size:11px">` +
+        `<span style="font-family:monospace;color:#cac8bf">${ph.touchdownLat}°, ${ph.touchdownLon}°</span>` +
+        `<a href="${mapUrl}" target="_blank" style="font-size:10px;color:#6B62D4;text-decoration:none;padding:1px 6px;border-radius:3px;border:0.5px solid #3d3a7a">Open in Maps ↗</a>` +
+        `</div></div>`;
+    }
+
+    // ── Attitude performance sparklines (actual vs commanded) ──
+    const attitudeChartHtml = (() => {
+      const hasPitch = ph.pitchActPts.length > 1 || ph.pitchCmdPts.length > 1;
+      const hasRoll  = ph.rollActPts.length  > 1 || ph.rollCmdPts.length  > 1;
+      if (!hasPitch && !hasRoll) return '';
+
+      const W = 560, H = 88, pL = 36, pR = 8, pT = 8, pB = 20;
+      const iW = W - pL - pR, iH = H - pT - pB;
+      const tMin = ph.start, tMax = ph.end || (tMin + 1);
+      const tx = t => pL + (t - tMin) / (tMax - tMin) * iW;
+
+      const buildSvg = (actPts, cmdPts, errPts, colorAct, colorCmd, colorErr, label) => {
+        const allVals = [...actPts, ...cmdPts].map(p => p[1]);
+        if (!allVals.length) return '';
+        const vMax = Math.max(Math.abs(Math.min(...allVals)), Math.abs(Math.max(...allVals)), 0.5) * 1.1;
+        const vy = v => pT + iH / 2 - (v / vMax) * (iH / 2);
+        const poly = (pts, stroke, dash='') =>
+          pts.length < 2 ? '' :
+          `<polyline points="${pts.map(p=>`${tx(p[0]).toFixed(1)},${vy(p[1]).toFixed(1)}`).join(' ')}" fill="none" stroke="${stroke}" stroke-width="1.2" stroke-dasharray="${dash}" stroke-linejoin="round"/>`;
+
+        let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:visible">`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#1a1a18" rx="2"/>`;
+        s += `<line x1="${pL}" y1="${(pT+iH/2).toFixed(1)}" x2="${pL+iW}" y2="${(pT+iH/2).toFixed(1)}" stroke="#3a3a37" stroke-width="0.8" stroke-dasharray="3,3"/>`;
+        s += `<text x="${pL-3}" y="${(pT+iH/2).toFixed(1)}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">0°</text>`;
+        s += `<text x="${pL-3}" y="${pT}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">${vMax.toFixed(1)}°</text>`;
+        s += `<text x="${pL-3}" y="${pT+iH}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="#666460" font-family="monospace">-${vMax.toFixed(1)}°</text>`;
+        s += `<text x="${pL}" y="${pT+iH+12}" text-anchor="middle" font-size="8" fill="#666460" font-family="monospace">+0s</text>`;
+        if (tMax > tMin) s += `<text x="${pL+iW}" y="${pT+iH+12}" text-anchor="middle" font-size="8" fill="#666460" font-family="monospace">+${(tMax-tMin).toFixed(0)}s</text>`;
+        s += poly(cmdPts, colorCmd, '4,2');   // commanded — dashed
+        s += poly(actPts, colorAct);          // actual — solid
+        s += `</svg>`;
+        return s;
+      };
+
+      let html = `<div style="padding:8px 14px;border-bottom:0.5px solid ${borderColor}">`;
+      html += `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px">Attitude Performance</div>`;
+
+      if (hasPitch) {
+        html += `<div style="margin-bottom:8px">`;
+        html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">`;
+        html += `<span style="font-size:10px;color:#78766e">Pitch</span>`;
+        html += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#D4924A"><span style="display:inline-block;width:14px;height:2px;background:#D4924A;border-radius:1px"></span>Actual</span>`;
+        html += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#78766e"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #a07040"></span>Commanded</span>`;
+        if (ph.pitchError?.stats) html += `<span style="font-size:10px;color:#78766e;margin-left:auto">max err: <span style="color:#cac8bf;font-family:monospace">${ph.pitchError.stats.maxAbs}°</span> &nbsp; rms: <span style="color:#cac8bf;font-family:monospace">${ph.pitchError.stats.rms}°</span></span>`;
+        html += `</div>`;
+        html += buildSvg(ph.pitchActPts, ph.pitchCmdPts, ph.pitchError?.pts || [], '#D4924A', '#a07040', '#E07070', 'pitch');
+        html += `</div>`;
+      }
+
+      if (hasRoll) {
+        html += `<div>`;
+        html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">`;
+        html += `<span style="font-size:10px;color:#78766e">Roll</span>`;
+        html += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#9490d4"><span style="display:inline-block;width:14px;height:2px;background:#9490d4;border-radius:1px"></span>Actual</span>`;
+        html += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#78766e"><span style="display:inline-block;width:14px;height:0;border-top:2px dashed #6060b0"></span>Commanded</span>`;
+        if (ph.rollError?.stats) html += `<span style="font-size:10px;color:#78766e;margin-left:auto">max err: <span style="color:#cac8bf;font-family:monospace">${ph.rollError.stats.maxAbs}°</span> &nbsp; rms: <span style="color:#cac8bf;font-family:monospace">${ph.rollError.stats.rms}°</span></span>`;
+        html += `</div>`;
+        html += buildSvg(ph.rollActPts, ph.rollCmdPts, ph.rollError?.pts || [], '#9490d4', '#6060b0', '#E07070', 'roll');
+        html += `</div>`;
+      }
+
+      html += `</div>`;
+      return html;
+    })();
+
+    // ── Mode change timeline ──
+    const modeChanges = (data.mode_transitions || []).filter(t => {
+      const tv = parseFloat(t.time);
+      return tv >= ph.start - 0.5 && tv <= (ph.end || Infinity) + 0.5;
+    });
+
+    let bodyHtml = '';
+    if (modeChanges.length) {
+      bodyHtml += `<div style="padding:8px 14px;border-bottom:0.5px solid ${borderColor}">`;
+      bodyHtml += `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Mode sequence</div>`;
+      bodyHtml += `<div style="display:flex;flex-direction:column;gap:3px">`;
+      modeChanges.slice(0, 20).forEach(t => {
+        const sfx    = t.signal.split('.').pop();
+        const lane   = _laneOf(t.signal);
+        const fromLbl = enumFull(_normModeSfx(sfx), t.from).split(': ').pop();
+        const toLbl   = enumFull(_normModeSfx(sfx), t.to).split(': ').pop();
+        const dt     = (parseFloat(t.time) - ph.start).toFixed(1);
+        bodyHtml += `<div style="display:flex;align-items:center;gap:6px;font-size:11px">` +
+          `<span style="font-family:monospace;font-size:10px;color:#78766e;width:42px;text-align:right">+${dt}s</span>` +
+          `<span style="font-family:monospace;color:#9490d4">${lane || sfx}</span>` +
+          `<span style="font-family:monospace;color:#666460">${fromLbl}</span>` +
+          `<span style="color:#4a4a47;font-size:10px">→</span>` +
+          `<span style="font-family:monospace;font-weight:600;color:${accentColor}">${toLbl}</span>` +
+          `</div>`;
+      });
+      bodyHtml += `</div></div>`;
+    }
+
+    // ── Overlapping faults ──
+    if (ph.faults.length) {
+      bodyHtml += `<div style="padding:8px 14px">`;
+      bodyHtml += `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">Faults during phase</div>`;
+      ph.faults.forEach(ep => {
+        const et  = ep.exitType || {};
+        const catColor = et.color || '#888780';
+        const dt  = (parseFloat(ep.start_time) - ph.start).toFixed(1);
+        bodyHtml += `<div style="display:flex;align-items:center;gap:6px;font-size:11px;margin-bottom:3px">` +
+          `<span style="font-family:monospace;font-size:10px;color:#78766e;width:42px;text-align:right">+${dt}s</span>` +
+          `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:${catColor}28;color:${catColor};font-family:monospace">${et.label||'Unknown'}</span>` +
+          `<span style="font-family:monospace;color:#96948c">${et.evidence||''}</span>` +
+          `<span style="font-size:10px;color:#78766e;margin-left:auto">ep ${ep.episode}</span>` +
+          `</div>`;
+      });
+      bodyHtml += `</div>`;
+    } else {
+      bodyHtml += `<div style="padding:8px 14px;font-size:11px;color:#5d8e3a">No faults detected during this phase</div>`;
+    }
+
+    card.innerHTML = hdrHtml + metricsHtml + sparkHtml + attitudeChartHtml + tdHtml + bodyHtml;
+    wrap.appendChild(card);
+  });
+
+  container.appendChild(wrap);
+}
+
+// ── Render results ─────────────────────────────────────────────────────────
+function renderResults(panel, faults, maxTrans, data, totalEpisodes) {
+  panel.innerHTML = '';
+
+  const excluded = (totalEpisodes || faults.length) - faults.length;
+  const summary  = document.createElement('div');
+  summary.className = 'summary-card';
+  summary.innerHTML =
+    '<h3>' + (data.filename||'') + '</h3>' +
+    '<div class="score-row">' +
+      '<div class="score red"><div class="sv">' + faults.length + '</div><div class="sl">Anomalous episodes</div></div>' +
+      (excluded > 0 ? '<div class="score"><div class="sv">' + excluded + '</div><div class="sl">Commanded (filtered)</div></div>' : '') +
+      '<div class="score"><div class="sv">' + (data.total_rows||0).toLocaleString() + '</div><div class="sl">Rows</div></div>' +
+      '<div class="score"><div class="sv">' + (data.duration_s||'?') + 's</div><div class="sl">Duration</div></div>' +
+    '</div>' +
+    (excluded > 0 ? '<div style="margin-top:8px;font-size:11px;color:#888780">' + excluded + ' episode' + (excluded>1?'s':'') + ' hidden — contained a commanded-disconnect signal.</div>' : '');
+  panel.appendChild(summary);
+
+  // Flight phase section (Approach / Landing) — shown when mode_transitions present
+  renderFlightPhases(data, panel);
+
+  // Episode nav links (use scrollIntoView — main panel is an overflow-y:auto div)
+  if (faults.length > 1) {
+    const nav = document.createElement('div');
+    nav.style.cssText = 'display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:10px';
+    nav.innerHTML = '<span style="font-size:10px;font-weight:500;color:#888780;text-transform:uppercase;letter-spacing:.05em;margin-right:2px">Jump to:</span>';
+    faults.forEach(fault => {
+      const et  = fault.exitType || {};
+      const epId = 'episode-' + (fault.episode || fault.fault_id);
+      const btn  = document.createElement('button');
+      btn.type  = 'button';
+      btn.style.cssText = 'font-size:11px;padding:3px 9px;border-radius:4px;cursor:pointer;' +
+        'background:#f5f5f0;color:#444441;border:0.5px solid #d3d1c7;font-family:monospace;' +
+        'transition:background 0.1s';
+      btn.innerHTML = 'Ep ' + (fault.episode || fault.fault_id + 1) +
+        (et.label ? ' <span style="font-size:9px;color:#888780">(' + et.label + ')</span>' : '');
+      btn.onmouseover = () => { btn.style.background = '#EEEDFE'; btn.style.borderColor = '#AFA9EC'; };
+      btn.onmouseout  = () => { btn.style.background = '#f5f5f0'; btn.style.borderColor = '#d3d1c7'; };
+      btn.onclick     = () => {
+        const el = document.getElementById(epId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      };
+      nav.appendChild(btn);
+    });
+    summary.appendChild(nav);
+  }
+
+  // Episode cards
+  faults.forEach(fault => {
+    const card = document.createElement('div');
+    card.className = 'fault-card';
+    card.id = 'episode-' + (fault.episode || fault.fault_id);
+
+    const durLabel  = fault.duration_s != null ? fault.duration_s + 's' : 'open';
+    const timeRange = 't=' + fault.time + (fault.end_time ? ' → ' + fault.end_time : ' → end');
+
+    const et = fault.exitType || {};
+    // Show a confirmation badge for monitor exits (Resp/Cmd/Monitor) — not for Pilot-Commanded or Unknown
+    const needsConfirm = et.category && !['UNKNOWN', 'PILOT_CMD'].includes(et.category);
+    const confirmedBadge = needsConfirm
+      ? (et.confirmed
+          ? `<span style="font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:#1e3318;color:#5d8e3a;margin-left:4px;letter-spacing:.03em">✓ CONFIRMED</span>`
+          : `<span style="font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;background:#2e2e2c;color:#78766e;margin-left:4px;letter-spacing:.03em">? UNCONFIRMED</span>`)
+      : '';
+    const exitBadge = `<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.04em;background:${et.color||'#888780'};color:#fff">${et.label||'Unknown'}</span>${confirmedBadge}`;
+    const evidenceTxt = et.evidence ? `<span style="font-size:10px;font-family:monospace;color:${et.color||'#888780'};margin-left:6px">${et.evidence}</span>` : '';
+
+    let html = '<div class="fault-header">' +
+      '<span class="fault-badge unexpected-disengage">EPISODE ' + (fault.episode||'?') + '</span>' +
+      '<div style="flex:1">' +
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">' +
+          '<div class="fault-title">' + fault.signal.split('.').pop() + '&nbsp; 1→0</div>' +
+          exitBadge + evidenceTxt +
+        '</div>' +
+        '<div class="fault-meta">' + timeRange + ' · ' + durLabel + ' · ' + fault.signal + '</div>' +
+      '</div>' +
+      '</div><div class="fault-body">';
+
+    // Group concurrent transitions by lane (first dot-component of signal name)
+    const byLane = {};
+    fault.concurrent.forEach(c => {
+      const parts = c.signal.split('.');
+      const lane = parts.length > 1 ? parts[0] : '(no lane)';
+      if (!byLane[lane]) byLane[lane] = [];
+      byLane[lane].push(c);
+    });
+    const sortedLanes = Object.keys(byLane).filter(l => l !== 'Yoke' && l !== '(no lane)').sort();
+
+    // ── Likely initiating fault ──────────────────────────────────────────
+    const initiating = findInitiatingFault(fault.concurrent, fault.signal, (fault.exitType||{}).debounceSignal || null);
+    if (initiating) {
+      const ic = initiating.signal;
+      const confColor = { HIGH: '#5d8e3a', MEDIUM: '#b07828', LOW: '#78766e' }[initiating.confidence];
+      const confBg    = { HIGH: '#1e3318', MEDIUM: '#2d2410', LOW: '#2a2a28' }[initiating.confidence];
+      const edgeCls   = ic.to === 1 ? 'edge-rise' : 'edge-fall';
+      const edgeTxt   = ic.to === 1 ? '0→1' : '1→0';
+      const dtStr     = (ic.dt >= 0 ? '+' : '') + ic.dt.toFixed(3) + 's';
+
+      html += '<div style="background:' + confBg + ';border-radius:7px;padding:10px 12px;border:0.5px solid ' + confColor + '44">';
+      html +=   '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">';
+      html +=     '<div style="font-size:10px;font-weight:600;color:' + confColor + ';text-transform:uppercase;letter-spacing:.05em">Likely initiating fault</div>';
+      html +=     '<span style="font-size:9px;background:' + confColor + ';color:#fff;padding:1px 5px;border-radius:3px;letter-spacing:.04em">' + initiating.confidence + '</span>';
+      html +=   '</div>';
+      html +=   '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">';
+      html +=     '<span style="font-family:monospace;font-size:13px;font-weight:600;color:' + confColor + '">' + ic.signal.split('.').pop() + '</span>';
+      html +=     '<span class="edge ' + edgeCls + '">' + edgeTxt + '</span>';
+      html +=     '<span style="font-size:11px;font-family:monospace;color:#888780">' + dtStr + ' from trigger</span>';
+      html +=     '<span style="font-size:10px;color:#888780;font-family:monospace">' + ic.signal.split('.')[0] + '</span>';
+      html +=   '</div>';
+      html +=   '<div style="font-size:10px;color:#888780;margin-top:4px">' + initiating.reason + '</div>';
+
+      // If the exit was confirmed by a DebounceOut, show a dedicated confirmation block
+      // and explain that the trace was anchored to that signal instead of afcsCapable
+      if (et.confirmed && et.debounceSignal) {
+        const dbSfx  = et.debounceSignal.split('.').pop();
+        const dbLane = et.debounceSignal.split('.')[0] || '';
+        html += '<div style="margin-top:6px;padding:6px 9px;background:#EAF3DE;border-radius:5px;border:0.5px solid #97C459">';
+        html +=   '<div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">';
+        html +=     '<span style="font-size:10px;font-weight:600;color:#3B6D11">✓ Confirmed:</span>';
+        html +=     '<span style="font-family:monospace;font-size:11px;color:#085041;background:#D5EECB;padding:1px 6px;border-radius:3px">' + dbSfx + '</span>';
+        html +=     '<span style="font-size:10px;color:#3B6D11">asserted — fault active for sufficient frames within debounce window</span>';
+        html +=   '</div>';
+        html +=   '<div style="font-size:9px;font-family:monospace;color:#888780;margin-top:3px">' + et.debounceSignal + '</div>';
+        if (initiating.tracedFromDebounce) {
+          html +=   '<div style="font-size:10px;color:#085041;margin-top:3px">Upstream trace anchored to this signal — chain shows inputs that sustained the fault count within the debounce window.</div>';
+        }
+        html += '</div>';
+      }
+
+      if (initiating.others && initiating.others.length) {
+        const otherLabel = initiating.tracedFromDebounce
+          ? 'Also upstream of ' + (initiating.traceTarget||'').split('.').pop() + ':'
+          : 'Also upstream:';
+        html += '<div style="font-size:10px;color:#888780;margin-top:4px">' + otherLabel + ' ' +
+          initiating.others.map(o =>
+            '<span style="font-family:monospace;color:#444441">' + o.signal.split('.').pop() +
+            ' <span style="color:#b4b2a9">(' + (o.dt >= 0 ? '+' : '') + o.dt.toFixed(3) + 's)</span></span>'
+          ).join(' · ') + '</div>';
+      }
+      if (initiating.pdis && initiating.pdis.length) {
+        const pdiLabel = initiating.tracedFromDebounce ? 'PDI suspects (in debounce chain):' : 'PDI suspects:';
+        html += '<div style="font-size:10px;color:#854F0B;margin-top:4px">' + pdiLabel + ' ' +
+          initiating.pdis.map(p =>
+            '<span style="font-family:monospace;background:#FAEEDA;color:#854F0B;padding:1px 5px;border-radius:3px">' + p.name + '</span>'
+          ).join(' ') + '</div>';
+      }
+      html += '</div>';
+    }
+
+    // ── Common upstream inputs (when ≥2 capables fall together) ─────────
+    const commonUp = findCommonUpstream(fault.concurrent, fault.signal);
+    if (commonUp) {
+      html += '<div style="background:#EEEDFE;border:0.5px solid #AFA9EC;border-radius:7px;padding:10px 12px">';
+      html +=   '<div style="font-size:10px;font-weight:600;color:#3C3489;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px">Common upstream inputs</div>';
+      html +=   '<div style="font-size:10px;color:#534AB7;margin-bottom:6px">Structurally upstream of all: ' +
+                  commonUp.signals.map(s =>
+                    '<span style="font-family:monospace;background:#D9D7F8;padding:1px 5px;border-radius:3px">' + s + '</span>'
+                  ).join(' · ') + '</div>';
+      html +=   '<div style="display:flex;flex-wrap:wrap;gap:4px">';
+      commonUp.results.forEach(r => {
+        const isValid = /valid/i.test(r.name);
+        const bg    = isValid ? '#FAEEDA' : '#D9D7F8';
+        const color = isValid ? '#854F0B' : '#26215C';
+        html += '<span style="font-size:11px;font-family:monospace;background:' + bg + ';color:' + color + ';padding:2px 7px;border-radius:3px">' +
+                  r.name + '<span style="font-size:9px;color:#b4b2a9;margin-left:3px">≤' + r.maxHop + ' hops</span></span>';
+      });
+      html +=   '</div>';
+      html += '</div>';
+    }
+
+    // ── Build right column: AGL time-series + enum mode plots ───────────
+    let rightHtml = '';
+    if (fault.plots) {
+      const plotEntries = Object.entries(fault.plots)
+        .filter(([sig, pts]) => pts && pts.length > 1 &&
+          (activePlotSignals.size === 0 || activePlotSignals.has(sig)));
+      if (plotEntries.length) {
+        rightHtml += '<div class="section-label">AGL Context</div>';
+        plotEntries.forEach(([sig, pts]) => {
+          rightHtml += renderPlot(pts, sig.split('.').pop(), fault.time);
+        });
+      }
+    }
+    // Enum mode step plots — built from transitions, no CSV data required.
+    // Pass preStates so signals that never transitioned still show as flat lines.
+    const enumPreStates = fault.dissimilarity ? fault.dissimilarity.preStates : {};
+    const enumPlots = LANE_ENUM_SIGNALS.map(sig =>
+      renderEnumPlot(fault.concurrent, sig, fault.time, enumPreStates[sig] || {})
+    ).filter(Boolean);
+    if (enumPlots.length) {
+      rightHtml += '<div class="section-label" style="margin-top:8px">Mode enumerations</div>';
+      rightHtml += enumPlots.join('');
+    }
+
+    // ── Build left column: timeline + profile + transitions + dissimilarity
+    let leftHtml = '';
+
+    // Event micro-timeline
+    const tlHtml = renderTimeline(fault.concurrent, 20, fault.triggerEvent);
+    if (tlHtml) {
+      leftHtml += '<div><div class="section-label">Event timeline — relative to trigger (▲ rise &nbsp;▼ fall)</div>' + tlHtml + '</div>';
+    }
+
+    // Fault profile
+    const profile = profileEpisode(fault.concurrent);
+    if (profile.length > 0) {
+      leftHtml += '<div><div class="section-label">Fault profile</div>' +
+        '<table style="width:100%;border-collapse:collapse;font-size:12px">' +
+        '<thead><tr>' +
+          '<th style="text-align:left;padding:3px 6px;font-size:10px;font-weight:500;color:#888780;border-bottom:0.5px solid #d3d1c7">Axis</th>' +
+          '<th style="text-align:left;padding:3px 6px;font-size:10px;font-weight:500;color:#888780;border-bottom:0.5px solid #d3d1c7">Fault type</th>' +
+          '<th style="text-align:left;padding:3px 6px;font-size:10px;font-weight:500;color:#888780;border-bottom:0.5px solid #d3d1c7">Signal</th>' +
+          '<th style="text-align:right;padding:3px 6px;font-size:10px;font-weight:500;color:#888780;border-bottom:0.5px solid #d3d1c7">Δt</th>' +
+        '</tr></thead><tbody>';
+      profile.forEach((row, ri) => {
+        const rowBg = ri % 2 === 0 ? '#fff' : '#f9f9f7';
+        const axisBadge = row.axis
+          ? '<span style="background:' + row.axis.bg + ';color:' + row.axis.color + ';padding:1px 7px;border-radius:3px;font-weight:500">' + row.axis.label + '</span>'
+          : '<span style="color:#b4b2a9">—</span>';
+        leftHtml +=
+          '<tr style="background:' + rowBg + '">' +
+          '<td style="padding:4px 6px">' + axisBadge + '</td>' +
+          '<td style="padding:4px 6px;color:#444441">' + row.faultType + '</td>' +
+          '<td style="padding:4px 6px;font-family:monospace;color:#3C3489;font-size:11px">' + row.signal + '</td>' +
+          '<td style="padding:4px 6px;text-align:right;font-family:monospace;color:#888780;font-size:11px">' +
+            (row.dt >= 0 ? '+' : '') + row.dt.toFixed(3) + 's' +
+          '</td>' +
+          '</tr>';
+      });
+      leftHtml += '</tbody></table></div>';
+    }
+
+    // Signal transitions by lane
+    if (fault.concurrent.length > 0) {
+      const total = fault.concurrent.length;
+
+      // Default: show only FCC lanes. Expand to all lanes when there is a
+      // dissimilarity or validity issue — or the user clicks "show all lanes".
+      const hasDissimOrValidity = (fault.dissimilarity &&
+        (fault.dissimilarity.events || []).length > 0) ||
+        (et.category === 'VALIDITY_LOSS');
+      const fccLanes   = sortedLanes.filter(l => /^fcc/i.test(l));
+      const otherLanes = sortedLanes.filter(l => !/^fcc/i.test(l));
+      const visibleLanes  = hasDissimOrValidity ? sortedLanes : fccLanes;
+      const allLanesId    = 'all-lanes-' + (fault.episode || fault.fault_id);
+
+      const activeLanes = visibleLanes.length ? visibleLanes : sortedLanes;
+      const nLanes = activeLanes.length;
+
+      const bySuffix = {};
+      sortedLanes.forEach(lane => {
+        byLane[lane].forEach(c => {
+          const sfx = c.signal.split('.').pop();
+          if (!bySuffix[sfx]) bySuffix[sfx] = {};
+          if (!bySuffix[sfx][lane]) bySuffix[sfx][lane] = [];
+          bySuffix[sfx][lane].push(c);
+        });
+      });
+
+      const sortedSuffixes = Object.keys(bySuffix).sort((a, b) => {
+        const minA = Math.min(...activeLanes.map(l => bySuffix[a][l]?.[0]?.abs_dt ?? Infinity));
+        const minB = Math.min(...activeLanes.map(l => bySuffix[b][l]?.[0]?.abs_dt ?? Infinity));
+        return minA - minB;
+      });
+
+      const hiddenLaneCount = otherLanes.length;
+      leftHtml += '<div><div class="section-label" style="display:flex;align-items:center;gap:6px">Signal transitions by lane (' + total + ' total)';
+      if (hiddenLaneCount && !hasDissimOrValidity) {
+        leftHtml += '<button id="' + allLanesId + '-btn" onclick="(function(btn){' +
+          'document.getElementById(\'' + allLanesId + '\').style.display=\'block\';' +
+          'btn.style.display=\'none\';' +
+          '})(this)" style="font-size:10px;color:#534AB7;background:none;border:0.5px solid #AFA9EC;border-radius:3px;cursor:pointer;padding:1px 6px">' +
+          '+' + hiddenLaneCount + ' more lanes</button>';
+      }
+      leftHtml += '</div>';
+      leftHtml += '<div style="display:grid;grid-template-columns:repeat(' + nLanes + ',1fr);gap:3px 6px">';
+
+      activeLanes.forEach(lane => {
+        const laneColor = lane.startsWith('FCC') ? '#534AB7' : '#444441';
+        leftHtml += '<div style="font-size:10px;font-weight:600;color:' + laneColor + ';font-family:monospace;' +
+          'padding:2px 6px;background:#EEEDFE;border-radius:3px;margin-bottom:1px">' +
+          lane + ' <span style="font-weight:400;color:#888780">(' + byLane[lane].length + ')</span></div>';
+      });
+
+      // Signals to highlight: exit evidence + debounce + initiating fault
+      const evidenceSfx  = (et.evidence || '').toLowerCase();
+      const debounceSfx  = (et.debounceSignal || '').split('.').pop().toLowerCase();
+      const initSfx      = initiating ? initiating.signal.signal.split('.').pop().toLowerCase() : '';
+
+      const FOLD_ROWS  = 15;                        // rows visible before fold
+      const foldCells  = FOLD_ROWS * nLanes;        // cells = rows × lanes
+      const expandId   = 'ep-expand-' + (fault.episode || fault.fault_id);
+      let visibleHtml  = '';
+      let collapsedHtml = '';
+      let shownItems   = 0;
+      let totalItems   = 0;
+
+      for (const sfx of sortedSuffixes) {
+        const sfxLo    = sfx.toLowerCase();
+        const isEvidence  = evidenceSfx  && sfxLo === evidenceSfx;
+        const isDebounce  = debounceSfx  && sfxLo === debounceSfx;
+        const isInitiating = initSfx     && sfxLo === initSfx;
+
+        const laneArrs = activeLanes.map(l => bySuffix[sfx][l] || []);
+        const maxOcc   = Math.max(...laneArrs.map(a => a.length));
+        for (let occ = 0; occ < maxOcc; occ++) {
+          if (shownItems >= maxTrans) break;
+          activeLanes.forEach((lane, li) => {
+            const c = laneArrs[li][occ];
+            if (!c) { leftHtml += '<div></div>'; return; }
+            shownItems++;
+            const isRise    = c.to > c.from;
+            const edgeCls   = isRise ? 'edge-rise' : 'edge-fall';
+            const edgeTxt   = isRise ? '0→1' : '1→0';
+            const dtStr     = (c.dt >= 0 ? '+' : '') + c.dt.toFixed(3) + 's';
+            const isPreTrig = c.dt < -0.01;
+            const isPostTrig = c.dt > 0.05;
+
+            // Background: evidence/debounce > initiating > pre-trigger fall > post-trigger dimmed
+            let rowBg = '';
+            let outline = '';
+            let fontWeight = '400';
+            if (isEvidence || isDebounce) {
+              rowBg = (et.color || '#A32D2D') + '18';
+              outline = '0.5px solid ' + (et.color || '#A32D2D') + '66';
+              fontWeight = '600';
+            } else if (isInitiating) {
+              rowBg = '#FAEEDA';
+              outline = '0.5px solid #E8C87A';
+              fontWeight = '500';
+            } else if (isPreTrig && !isRise) {
+              rowBg = '#FFF0F0';
+            } else if (isPostTrig) {
+              rowBg = '';
+            }
+
+            const style = 'background:' + (rowBg||'') + ';' +
+              (outline ? 'outline:' + outline + ';' : '') +
+              (isPostTrig ? 'opacity:0.45;' : '');
+
+            const cell = '<div class="concurrent-item" style="' + style + '">' +
+              '<span class="sig" style="font-weight:' + fontWeight + '">' + sfx + '</span>' +
+              '<span class="edge ' + edgeCls + '">' + edgeTxt + '</span>' +
+              '<span class="dt">' + dtStr + '</span>' +
+              '</div>';
+            totalItems++;
+            if (shownItems < foldCells || isEvidence || isDebounce || isInitiating) {
+              visibleHtml += cell;
+              if (!isEvidence && !isDebounce && !isInitiating) shownItems++;
+            } else {
+              collapsedHtml += cell;
+            }
+          });
+        }
+      }
+
+      leftHtml += visibleHtml;
+
+      if (collapsedHtml) {
+        const extraRows = Math.ceil(collapsedHtml.split('concurrent-item').length / nLanes);
+        leftHtml += '<div id="' + expandId + '" style="display:none">' +
+          '<div style="display:grid;grid-template-columns:repeat(' + nLanes + ',1fr);gap:3px 6px">' +
+          collapsedHtml + '</div></div>';
+        leftHtml += '<div style="grid-column:1/-1;padding:4px 0">' +
+          '<button onclick="(function(btn){' +
+            'var d=document.getElementById(\'' + expandId + '\');' +
+            'var open=d.style.display===\'block\';' +
+            'd.style.display=open?\'none\':\'block\';' +
+            'btn.textContent=open?\'Show ' + (totalItems - shownItems) + ' more ▾\':\'Show less ▴\';' +
+          '})(this)" style="font-size:11px;color:#534AB7;background:none;border:none;cursor:pointer;padding:2px 0">' +
+          'Show ' + (totalItems - shownItems) + ' more ▾</button></div>';
+      }
+      leftHtml += '</div>';
+
+      // Hidden extra-lanes section (FMS, MFD, servos etc.) — shown on demand
+      if (hiddenLaneCount && !hasDissimOrValidity) {
+        const otherNLanes = otherLanes.length;
+        let otherHtml = '';
+        for (const sfx of sortedSuffixes) {
+          const laneArrs = otherLanes.map(l => bySuffix[sfx][l] || []);
+          const maxOcc = Math.max(...laneArrs.map(a => a.length));
+          for (let occ = 0; occ < maxOcc; occ++) {
+            otherLanes.forEach((lane, li) => {
+              const c = laneArrs[li][occ];
+              if (!c) { otherHtml += '<div></div>'; return; }
+              const isRise = c.to > c.from;
+              const dtStr  = (c.dt >= 0 ? '+' : '') + c.dt.toFixed(3) + 's';
+              otherHtml += '<div class="concurrent-item">' +
+                '<span class="sig">' + sfx + '</span>' +
+                '<span class="edge ' + (isRise ? 'edge-rise' : 'edge-fall') + '">' + (isRise ? '0→1' : '1→0') + '</span>' +
+                '<span class="dt">' + dtStr + '</span></div>';
+            });
+          }
+        }
+        leftHtml += '<div id="' + allLanesId + '" style="display:none;margin-top:6px">' +
+          '<div style="display:grid;grid-template-columns:repeat(' + otherNLanes + ',1fr);gap:3px 6px">';
+        otherLanes.forEach(lane => {
+          leftHtml += '<div style="font-size:10px;font-weight:600;color:#444441;font-family:monospace;' +
+            'padding:2px 6px;background:#f1efe8;border-radius:3px;margin-bottom:1px">' +
+            lane + ' <span style="font-weight:400;color:#888780">(' + (byLane[lane]||[]).length + ')</span></div>';
+        });
+        leftHtml += otherHtml + '</div></div>';
+      }
+
+      leftHtml += '</div>';
+    } else {
+      leftHtml += '<div style="font-size:12px;color:#888780;padding:4px 0">No other transitions recorded during this episode.</div>';
+    }
+
+    // Lane mode dissimilarity — check agreement BEFORE and AFTER fault
+    if (fault.dissimilarity) {
+      const { events: dissimEvents, preStates, postStates, lanes: dissimLanes } = fault.dissimilarity;
+      const enumsWithData = LANE_ENUM_SIGNALS.filter(s =>
+        Object.keys((preStates[s]||{})).length > 0 || Object.keys((postStates[s]||{})).length > 0
+      );
+      if (enumsWithData.length > 0) {
+        // Dissimilarity = lanes disagree pre-trigger OR post-trigger
+        const preDisagreements  = LANE_ENUM_SIGNALS.filter(s => new Set(Object.values(preStates[s]  || {})).size > 1);
+        const postDisagreements = LANE_ENUM_SIGNALS.filter(s => new Set(Object.values(postStates[s] || {})).size > 1);
+        const hasDissim = preDisagreements.length > 0 || postDisagreements.length > 0;
+
+        leftHtml += '<div><div class="section-label" style="display:flex;align-items:center;gap:6px">Lane Mode States';
+        leftHtml += hasDissim
+          ? ' <span style="background:#FCEBEB;color:#A32D2D;font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;letter-spacing:.04em">DISSIMILARITY</span>'
+          : ' <span style="background:#EAF3DE;color:#3B6D11;font-size:9px;font-weight:600;padding:1px 6px;border-radius:3px;letter-spacing:.04em">LANES AGREE</span>';
+        leftHtml += '</div>';
+
+        leftHtml += '<table style="width:100%;border-collapse:collapse;font-size:11px;margin-top:4px">';
+        leftHtml += '<thead><tr>';
+        leftHtml += '<th style="text-align:left;padding:3px 6px;font-size:10px;color:#888780;font-weight:500;border-bottom:0.5px solid #d3d1c7">Enum</th>';
+        dissimLanes.forEach(lane => {
+          leftHtml += '<th colspan="2" style="text-align:center;padding:3px 6px;font-size:10px;color:#888780;font-weight:500;border-bottom:0.5px solid #d3d1c7">' + lane + '</th>';
+        });
+        leftHtml += '</tr><tr>';
+        leftHtml += '<th></th>';
+        dissimLanes.forEach(() => {
+          leftHtml += '<th style="text-align:center;padding:1px 4px;font-size:9px;color:#b4b2a9;font-weight:400;border-bottom:0.5px solid #d3d1c7">before</th>';
+          leftHtml += '<th style="text-align:center;padding:1px 4px;font-size:9px;color:#b4b2a9;font-weight:400;border-bottom:0.5px solid #d3d1c7">after</th>';
+        });
+        leftHtml += '</tr></thead><tbody>';
+
+        LANE_ENUM_SIGNALS.forEach((sig, ri) => {
+          const pre  = preStates[sig]  || {};
+          const post = postStates[sig] || {};
+          if (!Object.keys(pre).length && !Object.keys(post).length) return;
+
+          const preVals  = Object.values(pre);
+          const postVals = Object.values(post);
+          const preDisagreement  = new Set(preVals).size  > 1;
+          const postDisagreement = new Set(postVals).size > 1;
+          const rowDissim = preDisagreement || postDisagreement;
+          const rowBg = rowDissim ? '#FFF5F5' : (ri % 2 === 0 ? '#fff' : '#f9f9f7');
+
+          leftHtml += '<tr style="background:' + rowBg + '">';
+          leftHtml += '<td style="padding:4px 6px;font-family:monospace;color:' + (rowDissim ? '#A32D2D' : '#444441') + ';font-weight:' + (rowDissim ? '600' : '400') + '">' + sig + '</td>';
+          dissimLanes.forEach(lane => {
+            const preVal  = pre[lane]  !== undefined ? pre[lane]  : '—';
+            const postVal = post[lane] !== undefined ? post[lane] : '—';
+            const changed = preVal !== postVal;
+            const cellColor = (v, dissim) => dissim ? '#A32D2D' : (changed ? '#854F0B' : '#085041');
+            const preDisp  = enumLabel(sig, preVal);
+            const postDisp = enumLabel(sig, postVal);
+            const preTip   = enumFull(sig, preVal);
+            const postTip  = enumFull(sig, postVal);
+            leftHtml += '<td title="' + preTip  + '" style="text-align:center;padding:4px 4px;font-family:monospace;font-size:11px;color:' + cellColor(preVal, preDisagreement)  + '">' + preDisp + '</td>';
+            leftHtml += '<td title="' + postTip + '" style="text-align:center;padding:4px 4px;font-family:monospace;font-size:11px;color:' + cellColor(postVal, postDisagreement) + ';font-weight:' + (changed ? '600' : '400') + '">' + postDisp + (changed ? ' ←' : '') + '</td>';
+          });
+          leftHtml += '</tr>';
+        });
+
+        leftHtml += '</tbody></table></div>';
+      }
+    }
+
+    // ── Combine columns ──────────────────────────────────────────────────
+    if (rightHtml) {
+      html += '<div style="display:flex;gap:16px;align-items:flex-start">' +
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:10px">' + leftHtml + '</div>' +
+        '<div style="width:50%;min-width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;border-left:0.5px solid #d3d1c7;padding-left:16px">' + rightHtml + '</div>' +
+        '</div>';
+    } else {
+      html += leftHtml;
+    }
+
+    html += '</div>';
+    card.innerHTML = html;
+    panel.appendChild(card);
+  });
+}
+
+// ── Light-theme conversion for print ──────────────────────────────────────
+// Maps every dark hex used in CSS classes AND inline styles to a light equivalent.
+// Intentional saturated colors (category badges, axis labels) are left alone.
+const DARK_TO_LIGHT = [
+  // ── Backgrounds ──
+  [/#2b2b28/g,  '#ffffff'],  // body
+  [/#272725/g,  '#ffffff'],  // cards / sidebar
+  [/#222220/g,  '#f5f4f0'],  // header
+  [/#323230/g,  '#f5f4f0'],  // items / inputs
+  [/#252340/g,  '#eeedf8'],  // blue-tinted bg
+  [/#2d2b48/g,  '#eeedf8'],  // chip bg
+  [/#3a2810/g,  '#fdf0e0'],  // amber bg
+  [/#2e2222/g,  '#fde8e8'],  // red bg
+  [/#253420/g,  '#e8f5e0'],  // green bg
+  [/#1e3410/g,  '#e8f5d8'],  // no-faults green bg
+  [/#1e2a1e/g,  '#e8f5d8'],  // ground diagnostic green bg
+  [/#1e1e1c/g,  '#f0efeb'],  // SVG chart bg
+  [/#1e1c38/g,  '#eeecfc'],  // approach phase bg
+  [/#172a22/g,  '#e8f5ec'],  // landing phase bg
+  [/#2e2a60/g,  '#c0bce8'],  // approach phase border
+  [/#1e4a38/g,  '#b0dcc0'],  // landing phase border
+  [/#2e2e2c/g,  '#e8e6e0'],  // chart gridlines / row dividers
+  [/#252523/g,  '#e8e6e0'],  // table row border
+  [/#3a3a37/g,  '#d8d6d0'],  // borders
+  [/#4a4a47/g,  '#c8c6c0'],  // dimmer borders
+  [/#17352a/g,  '#e0f5ec'],  // loaded drop-zone
+  [/#1D9E75/g,  '#1D9E75'],  // keep green accent
+  // ── Text ──
+  [/#cac8bf/g,  '#1a1a18'],
+  [/#e2e0d7/g,  '#1a1a18'],
+  [/#e8e6dd/g,  '#1a1a18'],
+  [/#96948c/g,  '#555350'],
+  [/#78766e/g,  '#666460'],
+  [/#888780/g,  '#555350'],
+  [/#56544e/g,  '#888680'],
+  [/#666460/g,  '#888680'],
+  [/#b0acd8/g,  '#3a3870'],
+  [/#9490d4/g,  '#4a46a8'],
+  [/#6a68a0/g,  '#7a78b8'],
+  [/#4a4880/g,  '#8a88c8'],  // chip border
+  [/#3d3a7a/g,  '#a0a0d8'],  // root-cause border
+  [/#4CC9A0/g,  '#1a8a60'],  // green value text — darken for light bg
+  // ── Edge colors — keep saturated but use darker shades ──
+  [/#6a9645/g,  '#3a7010'],  // rise text
+  [/#a85555/g,  '#9b2020'],  // fall text
+  // ── Keep intentional category/axis colors as-is (they're saturated) ──
+];
+
+function sanitizeForPrint(html) {
+  let out = html;
+  for (const [re, rep] of DARK_TO_LIGHT) out = out.replace(re, rep);
+  return out;
+}
+
+// Light-theme CSS class overrides (handles class-based styles)
+const PRINT_LIGHT_CSS = `
+* { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+body { background: #ffffff !important; color: #1a1a18 !important; }
+.fault-card  { background: #ffffff !important; border-color: #d8d6d0 !important; }
+.fault-header { border-color: #d8d6d0 !important; }
+.fault-title { color: #1a1a18 !important; }
+.fault-meta  { color: #666460 !important; }
+.fault-badge.unexpected-disengage { background: #fde8e8 !important; color: #9b2020 !important; }
+.fault-badge.unexpected-engage    { background: #fdf0e0 !important; color: #8a5520 !important; }
+.fault-badge.failed-engage        { background: #fde8e8 !important; color: #9b2020 !important; }
+.concurrent-item  { background: #f5f4f0 !important; }
+.concurrent-item .sig { color: #4a46a8 !important; }
+.concurrent-item .dt  { color: #666460 !important; }
+.edge-rise { background: #e8f5e0 !important; color: #3a7010 !important; }
+.edge-fall { background: #fde8e8 !important; color: #9b2020 !important; }
+.upstream-sig  { background: #eeedf8 !important; color: #4a46a8 !important; }
+.upstream-pdi  { background: #fdf0e0 !important; color: #8a5520 !important; }
+.upstream-arrow { color: #a0a09a !important; }
+.root-cause-box { background: #eeedf8 !important; border-color: #a0a0d8 !important; }
+.root-cause-box .rc-label { color: #4a46a8 !important; }
+.root-cause-box .rc-text  { color: #3a3870 !important; }
+.summary-card { background: #ffffff !important; border-color: #d8d6d0 !important; }
+.summary-card h3 { color: #1a1a18 !important; }
+.score { background: #f5f4f0 !important; }
+.score .sv { color: #1a1a18 !important; }
+.score .sl { color: #666460 !important; }
+.score.red   .sv { color: #c03030 !important; }
+.score.amber .sv { color: #a06020 !important; }
+.score.green .sv { color: #3a7020 !important; }
+.no-faults { background: #e8f5d8 !important; border-color: #6aaa30 !important; color: #3a7020 !important; }
+.section-label { color: #666460 !important; }
+.stat  { background: #f5f4f0 !important; }
+.stat-label { color: #666460 !important; }
+.stat-value { color: #1a1a18 !important; }
+.fault-card { break-inside: avoid; }
+`;
+
+function openPrintWindow(title, coverHTML, bodyHTML) {
+  // Include full original stylesheet (preserves all layout/flex rules),
+  // then apply light-theme color overrides on top.
+  const allStyles = Array.from(document.styleSheets)
+    .flatMap(ss => { try { return Array.from(ss.cssRules).map(r => r.cssText); } catch(e) { return []; } })
+    .join('\n');
+
+  const html = `<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>${title}</title>
+<style>
+${allStyles}
+/* ── Page layout overrides ── */
+* { box-sizing: border-box; }
+body { background: #ffffff !important; color: #1a1a18 !important;
+       padding: 32px !important; max-width: 980px !important; margin: 0 auto !important;
+       display: block !important; min-height: 0 !important; }
+.cover { background: #1a1a18 !important; color: #f0efe8 !important;
+         padding: 20px 24px !important; border-radius: 8px; margin-bottom: 24px !important;
+         -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.cover h1 { font-size: 16px; font-weight: 500; margin-bottom: 4px; color: #f0efe8 !important; }
+.cover .meta { font-size: 11px; color: #9a9890 !important; line-height: 1.7; }
+.layout, .sidebar { display: none !important; }
+.main { padding: 0 !important; display: block !important; overflow: visible !important;
+        height: auto !important; gap: 0 !important; }
+.summary-card { margin-bottom: 16px; }
+.fault-card { break-inside: avoid; margin-bottom: 12px; }
+${PRINT_LIGHT_CSS}
+</style>
+</head><body>
+${coverHTML}
+<div class="main">
+${sanitizeForPrint(bodyHTML)}
+</div>
+<script>window.onload = () => { window.focus(); window.print(); }<\/script>
+</body></html>`;
+  const w = window.open('', '_blank');
+  if (!w) { alert('Allow pop-ups for this page to export the report.'); return; }
+  w.document.write(html);
+  w.document.close();
+  w.document.title = title;
+}
+
+// ── Export summary (Data Summary view → print window) ─────────────────────
+function exportSummary() {
+  if (!analysisQueue.length) return;
+  const ts = new Date();
+
+  const tmp = document.createElement('div');
+  tmp.style.cssText = 'position:absolute;left:-9999px;top:0;width:900px';
+  document.body.appendChild(tmp);
+  renderFleetSummary(tmp);
+  const summaryHTML = tmp.innerHTML;
+  document.body.removeChild(tmp);
+
+  const sortieTitles = analysisQueue.map(q => q.name.replace(/\.json$/i,'')).join(', ');
+
+  openPrintWindow(
+    'Data Summary',
+    `<div class="cover">
+      <h1>Flight Test Data Summary</h1>
+      <div class="meta">Sorties: ${sortieTitles}<br>Generated: ${ts.toLocaleString()}</div>
+    </div>`,
+    summaryHTML
+  );
+}
+
+// ── Export report ──────────────────────────────────────────────────────────
+function exportReport() {
+  if (!faultResults.length) return;
+  const panel    = document.getElementById('mainPanel');
+  const ts       = new Date();
+  const queueName = analysisQueue[activeQueueIdx]?.name || analysisData?.filename || 'report';
+  const title    = queueName.replace(/\.[^.]+$/, '');
+
+  openPrintWindow(
+    title,
+    `<div class="cover">
+      <h1>Flight Test Root Cause Report</h1>
+      <div class="meta">File: ${analysisData?.filename||''} &nbsp;·&nbsp; Generated: ${ts.toLocaleString()}</div>
+    </div>`,
+    panel.innerHTML
+  );
+
+}
+</script>
+</body>
+</html>

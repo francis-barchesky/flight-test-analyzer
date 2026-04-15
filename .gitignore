@@ -1,0 +1,19 @@
+# Source ZIPs (large, downloaded on demand)
+*.zip
+
+# Analysis outputs (generated, not source)
+analysis*.json
+batch_manifest.json
+
+# Temp files from pipeline
+_rca_tmp_*.json
+_rca_tmp_*.csv
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+Thumbs.db
