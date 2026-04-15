@@ -92,8 +92,23 @@ python run_batch.py --organize
 python run_batch.py --status
 ```
 
-Shows a compact status view across all sorties — done, pending, and 0-episode sorties.
-A progress bar is also printed inline after each sortie completes during a run.
+Shows a compact status view across all sorties — done, pending, and 0-episode sorties:
+
+```
+Status  .  (9 sortie(s) with ZIPs)
+
+  DONE    (5):  G014  S114_1  S115_2  S116  S116_2
+  PENDING (4):  S115_1  S117  S117_2  S118
+  0 eps   (2):  S114_1  S116_2
+
+  5/9 done (55%)  |  4 pending  |  2 with 0 episodes
+```
+
+A live progress bar with ETA is also printed after each sortie completes during a run:
+
+```
+  [##########--------------------] 3/9 (33%)  ETA ~14m 22s (15:43)
+```
 
 ### 6. Dry-run preview
 
@@ -116,11 +131,20 @@ python run_batch.py --dry-run
 | `trigger` | `"afcsCapable"` | Signal name to detect episodes |
 | `trigger_from` | `1.0` | Trigger transition from value |
 | `trigger_to` | `0.0` | Trigger transition to value |
-| `workers` | `22` | Total worker processes (divided across parallel sorties) |
+| `workers` | `0` | Total worker processes — `0` auto-detects all CPU cores |
 | `parallel_sorties` | `1` | Number of sorties to analyze concurrently |
 | `skip_existing` | `true` | Skip sorties that already have a JSON |
 | `delete_zips_after` | `false` | Delete ZIPs after a sortie is analyzed |
 | `plot_signals` | see below | Comma-separated signals to capture as continuous data |
+
+### Worker auto-detection
+
+Set `workers: 0` to automatically use all available CPU cores. The batch header
+always shows the resolved count:
+
+```
+Batch  .  |  9 sortie(s)  |  trigger=afcsCapable  |  parallel=3  workers/sortie=7 (auto/22)
+```
 
 ### Parallel sorties
 
@@ -128,7 +152,8 @@ python run_batch.py --dry-run
 `workers_per_sortie = workers // parallel_sorties`.
 
 Start conservative (2–3). Each sortie extracts ZIPs to temp CSVs — with many parallel
-sorties on large datasets, temp disk usage can grow quickly.
+sorties on large datasets, temp disk usage can grow quickly. If the bottleneck is a single
+large ZIP, fewer parallel sorties with more workers each will be faster.
 
 Override at runtime:
 ```bash
@@ -285,6 +310,44 @@ Batch  .  |  8 sortie(s)  |  trigger=afcsCapable  |  parallel=3  workers/sortie=
   [########----------------------] 3/8 (37%)  pending=5
   ...
 Batch done  312.4s  |  ok=8  skipped=0  errors=0
+```
+
+---
+
+## Publishing results
+
+Analysis JSONs are gitignored on `master` to keep the repo lean. Use the `data` branch
+to share results with the team.
+
+### One-time setup
+
+```bash
+git checkout --orphan data
+git rm -rf .
+echo "*.zip" > .gitignore
+git add .gitignore
+git commit -m "Initialize data branch"
+git push -u origin data
+git checkout master
+```
+
+### Publish after each pipeline run
+
+```bash
+bash publish_data.sh
+```
+
+Each publish appends a new commit to `origin/data` — full history is preserved so you
+can retrieve results from any previous run:
+
+```bash
+git log origin/data --oneline          # list all publishes
+git checkout <hash> -- analysis_S114_1.json   # restore a specific file
+```
+
+Dry-run preview:
+```bash
+bash publish_data.sh --dry-run
 ```
 
 ---
