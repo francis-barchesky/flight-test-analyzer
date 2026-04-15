@@ -332,6 +332,13 @@ def main():
             print(f"  ERROR  [{i}/{n}] {name}  exit {e.returncode}  ({elapsed:.1f}s)  — ZIPs NOT deleted", flush=True)
             return {"sortie": name, "json": None, "status": "error"}
 
+    def _fmt_dur(secs):
+        secs = int(secs)
+        h, m, s = secs // 3600, (secs % 3600) // 60, secs % 60
+        if h:   return f"{h}h {m:02d}m"
+        if m:   return f"{m}m {s:02d}s"
+        return f"{s}s"
+
     def _print_progress(results):
         done    = sum(1 for r in results if r["status"] in ("ok", "skipped"))
         errors  = sum(1 for r in results if r["status"] == "error")
@@ -341,7 +348,19 @@ def main():
         filled  = int(bar_len * done / n) if n else 0
         bar     = "#" * filled + "-" * (bar_len - filled)
         err_tag = f"  errors={errors}" if errors else ""
-        print(f"  [{bar}] {done}/{n} ({pct}%)  pending={pending}{err_tag}", flush=True)
+
+        # ETA: average elapsed of timed sorties, divided by parallelism
+        timed = [r["elapsed_s"] for r in results if r.get("elapsed_s")]
+        if timed and pending > 0:
+            avg_s = sum(timed) / len(timed)
+            eta_s = avg_s * pending / max(1, parallel_sorties)
+            eta_tag = f"  ETA ~{_fmt_dur(eta_s)}"
+        elif pending == 0:
+            eta_tag = "  done"
+        else:
+            eta_tag = ""
+
+        print(f"  [{bar}] {done}/{n} ({pct}%){eta_tag}{err_tag}", flush=True)
 
     if parallel_sorties > 1:
         with ThreadPoolExecutor(max_workers=parallel_sorties) as ex:
