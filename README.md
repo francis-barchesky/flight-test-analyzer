@@ -9,7 +9,7 @@ pipeline.sh
   └─ download (iads_export_manual_multiple_download.sh)   day-by-day
   └─ run_batch.py --organize
        └─ analyze_iads.py  (per sortie ZIP → analysis_SXXX.json)
-            └─ root_cause_analyzer.html  (load JSONs in browser)
+            └─ flight_test_analyzer.html  (load JSONs in browser)
 ```
 
 ---
@@ -22,7 +22,7 @@ pipeline.sh
 | `run_batch.py` | Batch runner — organizes ZIPs into sortie dirs, runs analyze, deletes ZIPs |
 | `pipeline.sh` | Day-by-day download → organize → analyze loop |
 | `batch_config.json` | Shared config for all three scripts |
-| `root_cause_analyzer.html` | Standalone browser tool for fault analysis |
+| `flight_test_analyzer.html` | Standalone browser tool for fault analysis |
 
 ---
 
@@ -189,6 +189,16 @@ Options:
   "num_channels":      [...],
   "mode_transitions":  [...],   ← full-flight latActive/vertActive/atActive history
   "trigger":           { signal, from, to },
+  "flight_plots": {             ← full-resolution plot signals for approach/landing window
+    "radAltVoted":   [[t, v], ...],
+    "latDevSel":     [[t, v], ...],
+    ...
+  },
+  "takeoff_plots": {            ← full-resolution plot signals for takeoff window
+    "radAltVoted":   [[t, v], ...],
+    "casVoted":      [[t, v], ...],
+    ...
+  },
   "episodes": [
     {
       "episode":    int,
@@ -196,15 +206,45 @@ Options:
       "end_time":   float,
       "duration_s": float,
       "transitions": [...],
-      "plots": {
+      "plots": {                ← ±30s episode window (fallback when flight_plots absent)
         "radAltVoted":   [[t, v], ...],
-        "latDevSel":     [[t, v], ...],
         ...
       }
     }
   ]
 }
 ```
+
+### flight_plots — approach/landing window at full resolution
+
+`flight_plots` contains all plot-signal samples within the approach/landing time window
+at the native IADS recording rate — no downsampling.
+
+**Window**: from the first activation of any approach/landing mode
+(`navAppr`, `glidePath`, `align`, `flare`, `retard`) minus 10 s, through the last
+activation **or deactivation** of any such mode plus 5 s.
+
+Using the deactivation time (mode going back to standby after touchdown) rather than the
+last activation ensures the full post-touchdown ground roll is captured.
+
+Typical size: ~5–10 MB added to the JSON for a 6-minute approach at 50 Hz.
+
+If no approach modes are detected (e.g. ground sorties), all plot-signal points
+are stored for the full flight.
+
+### takeoff_plots — takeoff window at full resolution
+
+`takeoff_plots` contains all plot-signal samples within the takeoff time window
+at the native IADS recording rate.
+
+**Window**: from the first activation of any takeoff mode
+(`latActive=takeoff`, `vertActive=takeoff`, `atActive=takeOff`) minus 10 s, through the
+last deactivation plus 30 s.
+
+The +30 s post-margin captures the initial climb-out after the AFCS modes revert to
+standby. Stored as an empty dict `{}` when no takeoff modes are found.
+
+The browser tool uses `takeoff_plots` when rendering TAKEOFF phase cards.
 
 ### Plot signals captured
 
@@ -233,14 +273,17 @@ Options:
 
 ---
 
-## root_cause_analyzer.html
+## flight_test_analyzer.html
 
 Open directly in a browser — no server required.
 
 ### Loading data
 
-- **Drop a JSON** onto the drop zone, or click to browse
-- **Folder scan** — picks up all `analysis*.json` files from a directory and subdirectories
+- **Scan folder** (top of sidebar) — scans a directory and all subdirectories:
+  - Loads all `analysis_*.json` files into the file queue
+  - Auto-detects and loads any trace graph JSON (file containing `nodes[]` + `edges[]`)
+  - Other JSONs (`batch_config.json`, `batch_manifest.json`, etc.) are silently ignored
+- **Drop analysis.json** onto the Analysis Data drop zone, or click to browse individual files
 - Multiple sorties queue in the sidebar; click **Data Summary** for a fleet-level view
 
 ### Fault classification
@@ -262,25 +305,83 @@ Episodes (AFCS capable 1→0 transitions) are classified by `classifyExit()`:
 
 ### Flight phases
 
-When `mode_transitions` is present in the JSON, the tool automatically detects:
+When `mode_transitions` is present in the JSON, the tool automatically detects and renders
+phase cards for three phase types:
 
+#### TAKEOFF (amber)
+`latActive = takeoff` and/or `vertActive = takeoff` and/or `atActive = takeOff`.
+Data sourced from `takeoff_plots`. Chart window starts 10 s before the first takeoff
+mode activation and extends 30 s past the last deactivation to capture the climb-out.
+
+#### APPROACH (purple) / LANDING (teal)
 - **APPROACH** — `latActive = navAppr` and/or `vertActive = glidePath`
 - **LANDING** — `vertActive = flare`, `latActive = align`, or `atActive = retard`
 
+Approach and Landing are merged into a single combined card (blue) when they are adjacent.
+The chart window starts 10 s before the first approach mode activation.
+
+Data sourced from `flight_plots`. Falls back to per-episode ±30 s windows when
+`flight_plots` is absent (older JSONs).
+
+#### Phase card contents
+
 Each phase card shows:
+- Sortie filename, phase type badge, active mode names, time range (HH:MM:SS), duration
 - Entry/exit AGL, entry CAS, CAS target, ground speed, flap, heading
-- Lateral and vertical deviation — max absolute, RMS, sparkline chart
+- Lateral and vertical deviation — max absolute, RMS, chart with mode transition markers
 - Pitch and roll tracking — actual vs commanded (solid vs dashed), max/RMS error
 - Touchdown lat/lon with Google Maps link (landing phase only)
-- Mode sequence timeline (FCC1A and FCC1B)
 - Any AFCS faults that occurred during the phase
+
+#### Charts
+
+All three charts in a phase card (deviation, pitch, roll) share the same x-axis and
+behave as a linked group:
+
+- **Scroll to zoom** — zooms the x-axis on all charts simultaneously
+- **Double-click** — resets zoom on all charts
+- **Synchronized crosshair** — hovering over any chart shows the cursor and value
+  readout on all three charts at the same time position
+- **Y-axis auto-scales** to the min/max of the data visible in the current zoom window
+- **Rad Alt overlay** on the deviation chart — right y-axis (0 ft at bottom), drawn in blue
+- **X-axis labels** — elapsed seconds from approach/takeoff start, with HH:MM:SS.s
+  IRIG time shown at the edges and midpoint
+- **Mode transition markers** — dashed vertical lines labeled with the mode name,
+  colored by axis (LAT purple, VERT teal, AT amber)
+
+### Data Summary view
+
+Accessible via the **Data Summary** queue item. Shows:
+
+**Score row** — fleet totals across all loaded sorties:
+- **Total faults** — all AFCS capable disengagements
+- **Sorties** / **Sorties affected** — loaded count and count with at least one fault
+- **Approaches** — APPROACH phases detected (navAppr active)
+- **Auto landings** — LANDING phases with flare or align active
+- **Data gaps** — simultaneous multi-signal flat segments ≥5 s across APPROACH/LANDING phases (amber; only shown when >0)
+
+**Fault Category Distribution** — stacked bar chart per category, colored by sortie.
+
+**Faults by Sortie** table — all sorties in a single aligned table with columns:
+Ep · Category · Evidence · Phase · Axis · Conf.
+
+The **Phase** column shows what flight phase was active at fault time:
+- `APPR` (purple) — fault occurred during an approach
+- `LDG` (teal) — fault occurred during a landing
+- `T/O` (amber) — fault occurred during takeoff
+- `—` — fault occurred outside any detected phase
+
+Confidence (`Conf.`) column:
+- **✓** — fault confirmed (debounce output found, or validity loss by definition)
+- **✗** — category identified but no debounce confirmation signal found in window
+- **—** — pilot-commanded or unknown
 
 ### Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | Exclude signals | `apQuickDisconnect, togaPb, apPb` | Episodes containing these are treated as pilot-commanded and hidden |
-| Max transitions per episode | 50 | Limits concurrent signal list length |
+| Max concurrent signals shown | 10 | Limits the concurrent signal list length per episode |
 
 ### Printing
 

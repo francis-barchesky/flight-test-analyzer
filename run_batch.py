@@ -29,19 +29,20 @@ from datetime import datetime
 
 def sortie_from_filename(filename):
     """
-    Extract a sortie tag from a ZIP filename.
-    e.g.  AFCS_del3_v20260202_S107N208B_2.zip  ->  S107_2
-          AFCS_del3_v20260202_S107N208B.zip     ->  S107
+    Extract a sortie tag + tail number from a ZIP filename.
+    e.g.  AFCS_del3_v20260202_S107N208B_2.zip  ->  S107_2_N208B
+          AFCS_del3_v20260202_G011ZKMLN.zip     ->  G011_ZKMLN
     Returns None if no sortie tag can be found.
     """
     name = os.path.splitext(os.path.basename(filename))[0]
-    # S = Sortie, G = Ground  (e.g. S107N208B_2, G034N208B)
-    m = re.search(r'([SG]\d{2,5})[A-Z][A-Z0-9]*_(\d+)', name, re.IGNORECASE)
+    # With leg number: S107N208B_2 -> S107_2_N208B
+    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)_(\d+)', name, re.IGNORECASE)
     if m:
-        return f"{m.group(1).upper()}_{m.group(2)}"
-    m = re.search(r'([SG]\d{2,5})[A-Z][A-Z0-9]+', name, re.IGNORECASE)
+        return f"{m.group(1).upper()}_{m.group(3)}_{m.group(2).upper()}"
+    # Without leg number: G011ZKMLN -> G011_ZKMLN
+    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)', name, re.IGNORECASE)
     if m:
-        return m.group(1).upper()
+        return f"{m.group(1).upper()}_{m.group(2).upper()}"
     return None
 
 
@@ -108,11 +109,17 @@ def load_config(path):
 def find_sortie_dirs(data_root):
     """
     Return every immediate sub-directory of data_root that contains at least
-    one ZIP file, sorted by directory name.
+    one ZIP file OR an existing analysis JSON, sorted by directory name.
     """
     dirs = []
+    def _dir_sort_key(entry_name):
+        m = re.match(r'^([SG])(\d+)(?:_(\d+))?', entry_name, re.IGNORECASE)
+        if m:
+            return (m.group(1).upper(), int(m.group(2)), int(m.group(3) or 0))
+        return ('~', 0, 0)
+
     try:
-        entries = sorted(os.scandir(data_root), key=lambda e: e.name)
+        entries = sorted(os.scandir(data_root), key=lambda e: _dir_sort_key(e.name))
     except FileNotFoundError:
         print(f"ERROR: data_root not found: {data_root}")
         sys.exit(1)
@@ -120,8 +127,9 @@ def find_sortie_dirs(data_root):
     for entry in entries:
         if not entry.is_dir():
             continue
-        zips = glob.glob(os.path.join(entry.path, "*.zip"))
-        if zips:
+        has_zips = bool(glob.glob(os.path.join(entry.path, "*.zip")))
+        has_json = bool(glob.glob(os.path.join(entry.path, "analysis*.json")))
+        if has_zips or has_json:
             dirs.append(entry.path)
     return dirs
 
@@ -238,15 +246,17 @@ def main():
         print(f"\n  {len(done_names)}/{total} done ({pct}%)  |  {len(pending_names)} pending  |  {len(no_ep_names)} with 0 episodes\n")
         sys.exit(0)
 
-    output_dir     = cfg.get("output_dir")
-    trigger        = cfg.get("trigger", "afcsCapable")
-    trigger_from   = cfg.get("trigger_from", 1.0)
-    trigger_to     = cfg.get("trigger_to", 0.0)
+    output_dir       = cfg.get("output_dir")
+    trigger          = cfg.get("trigger", "afcsCapable")
+    trigger_from     = cfg.get("trigger_from", 1.0)
+    trigger_to       = cfg.get("trigger_to", 0.0)
     workers          = cfg.get("workers", 0)
     plot_signals     = cfg.get("plot_signals", "radAltVoted,gndSpdVoted")
     skip_existing    = cfg.get("skip_existing", True)
+    exclude_zips     = cfg.get("exclude_zip_patterns", [])
     delete_after     = cfg.get("delete_zips_after", True)
     parallel_sorties = args.parallel_sorties or cfg.get("parallel_sorties", 1)
+    trace_graph_map  = cfg.get("trace_graph_map", {})
     detected_cores   = os.cpu_count() or 1
     workers          = workers or detected_cores
 
@@ -292,12 +302,14 @@ def main():
 
         # ── Skip check ────────────────────────────────────────────────────────
         if skip_existing and existing_json:
-            print(f"[{i}/{n}]  {name}  SKIP", flush=True)
+            print(f"[{i}/{n}]  {name}  SKIP  ({os.path.basename(existing_json)})", flush=True)
             if delete_after and zips:
                 delete_zips(sortie_dir, dry_run=args.dry_run)
             return {"sortie": name, "json": existing_json, "status": "skipped"}
 
         # ── Dry run ───────────────────────────────────────────────────────────
+        # Match sortie name against trace_graph_map (first key that is a substring of the name)
+        tg_version = next((v for k, v in trace_graph_map.items() if k in name), None)
         cmd = [
             sys.executable, script,
             sortie_dir,
@@ -308,6 +320,10 @@ def main():
             "--workers",      str(workers_per_sortie),
             "--plot-signals", plot_signals,
         ]
+        if exclude_zips:
+            cmd += ["--exclude-zips", ",".join(exclude_zips)]
+        if tg_version:
+            cmd += ["--trace-graph", tg_version]
         if args.dry_run:
             print(f"[{i}/{n}]  {name}  [dry-run]", flush=True)
             return {"sortie": name, "json": None, "status": "dry-run"}

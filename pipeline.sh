@@ -52,15 +52,21 @@ CONFIG_WIN="$(to_win_path "$CONFIG")"
 
 cfg() {
     "$PYTHON" -c "
-import json
+import json, datetime
 c = json.load(open(r'$CONFIG_WIN'))
 val = c.get('$1', '$2')
-print(str(val) if val is not None else '$2')
+if val is None:
+    val = '$2'
+val = str(val)
+if val.lower() == 'today':
+    val = datetime.date.today().isoformat()
+print(val)
 "
 }
 
 DATA_ROOT="$(cfg data_root ".")"
 [[ "$DATA_ROOT" != /* ]] && DATA_ROOT="$SCRIPT_DIR/$DATA_ROOT"
+DATA_ROOT="$(cd "$DATA_ROOT" && pwd)"
 
 DOWNLOAD_SCRIPT="$(cfg download_script "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh")"
 DOWNLOAD_SCRIPT="${DOWNLOAD_SCRIPT/#\~/$HOME}"
@@ -82,7 +88,7 @@ d = start
 while d <= end:
     print(d.isoformat())
     d += timedelta(days=1)
-")
+" | tr -d '\r')
 N_DAYS=$(echo "$DAYS" | wc -l)
 
 # ── Timing helpers ─────────────────────────────────────────────────────────────
@@ -117,6 +123,20 @@ if [[ ! -f "$DOWNLOAD_SCRIPT" ]]; then
     exit 1
 fi
 
+# ── AWS SSO check ──────────────────────────────────────────────────────────────
+if [[ $DRY_RUN -eq 0 ]]; then
+    echo "  Checking AWS SSO login..."
+    if ! aws sts get-caller-identity &>/dev/null; then
+        echo
+        echo "ERROR: AWS SSO session is not active or has expired."
+        echo "  Run:  aws sso login"
+        echo "  Then re-run this pipeline."
+        exit 1
+    fi
+    echo "  AWS SSO OK"
+    echo
+fi
+
 mkdir -p "$DATA_ROOT"
 
 # ── Per-day loop ───────────────────────────────────────────────────────────────
@@ -131,17 +151,21 @@ for DAY in $DAYS; do
     echo "  Day $DAY_NUM / $N_DAYS  —  $DAY"
     echo "════════════════════════════════════════════════════════"
 
-    # ── Check for existing ZIPs ──────────────────────────────────────────────
-    FLAT_ZIPS=$(  find "$DATA_ROOT" -maxdepth 1 -name "*.zip" 2>/dev/null | wc -l )
-    SORTIE_ZIPS=$(find "$DATA_ROOT" -mindepth 2 -maxdepth 2 -name "*.zip" 2>/dev/null | wc -l )
-    EXISTING_ZIPS=$(( FLAT_ZIPS + SORTIE_ZIPS ))
+    # ── Check for existing ZIPs / done marker ───────────────────────────────
+    # Only flat (unorganized) ZIPs at data_root level count as a pending download.
+    # ZIPs already in sortie subdirs are from previous runs and should not block re-download.
+    # A .pipeline_done/YYYY-MM-DD marker file means this day was already downloaded+organized.
+    DONE_MARKER="$DATA_ROOT/.pipeline_done/$DAY"
+    FLAT_ZIPS=$(find "$DATA_ROOT" -maxdepth 1 -name "*.zip" 2>/dev/null | wc -l)
 
     # ── Download this day ────────────────────────────────────────────────────
     echo
     DL_START=$SECONDS
 
-    if [[ $EXISTING_ZIPS -gt 0 ]]; then
-        echo "  [1/2] Skipping download — $EXISTING_ZIPS ZIP(s) already on disk"
+    if [[ -f "$DONE_MARKER" ]]; then
+        echo "  [1/2] Skipping download — already processed ($DONE_MARKER)"
+    elif [[ $FLAT_ZIPS -gt 0 ]]; then
+        echo "  [1/2] Skipping download — $FLAT_ZIPS flat ZIP(s) already on disk"
     elif [[ $DRY_RUN -eq 1 ]]; then
         echo "  [1/2] Downloading $DAY... [dry-run]"
         echo "  [dry-run] would download: $DAY (pattern '$PATTERN') -> $DATA_ROOT"
@@ -156,8 +180,11 @@ for DAY in $DAYS; do
             -e "s|^FILENAME_PATTERN=.*|FILENAME_PATTERN=\"$PATTERN\"|" \
             "$DOWNLOAD_SCRIPT" > "$TMPSCRIPT"
         chmod +x "$TMPSCRIPT"
-        echo "Y" | bash "$TMPSCRIPT"
+        bash "$TMPSCRIPT" <<< "Y"
         popd > /dev/null
+        # Mark this day as downloaded+organized so re-runs skip it
+        mkdir -p "$DATA_ROOT/.pipeline_done"
+        touch "$DONE_MARKER"
     fi
 
     DL_ELAPSED=$(( SECONDS - DL_START ))
@@ -171,6 +198,12 @@ for DAY in $DAYS; do
     "${ANALYZE_CMD[@]}"
     AN_ELAPSED=$(( SECONDS - AN_START ))
     TOTAL_AN_S=$(( TOTAL_AN_S + AN_ELAPSED ))
+
+    # Mark day done so re-runs skip download (covers data downloaded before this marker existed)
+    if [[ $DRY_RUN -eq 0 && ! -f "$DONE_MARKER" ]]; then
+        mkdir -p "$DATA_ROOT/.pipeline_done"
+        touch "$DONE_MARKER"
+    fi
 
     DAY_ELAPSED=$(( SECONDS - DAY_START ))
     echo "  Analyze : $(fmt_elapsed $AN_ELAPSED)"

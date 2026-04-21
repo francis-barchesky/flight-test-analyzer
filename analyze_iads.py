@@ -149,6 +149,17 @@ def _extract_sortie(paths):
     return None
 
 
+def _extract_tail(paths):
+    """Extract aircraft tail number from ZIP filenames (e.g. S107N208B_2.zip -> N208B)."""
+    import re
+    for p in paths:
+        name = os.path.basename(p)
+        m = re.search(r'(?<![A-Za-z])[SG]\d{2,5}([A-Z][A-Z0-9]+)(?:_\d+)?\.zip', name, re.IGNORECASE)
+        if m:
+            return m.group(1).upper()
+    return None
+
+
 def _add_sortie_suffix(out_path, sortie):
     """Insert _SXXX_L before the .json extension: analysis.json → analysis_S102_1.json."""
     if not sortie:
@@ -619,7 +630,142 @@ def _attach_episode_plots(result, plot_series):
         ep["plots"] = ep_plots
 
 
-def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0, trigger_to=0.0, plot_signals=None, keep_plots=False, quiet=False):
+def _phase_window(mode_transitions, phase_vals):
+    """Return (t_lo, t_hi) spanning the earliest activation to the latest
+    activation-or-deactivation of any mode named in *phase_vals*.
+    Returns (None, None) when no matching transitions are found.
+    """
+    _LAT_NAMES  = ['standby', 'heading', 'nav', 'navAppr', 'takeoff', 'align', 'track']
+    _VERT_NAMES = ['standby', 'pitch', 'verticalSpeed', 'altitudeHold',
+                   'altitudeSelect', 'glidePath', 'vnav', 'takeoff', 'flare', 'vgp', 'flc']
+    _AT_NAMES   = ['standby', 'takeOff', 'speed', 'retard', 'lim', 'thrust']
+    _EMAP = {
+        'latActiveEnum':  _LAT_NAMES,  'latActive':  _LAT_NAMES,
+        'vertActiveEnum': _VERT_NAMES, 'vertActive': _VERT_NAMES,
+        'atActiveEnum':   _AT_NAMES,   'atActive':   _AT_NAMES,
+    }
+    t_lo = t_hi = None
+    for t in mode_transitions:
+        names = _EMAP.get(t.get("signal", "").split(".")[-1])
+        if names is None:
+            continue
+        try:
+            to_name   = names[int(t.get("to",   -1))]
+            from_name = names[int(t.get("from", -1))]
+        except (IndexError, ValueError, TypeError):
+            to_name   = str(t.get("to",   ""))
+            from_name = str(t.get("from", ""))
+        ts = float(t["time"])
+        if to_name in phase_vals:
+            if t_lo is None or ts < t_lo: t_lo = ts
+        if to_name in phase_vals or from_name in phase_vals:
+            if t_hi is None or ts > t_hi: t_hi = ts
+    return t_lo, t_hi
+
+
+_FLIGHT_MAX_PTS = 2000
+_HIRES_MAX_PTS  = 8000
+
+
+def _downsample_pts(pts, max_pts):
+    if len(pts) <= max_pts:
+        return pts
+    # Min-max downsampling: split into max_pts/2 buckets, keep both the min-value
+    # and max-value point from each bucket (in time order).  Preserves all peaks
+    # and valleys at the same output size — far superior to uniform stride for
+    # detecting deviations and spikes.
+    bucket_count = max(1, max_pts // 2)
+    step = len(pts) / bucket_count
+    out = []
+    for i in range(bucket_count):
+        lo = int(i * step)
+        hi = int((i + 1) * step)
+        bucket = pts[lo:hi]
+        if not bucket:
+            continue
+        mn = min(bucket, key=lambda p: p[1])
+        mx = max(bucket, key=lambda p: p[1])
+        if mn[0] <= mx[0]:
+            out.append(mn)
+            if mn is not mx:
+                out.append(mx)
+        else:
+            out.append(mx)
+            if mn is not mx:
+                out.append(mn)
+    return out
+
+
+def _save_flight_plots(result, plot_series, max_pts=None):
+    """Save approach/landing window → result['flight_plots'], capped at max_pts per signal.
+
+    Window: earliest approach/landing mode activation − 10 s through latest
+    landing-mode DEACTIVATION + 5 s (captures full post-touchdown ground roll).
+    Falls back to the full-flight dataset if no matching transitions are found.
+    """
+    if max_pts is None:
+        max_pts = _FLIGHT_MAX_PTS
+    phase_vals = {'navAppr', 'glidePath', 'align', 'flare', 'retard'}
+    t_lo, t_hi = _phase_window(result.get("mode_transitions", []), phase_vals)
+    if t_lo is not None:
+        t_lo -= 10
+        t_hi += 5
+    _GNSS_SIGS = {'GNSS_Latitude', 'GNSS_Latitude_Fine', 'GNSS_Longitude', 'GNSS_Longitude_Fine'}
+    plots = {}
+    for sig, pts in plot_series.items():
+        if t_lo is not None:
+            pts = [p for p in pts if t_lo <= p[0] <= t_hi]
+        if sig in _GNSS_SIGS:
+            pts = [p for p in pts if p[1] != 0.0]
+        pts = _downsample_pts(pts, max_pts)
+        plots[sig] = [[p[0], p[1]] for p in pts]
+    result["flight_plots"] = plots
+
+
+def _save_takeoff_plots(result, plot_series, max_pts=None):
+    """Save takeoff window → result['takeoff_plots'], capped at max_pts per signal.
+
+    Modes: latActive=takeoff (4), vertActive=takeoff (7), atActive=takeOff (1).
+    Window: first activation − 10 s through last deactivation + 30 s.
+    The +30 s post-margin captures the climb-out after modes revert to standby.
+    Stores an empty dict when no takeoff modes are found.
+    """
+    if max_pts is None:
+        max_pts = _FLIGHT_MAX_PTS
+    phase_vals = {'takeoff', 'takeOff'}
+    t_lo, t_hi = _phase_window(result.get("mode_transitions", []), phase_vals)
+    if t_lo is None:
+        result["takeoff_plots"] = {}
+        return
+    t_lo -= 10
+    t_hi += 30
+    _GNSS_SIGS = {'GNSS_Latitude', 'GNSS_Latitude_Fine', 'GNSS_Longitude', 'GNSS_Longitude_Fine'}
+    plots = {}
+    for sig, pts in plot_series.items():
+        pts = [p for p in pts if t_lo <= p[0] <= t_hi]
+        if sig in _GNSS_SIGS:
+            pts = [p for p in pts if p[1] != 0.0]
+        pts = _downsample_pts(pts, max_pts)
+        plots[sig] = [[p[0], p[1]] for p in pts]
+    result["takeoff_plots"] = plots
+
+
+def _save_hires_file(out_path, result, plot_series):
+    """Write a companion *_hires.json containing flight_plots + takeoff_plots at _HIRES_MAX_PTS."""
+    root, ext = os.path.splitext(out_path)
+    hires_path = f"{root}_hires{ext}"
+    hires = {"mode_transitions": result.get("mode_transitions", [])}
+    _save_flight_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
+    _save_takeoff_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
+    with open(hires_path, "w", encoding="utf-8") as f:
+        json.dump(sanitize_for_json({"flight_plots": hires["flight_plots"],
+                                     "takeoff_plots": hires["takeoff_plots"]}),
+                  f, separators=(",", ":"), allow_nan=False)
+    hires_kb = os.path.getsize(hires_path) / 1024
+    print(f"  hires: {hires_path}  ({hires_kb:.0f} KB)")
+
+
+def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0, trigger_to=0.0, plot_signals=None, keep_plots=False, quiet=False, trace_graph=None):
     t0 = time.perf_counter()
 
     input_path = os.path.abspath(input_path)
@@ -694,15 +840,22 @@ def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0
         result = _extract_episodes(result, trigger, trigger_from, trigger_to)
         if plot_series:
             _attach_episode_plots(result, plot_series)
+            _save_flight_plots(result, plot_series)
+            _save_takeoff_plots(result, plot_series)
     elif keep_plots and plot_series:
         # Directory mode: preserve raw plot series so the caller can merge and
         # attach plots after all files are combined and episodes are extracted.
         result["_plot_series"] = plot_series
 
     result["processing_time_s"] = round(time.perf_counter() - t0, 2)
+    if trace_graph:
+        result["trace_graph"] = trace_graph
 
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(sanitize_for_json(result), f, separators=(",", ":"), allow_nan=False)
+
+    if trigger and plot_series:
+        _save_hires_file(out_path, result, plot_series)
 
     out_kb = os.path.getsize(out_path) / 1024
     if not quiet:
@@ -855,9 +1008,14 @@ if __name__ == "__main__":
     parser.add_argument("--plot-signals", default="radAltVoted,gndSpdVoted",
                         help="Comma-separated signal names to collect for episode AGL plots "
                              "(suffix-matched, default: radAltVoted,gndSpdVoted)")
+    parser.add_argument("--trace-graph", default=None,
+                        help="Trace graph version expected for this sortie (embedded in output JSON)")
+    parser.add_argument("--exclude-zips", default="",
+                        help="Comma-separated substrings — ZIPs whose filename contains any of these are skipped")
     args = parser.parse_args()
 
     n = args.workers if args.workers > 0 else multiprocessing.cpu_count()
+    exclude_patterns = [p.strip() for p in args.exclude_zips.split(",") if p.strip()]
 
     # ── Directory mode ────────────────────────────────────────────────────
     # Process every ZIP flat (no per-file trigger), merge all transitions into
@@ -866,6 +1024,11 @@ if __name__ == "__main__":
     if os.path.isdir(args.input):
         zip_files = sorted(glob.glob(os.path.join(args.input, "*.zip")),
                            key=os.path.getsize, reverse=True)
+        if exclude_patterns:
+            excluded = [z for z in zip_files if any(p in os.path.basename(z) for p in exclude_patterns)]
+            zip_files = [z for z in zip_files if z not in excluded]
+            if excluded:
+                print(f"  Excluded {len(excluded)} ZIP(s): {', '.join(os.path.basename(z) for z in excluded)}")
         if not zip_files:
             print(f"ERROR: No ZIP files found in {args.input}")
             sys.exit(1)
@@ -945,6 +1108,8 @@ if __name__ == "__main__":
                                          args.trigger_to)
             if plot_series:
                 _attach_episode_plots(combined, plot_series)
+                _save_flight_plots(combined, plot_series)
+                _save_takeoff_plots(combined, plot_series)
             episodes = combined.get("episodes", [])
             if not episodes:
                 print(f"  WARNING: trigger '{args.trigger}' not found in any file "
@@ -952,11 +1117,18 @@ if __name__ == "__main__":
             else:
                 print(f"  {len(episodes)} episode(s)")
 
+        if args.trace_graph:
+            combined["trace_graph"] = args.trace_graph
+        tail = _extract_tail(zip_files)
+        if tail:
+            combined["tail_number"] = tail
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(sanitize_for_json(combined), f, separators=(",", ":"), allow_nan=False)
 
         out_kb = os.path.getsize(out_path) / 1024
         print(f"  saved: {out_path}  ({out_kb:.0f} KB)")
+        if plot_series:
+            _save_hires_file(out_path, combined, plot_series)
 
     # ── Single file mode (existing behaviour) ────────────────────────────
     else:
@@ -973,4 +1145,5 @@ if __name__ == "__main__":
                      trigger=args.trigger,
                      trigger_from=args.trigger_from,
                      trigger_to=args.trigger_to,
-                     plot_signals=args.plot_signals)
+                     plot_signals=args.plot_signals,
+                     trace_graph=args.trace_graph)

@@ -8,8 +8,8 @@
   "output_dir": null,
 
   "download_script": "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh",
-  "download_start_date": "2026-04-01",
-  "download_end_date":   "2026-04-14",
+  "download_start_date": "2026-02-01",
+  "download_end_date":   "today",
   "download_pattern":    "*",
 
   "trigger":       "afcsCapable",
@@ -17,11 +17,43 @@
   "trigger_to":    0.0,
 
   "workers": 22,
-  "parallel_sorties": 3,
+  "parallel_sorties": 2,
 
-  "plot_signals": "radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,casTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted",
+  "plot_signals": "radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,casTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,g_distancetorunway_mdlrefdw.rtb.selValue",
 
   "skip_existing": true,
 
-  "delete_zips_after": false
+  "exclude_zip_patterns": [
+    "SYS_parameters",
+    "HW_RdcParameters",
+    "MBD_FccVersion",
+    "AFCS_SlipClutch",
+    "AFCS_StatusValidAssessment"
+  ],
+
+  "delete_zips_after": false,
+
+  "_comment_trace_graph_map": "Maps sortie name substrings to expected trace graph versions. First matching key wins.",
+  "trace_graph_map": {
+    "S120": "5.1.2",
+    "S119": "5.1.2",
+    "S118": "5.1.2",
+    "S117": "5.1.2",
+    "S116": "5.1.2",
+    "S115": "5.1.2",
+    "S114": "5.1.2",
+    "S113": "3.4.5",
+    "S112": "3.4.5",
+    "S111": "3.4.5",
+    "S110": "3.4.5",
+    "S109": "3.4.5",
+    "S108": "3.4.5",
+    "S107": "3.4.5",
+    "S106": "3.4.5",
+    "S105": "3.4.5",
+    "S104": "3.4.5",
+    "S103": "3.4.5",
+    "S100": "3.3.10",
+    "G026": "3.4.5"
+  }
 }
