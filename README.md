@@ -23,6 +23,16 @@ pipeline.sh
 | `pipeline.sh` | Day-by-day download → organize → analyze loop |
 | `batch_config.json` | Shared config for all three scripts |
 | `flight_test_analyzer.html` | Standalone browser tool for fault analysis |
+| `correlate_faults.py` | Fleet-wide correlation — ranks signals by how consistently they transition before fault episodes; writes `fault_correlations.json` |
+| `classify_episodes.py` | Classifies all AFCS disengagement episodes using `classifyExit()` logic; prints distribution and writes `plots/plot_fault_dist.pdf` |
+| `trace_upstream.py` | Walks the model trace graph upstream from a target signal; reports TestPoint signals with hop counts; cross-references `fault_correlations.json` |
+| `generate_plots.py` | Generates proposal appendix PDF figures from `fault_correlations.json` and `upstream_afcsCapable.json` |
+| `generate_hires.py` | Regenerates `*_hires.json` files without re-running full analysis |
+| `patch_plots.py` | Adds new plot signals to existing analysis JSONs without re-analyzing (reads only the relevant ZIP) |
+| `patch_sysnotengage.py` | Back-fills `sysNotEngage` from existing transition data into analysis JSONs |
+| `patch_signal_from_zip.py` | Patches any signal from a bulk-export ZIP into the matching analysis JSON |
+| `patch_all_sorties.py` | Batch patch a missing signal across all sorties (downloads raw IADS data, exports, patches) |
+| `patch_torque_stats.py` | Back-fills `torque_stats` key into existing analysis JSONs |
 
 ---
 
@@ -188,6 +198,7 @@ Options:
   "enum_channels":     [...],
   "num_channels":      [...],
   "mode_transitions":  [...],   ← full-flight latActive/vertActive/atActive history
+  "sysNotEngage":      [...],   ← all sysNotEngage transitions (if signal present in recording)
   "trigger":           { signal, from, to },
   "flight_plots": {             ← full-resolution plot signals for approach/landing window
     "radAltVoted":   [[t, v], ...],
@@ -199,6 +210,10 @@ Options:
     "casVoted":      [[t, v], ...],
     ...
   },
+  "data_gaps": [                ← recording discontinuities >1 s detected in timestamps
+    { "t_start": float, "t_end": float, "duration_s": float },
+    ...
+  ],
   "episodes": [
     {
       "episode":    int,
@@ -273,12 +288,96 @@ The browser tool uses `takeoff_plots` when rendering TAKEOFF phase cards.
 
 ---
 
+## Fleet analysis scripts
+
+These scripts run after the pipeline has produced analysis JSONs for all sorties.
+
+### correlate_faults.py
+
+Scans all `analysis_*.json` files and ranks signals by how consistently they transition in the pre-trigger window around each fault episode.
+
+```bash
+python correlate_faults.py [data_root] [options]
+
+Options:
+  --window-pre  SECS    Seconds before trigger to include (default: 5)
+  --window-post SECS    Seconds after  trigger to include (default: 1)
+  --min-freq    FREQ    Minimum episode frequency to keep  (default: 0.05)
+  --top         N       Max signals in output              (default: 100)
+  --sample-rate HZ      Model rate for dt-in-samples output (default: 40)
+  --exclude     SIGNAL  Suffix patterns to exclude (supports * wildcards)
+```
+
+Writes `fault_correlations.json` to `data_root`. Top 10 signals are printed to stdout.
+
+### classify_episodes.py
+
+Ports the browser's `classifyExit()` logic to Python. Reads all analysis JSONs, classifies every AFCS disengagement episode, prints a category distribution, and writes `plots/plot_fault_dist.pdf`.
+
+```bash
+python classify_episodes.py
+```
+
+### trace_upstream.py
+
+Walks the model trace graph (BFS) upstream from a target signal and reports all observable (TestPoint) signals with hop counts and model names. Optionally cross-references `fault_correlations.json` to show which upstream signals also appear as correlated fault precursors.
+
+```bash
+python trace_upstream.py --signal afcsCapable [data_root]
+python trace_upstream.py --signal afcsCapable --trace path/to/traceData.json .
+python trace_upstream.py --signal afcsCapable --max-hops 20 .
+```
+
+Writes `upstream_<signal>.json` to `data_root`.
+
+### generate_plots.py
+
+Generates four PDF figures for the proposal appendix into `plots/`:
+
+| File | Contents |
+|------|----------|
+| `plot_correlations.pdf` | Top 20 correlated signals — horizontal bar chart coloured by timing cluster |
+| `plot_timing.pdf` | Mean Δt vs score scatter, bubble size proportional to frequency |
+| `plot_hop_dist.pdf` | Upstream TestPoint count by hop depth + cumulative line |
+| `plot_sortie_times.pdf` | Per-sortie processing times sorted by duration |
+
+Requires `fault_correlations.json` and `upstream_afcsCapable.json` in `data_root`.
+
+```bash
+python generate_plots.py
+```
+
+### generate_hires.py
+
+Regenerates `*_hires.json` files from the existing analysis JSON and raw ZIPs, without re-running the full analysis pass.
+
+```bash
+python generate_hires.py                    # all sorties
+python generate_hires.py S115_1_N208B       # one sortie
+python generate_hires.py --force            # overwrite existing hires files
+```
+
+### patch_plots.py
+
+Adds new plot signals to existing analysis JSONs without re-analyzing. Reads only the ZIP that contains the requested signal.
+
+```bash
+python patch_plots.py <signal1,signal2,...> [data_root]
+python patch_plots.py azVoted .
+python patch_plots.py "azVoted,nzVoted" /path/to/data
+python patch_plots.py azVoted --dry-run     # preview without writing
+python patch_plots.py azVoted --force       # re-patch even if already present
+```
+
+---
+
 ## flight_test_analyzer.html
 
 Open directly in a browser — no server required.
 
 ### Loading data
 
+- **📂 Load data** (header bar) — quick-access button; same as Scan folder
 - **Scan folder** (top of sidebar) — scans a directory and all subdirectories:
   - Loads all `analysis_*.json` files into the file queue
   - Auto-detects and loads any trace graph JSON (file containing `nodes[]` + `edges[]`)
@@ -292,14 +391,17 @@ Episodes (AFCS capable 1→0 transitions) are classified by `classifyExit()`:
 
 | Category | Description |
 |----------|-------------|
-| `PILOT_CMD` | AP disconnect before any monitor flag |
+| `PILOT_CMD` | AP disconnect / TOGA / apQuickDisconnect before any monitor flag |
 | `RESP_MONITOR` | Response monitor gate deactivated |
 | `CMD_MONITOR` | Command monitor gate deactivated |
 | `MONITOR_FAULT` | Generic monitor flag asserted |
 | `MISTRIM` | Mistrim / XCD threshold exceeded |
 | `VALIDITY_LOSS` | Sensor/data validity lost pre-trigger |
+| `ENFORCE_STANDBY` | EnforceStandby asserted (software-commanded) |
 | `CAP_LOST` | Upstream capability lost (cascade) |
 | `UNKNOWN` | No matching pattern found |
+
+TOGA or `apQuickDisconnect` rising pre-trigger while AFCS is engaged (`afcsEngage`/`afcsEngageCws` active) is classified as `PILOT_CMD` with label **Pilot Deactivation (TOGA/QD)**.
 
 > Torque Limiting is excluded from fault classification — it is a protection mechanism, not a fault.
 
@@ -376,12 +478,20 @@ Confidence (`Conf.`) column:
 - **✗** — category identified but no debounce confirmation signal found in window
 - **—** — pilot-commanded or unknown
 
+### Signal Transitions by Lane
+
+Each fault episode shows concurrent transitions grouped by FCC lane (FCC1A, FCC1B first; non-FCC lanes below):
+
+- **Model name** shown in muted text alongside each signal suffix (e.g., `afcsCapable fgafcscapable`) — hover the cell for the full signal path
+- **Enum transitions** (non-bool from/to values) shown in blue with actual value e.g. `0→2`
+- **Chain filter** button (requires trace graph) — dims signals not in the BFS upstream chain of the fault trigger; shows hop-distance badge on in-chain signals
+
 ### Settings
 
 | Setting | Default | Description |
 |---------|---------|-------------|
 | Exclude signals | `apQuickDisconnect, togaPb, apPb` | Episodes containing these are treated as pilot-commanded and hidden |
-| Max concurrent signals shown | 10 | Limits the concurrent signal list length per episode |
+| Max concurrent signals shown | 10 | Limits the concurrent signal list length per episode (hold ± buttons to ramp) |
 
 ### Printing
 
@@ -461,6 +571,72 @@ With `parallel_sorties=3` and large ZIPs, peak temp usage can reach 20–40 GB.
 - Clean up orphaned temp files after a killed run: `rm $TEMP/_rca_tmp_*.csv`
 - Set `delete_zips_after: true` to free source ZIPs as each sortie finishes
 - Reduce `parallel_sorties` if disk space is limited
+
+---
+
+## Back-filling missing signals
+
+When a signal is absent from all bulk-export ZIPs for a sortie (i.e. it was never
+included in the IADS data-group CSV for that flight), use the patch export workflow
+to re-export only that signal and inject it into the existing `analysis_*.json`.
+
+### Prerequisites
+
+- [iads-export](https://github.com/merlinlabs/iads-export) repo with `ie_venv` activated
+- AWS SSO authenticated (`aws sso login`)
+
+### Single sortie (PowerShell)
+
+```powershell
+# 1. Export the missing signal from the raw IADS data
+cd C:\path\to\iads-export
+.\ie_venv\Scripts\Activate.ps1
+python patch_export_local.py `
+    --sortie S112N208B_2 `
+    --data-group config/patch_sysNotEngage.csv `
+    --out-dir C:\path\to\flight-test-analyzer\S112_2_N208B
+
+# 2. Patch the signal into the analysis JSON
+cd C:\path\to\flight-test-analyzer
+python patch_signal_from_zip.py `
+    S112_2_N208B\patch_sysNotEngage_S112N208B_2.zip `
+    --signal sysNotEngage `
+    --data-root S112_2_N208B
+```
+
+### All sorties at once
+
+```powershell
+cd C:\path\to\flight-test-analyzer
+python patch_all_sorties.py `
+    --iads-export-dir C:\path\to\iads-export `
+    --data-group C:\path\to\iads-export\config\patch_sysNotEngage.csv `
+    --workers 2
+```
+
+`patch_all_sorties.py` skips sorties that already have the signal, deletes the
+intermediate ZIP after patching, and reports `✓`/`✗` per sortie as they complete.
+
+Dry-run to preview which sorties would be processed:
+```powershell
+python patch_all_sorties.py ... --dry-run
+```
+
+### Adding a new signal
+
+1. Create a data-group CSV in `iads-export/config/` with the full signal path(s):
+   ```
+   FCC1A.g_somemodule_mdlrefdw.rtb.mySignal
+   FCC1B.g_somemodule_mdlrefdw.rtb.mySignal
+   ```
+2. Run `patch_all_sorties.py --signal mySignal --data-group config/patch_mySignal.csv`
+
+### Sortie name mapping
+
+| Local directory | S3 raw name |
+|---|---|
+| `S112_2_N208B` | `S112N208B_2` |
+| `S101_N208B` | `S101N208B` |
 
 ---
 

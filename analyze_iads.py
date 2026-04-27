@@ -23,6 +23,7 @@ import json
 import sys
 import os
 import glob
+import re
 import shutil
 import zipfile
 import math
@@ -34,7 +35,8 @@ from multiprocessing.pool import ThreadPool
 from datetime import datetime
 from collections import deque
 
-ENUM_MAX = 64   # max distinct integer values before treating a channel as continuous
+ENUM_MAX = 64        # max distinct integer values before treating a channel as continuous
+GAP_THRESHOLD_S = 1.0  # inter-sample gap > this (seconds) flagged as a recording dropout
 
 _TIME_EXACT = {
     "t", "time", "timestamp", "time_s", "time_sec", "timesec",
@@ -190,6 +192,7 @@ def _worker(args):
 
     col_min          = [math.inf]  * n
     col_max          = [-math.inf] * n
+    col_max_t        = [None]      * n
     col_sum          = [0.0]       * n
     col_count        = [0]         * n
     col_has_non_bool = [False]     * n
@@ -208,6 +211,11 @@ def _worker(args):
     first_vals           = [None]  * n   # first finite float seen per column
     last_time_val        = None          # time string of the last row processed
     plot_series          = {sig: [] for sig in plot_col_map}  # sig → [(t_val, v), ...]
+    _past_leading_nans   = (worker_id != 0)  # only trim leading NaN rows on the first chunk
+    gap_t_first = None   # first valid timestamp in chunk (for cross-chunk gap detection)
+    gap_t_last  = None   # most recent valid timestamp
+    gap_t_prev  = None   # previous timestamp (for intra-chunk gap detection)
+    data_gaps   = []     # [{t_start, t_end, duration_s}, ...]
 
     with open(file_path, "rb") as f:
         f.seek(byte_start)
@@ -225,6 +233,15 @@ def _worker(args):
             except StopIteration:
                 continue
 
+            # Skip leading rows (beginning of file only) where the time column cannot
+            # be parsed — these are pre-recording NaN-filled rows that pollute stats
+            # and generate spurious transitions at t=None.
+            if not _past_leading_nans:
+                _t_check = parse_time_to_s(row[time_col_idx]) if time_col_idx >= 0 and time_col_idx < len(row) else None
+                if _t_check is None or not math.isfinite(_t_check):
+                    continue
+                _past_leading_nans = True
+
             total_rows += 1
             nj = min(n, len(row))
 
@@ -240,6 +257,16 @@ def _worker(args):
                     t_float = t_parsed
                     if t_parsed < t_min: t_min = t_parsed
                     if t_parsed > t_max: t_max = t_parsed
+                    if gap_t_first is None:
+                        gap_t_first = t_parsed
+                    if gap_t_prev is not None and t_parsed - gap_t_prev > GAP_THRESHOLD_S:
+                        data_gaps.append({
+                            "t_start":    round(gap_t_prev, 3),
+                            "t_end":      round(t_parsed,   3),
+                            "duration_s": round(t_parsed - gap_t_prev, 3),
+                        })
+                    gap_t_prev = t_parsed
+                    gap_t_last = t_parsed
                 else:
                     t_float = None
                 t_val = str(t_parsed) if t_parsed is not None else str(total_rows)
@@ -272,7 +299,7 @@ def _worker(args):
 
                 # --- stats ---
                 if v < col_min[j]: col_min[j] = v
-                if v > col_max[j]: col_max[j] = v
+                if v > col_max[j]: col_max[j] = v; col_max_t[j] = t_float
                 col_sum[j]   += v
                 col_count[j] += 1
                 if v != 0.0 and v != 1.0:
@@ -328,6 +355,10 @@ def _worker(args):
         "last_vals":         list(col_prev),
         "last_time_val":     last_time_val,
         "plot_series":       plot_series,
+        "col_max_t":         col_max_t,
+        "t_first":           gap_t_first,
+        "t_last":            gap_t_last,
+        "data_gaps":         data_gaps,
     }
 
 
@@ -340,6 +371,7 @@ def _merge(partials, headers, time_col_idx, filename):
     n = len(headers)
     col_min          = [math.inf]  * n
     col_max          = [-math.inf] * n
+    col_max_t        = [None]      * n
     col_sum          = [0.0]       * n
     col_count        = [0]         * n
     col_has_non_bool = [False]     * n
@@ -357,9 +389,12 @@ def _merge(partials, headers, time_col_idx, filename):
     plot_series   = {}   # sig → sorted [(t_val, v), ...]
 
     for p in partials:
+        p_col_max_t = p.get("col_max_t", [None] * n)
         for j in range(n):
             if p["col_min"][j]  < col_min[j]:  col_min[j]  = p["col_min"][j]
-            if p["col_max"][j]  > col_max[j]:  col_max[j]  = p["col_max"][j]
+            if p["col_max"][j]  > col_max[j]:
+                col_max[j]   = p["col_max"][j]
+                col_max_t[j] = p_col_max_t[j]
             col_sum[j]   += p["col_sum"][j]
             col_count[j] += p["col_count"][j]
             if p["col_has_non_bool"][j]: col_has_non_bool[j] = True
@@ -412,6 +447,23 @@ def _merge(partials, headers, time_col_idx, filename):
     except (ValueError, TypeError):
         pass
 
+    # Collect data gaps: intra-chunk gaps + cross-chunk boundary gaps
+    all_gaps = []
+    for p in partials:
+        all_gaps.extend(p.get("data_gaps", []))
+    for k in range(len(partials) - 1):
+        t_last_k   = partials[k].get("t_last")
+        t_first_k1 = partials[k + 1].get("t_first")
+        if t_last_k is not None and t_first_k1 is not None:
+            dt = t_first_k1 - t_last_k
+            if dt > GAP_THRESHOLD_S:
+                all_gaps.append({
+                    "t_start":    round(t_last_k,   3),
+                    "t_end":      round(t_first_k1, 3),
+                    "duration_s": round(dt,          3),
+                })
+    all_gaps.sort(key=lambda g: g["t_start"])
+
     # Sort plot series by time (chunks are ordered but seams may interleave)
     for sig in plot_series:
         plot_series[sig].sort(key=lambda pt: pt[0])
@@ -453,6 +505,7 @@ def _merge(partials, headers, time_col_idx, filename):
         "total_rows":    total_rows,
         "time_col":      time_col,
         "duration_s":    duration,
+        "rec_start_s":   round(t_min, 3) if math.isfinite(t_min) else None,
         "bool_channels": bool_channels,
         "enum_channels": enum_channels,
         "num_channels":  num_channels,
@@ -462,6 +515,9 @@ def _merge(partials, headers, time_col_idx, filename):
         "sample_tail":   [dict(zip(headers, r)) for r in sample_tail],
         "headers":       headers,
         "_plot_series":  plot_series,   # removed before JSON output, used for episode plots
+        "_col_max":      col_max,       # removed before JSON output, used for torque_stats
+        "_col_max_t":    col_max_t,     # removed before JSON output, used for torque_stats
+        "data_gaps":     all_gaps,
     }
 
 
@@ -486,12 +542,127 @@ def _save_mode_transitions(result):
     Extract transitions for latActive / vertActive / atActive from the flat
     transition list and store them as result["mode_transitions"] BEFORE
     _extract_episodes consumes the list.  Safe to call multiple times.
+
+    Also prepends a synthetic initial-state anchor for each mode signal found
+    in sample_head[0], keyed to rec_start_s.  This ensures _modesFromTransitions
+    can resolve the active mode even when the mode never changed during the
+    recording (so no transition event exists before the fault time).
     """
     trans = result.get("transitions", [])
-    result["mode_transitions"] = [
+    mode_trans = [
         t for t in trans
         if t.get("signal", "").split(".")[-1] in _MODE_SUFFIXES
     ]
+
+    sample_head = result.get("sample_head", [])
+    rec_start   = result.get("rec_start_s")
+    if sample_head and rec_start is not None:
+        for sig, raw_val in sample_head[0].items():
+            if sig.split(".")[-1] not in _MODE_SUFFIXES:
+                continue
+            try:
+                v = float(raw_val)
+            except (ValueError, TypeError):
+                continue
+            if not math.isfinite(v):
+                continue
+            # Anchor at rec_start; real transitions at later times override via
+            # _modesFromTransitions picking the latest entry <= fault time.
+            mode_trans.append({
+                "signal": sig,
+                "time":   str(rec_start),
+                "from":   v,
+                "to":     v,
+            })
+
+    mode_trans.sort(key=lambda x: float(x["time"]))
+    result["mode_transitions"] = mode_trans
+
+
+_SYS_NOT_ENGAGE_RE = re.compile(r'sysnotengage', re.I)
+
+def _save_sysnotengage(result):
+    """
+    Extract sysNotEngage transitions from the flat transition list and store
+    them as result["sysNotEngage"] BEFORE _extract_episodes consumes the list.
+    """
+    trans = result.get("transitions", [])
+    sns = [t for t in trans if _SYS_NOT_ENGAGE_RE.search(t.get("signal", "").split(".")[-1])]
+    if sns:
+        result["sysNotEngage"] = sns
+
+
+def _apply_sysnotengage_fallback(result, saved_transitions, plot_series=None):
+    """
+    If the primary trigger produced 0 episodes but sysNotEngage asserted at
+    least once, re-extract episodes using sysNotEngage (0→1) as the trigger.
+    Sets result["trigger_fallback"] = True so the browser can label the sortie.
+    Returns the (possibly updated) result.
+    """
+    if result.get("episodes"):
+        return result
+    assertions = [t for t in result.get("sysNotEngage", []) if t.get("to") == 1]
+    if not assertions:
+        return result
+    print(f"  0 episodes with primary trigger — falling back to sysNotEngage "
+          f"({len(assertions)} assertion(s))")
+    result["transitions"] = saved_transitions
+    result = _extract_episodes(result, "sysNotEngage", 0.0, 1.0)
+    result["trigger_fallback"] = True
+    if plot_series:
+        _attach_episode_plots(result, plot_series)
+        _save_flight_plots(result, plot_series)
+        _save_takeoff_plots(result, plot_series)
+    return result
+
+
+_TORQUE_SIG_RE  = re.compile(r'torq', re.I)
+_TORQUE_LIM_RE  = re.compile(r'lim',  re.I)
+
+def _save_torque_stats(result):
+    """Find peak torque value per signal and look up active modes at that time."""
+    col_max   = result.pop("_col_max",   None)
+    col_max_t = result.pop("_col_max_t", None)
+    headers   = result.get("headers", [])
+    if col_max is None or col_max_t is None:
+        return
+
+    mode_trans = result.get("mode_transitions", [])
+    stats = []
+
+    for j, h in enumerate(headers):
+        sfx = h.split(".")[-1]
+        if not _TORQUE_SIG_RE.search(sfx) or _TORQUE_LIM_RE.search(sfx):
+            continue
+        peak = col_max[j]
+        if not math.isfinite(peak):
+            continue
+        peak_t = col_max_t[j]
+
+        modes = {}
+        if peak_t is not None:
+            for sig_sfx in ("vertActiveEnum", "latActiveEnum", "atActiveEnum"):
+                best = None
+                for tr in mode_trans:
+                    if tr["signal"].split(".")[-1] != sig_sfx:
+                        continue
+                    try:
+                        tt = float(tr["time"])
+                    except (ValueError, TypeError):
+                        continue
+                    if tt <= peak_t and (best is None or tt >= best["t"]):
+                        best = {"t": tt, "val": float(tr["to"])}
+                if best is not None:
+                    modes[sig_sfx] = best["val"]
+
+        stats.append({
+            "signal":    h,
+            "peak":      round(peak, 2),
+            "peak_time": round(peak_t, 3) if peak_t is not None else None,
+            "modes":     modes,
+        })
+
+    result["torque_stats"] = stats
 
 
 def _extract_episodes(result, signal, from_val, to_val):
@@ -569,7 +740,23 @@ def _extract_episodes(result, signal, from_val, to_val):
 
             if is_recovery:
                 end_time = t2["time"]
-                j += 1   # include recovery row, then stop
+                j += 1   # include recovery row, then continue for POST_RECOVERY_S
+                # Capture a small tail after recovery so debounce-clear signals
+                # (which clear slightly after the trigger signal recovers) are included.
+                POST_RECOVERY_S = 3.0
+                try:
+                    t_recovery = float(end_time)
+                    while j < len(trans):
+                        t3 = trans[j]
+                        try:
+                            if float(t3["time"]) - t_recovery > POST_RECOVERY_S:
+                                break
+                        except (ValueError, TypeError):
+                            pass
+                        ep_trans.append(t3)
+                        j += 1
+                except (ValueError, TypeError):
+                    pass
                 break
             j += 1
 
@@ -835,13 +1022,18 @@ def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0
         if tmp_file and os.path.exists(tmp_file):
             os.unlink(tmp_file)
 
+    _save_mode_transitions(result)
+    _save_sysnotengage(result)
+    _save_torque_stats(result)
+
     if trigger:
-        _save_mode_transitions(result)
+        _saved_trans = list(result.get("transitions", []))
         result = _extract_episodes(result, trigger, trigger_from, trigger_to)
         if plot_series:
             _attach_episode_plots(result, plot_series)
             _save_flight_plots(result, plot_series)
             _save_takeoff_plots(result, plot_series)
+        result = _apply_sysnotengage_fallback(result, _saved_trans, plot_series)
     elif keep_plots and plot_series:
         # Directory mode: preserve raw plot series so the caller can merge and
         # attach plots after all files are combined and episodes are extracted.
@@ -917,6 +1109,14 @@ def _merge_results(results, trigger=None):
         merged["bool_channels"] = all_chans
         merged["total_rows"]    = total_rows
         merged["filename"]      = f"merged ({len(results)} files)"
+        merged_gaps = []
+        for r in results:
+            merged_gaps.extend(r.get("data_gaps", []))
+        merged_gaps.sort(key=lambda g: g["t_start"])
+        merged["data_gaps"] = merged_gaps
+        starts = [r["rec_start_s"] for r in results if r.get("rec_start_s") is not None]
+        if starts:
+            merged["rec_start_s"] = min(starts)
         if merged_plot:
             merged["_plot_series"] = merged_plot
         return merged
@@ -988,6 +1188,11 @@ def _merge_results(results, trigger=None):
     merged["bool_channels"] = all_chans
     merged["total_rows"]   = sum(r.get("total_rows", 0) for r in results)
     merged["filename"]     = f"merged ({len(results)} files)"
+    merged_gaps = []
+    for r in results:
+        merged_gaps.extend(r.get("data_gaps", []))
+    merged_gaps.sort(key=lambda g: g["t_start"])
+    merged["data_gaps"] = merged_gaps
     return merged
 
 
@@ -1010,12 +1215,34 @@ if __name__ == "__main__":
                              "(suffix-matched, default: radAltVoted,gndSpdVoted)")
     parser.add_argument("--trace-graph", default=None,
                         help="Trace graph version expected for this sortie (embedded in output JSON)")
+    parser.add_argument("--trace-config", default=None,
+                        help="JSON config file mapping tail numbers to trace graph versions. "
+                             "Format: {\"tail_to_graph\": {\"N208AB\": \"5.1.2\"}, \"default\": \"5.1.2\"}. "
+                             "--trace-graph takes precedence over config.")
     parser.add_argument("--exclude-zips", default="",
                         help="Comma-separated substrings — ZIPs whose filename contains any of these are skipped")
     args = parser.parse_args()
 
     n = args.workers if args.workers > 0 else multiprocessing.cpu_count()
     exclude_patterns = [p.strip() for p in args.exclude_zips.split(",") if p.strip()]
+
+    # Load trace-graph config and build a resolver function
+    _tg_config = {}
+    if args.trace_config:
+        try:
+            import json as _json
+            with open(args.trace_config, "r") as _f:
+                _tg_config = _json.load(_f)
+        except Exception as _e:
+            print(f"Warning: could not load --trace-config {args.trace_config}: {_e}")
+
+    def _resolve_trace_graph(tail):
+        """Return trace graph version: explicit arg > config by tail > config default."""
+        if args.trace_graph:
+            return args.trace_graph
+        if tail and _tg_config.get("tail_to_graph", {}).get(tail):
+            return _tg_config["tail_to_graph"][tail]
+        return _tg_config.get("default") or None
 
     # ── Directory mode ────────────────────────────────────────────────────
     # Process every ZIP flat (no per-file trigger), merge all transitions into
@@ -1099,9 +1326,12 @@ if __name__ == "__main__":
         combined = _merge_results(flat_results, trigger=None)
 
         # Pass 3: extract episodes from the combined pool (if trigger supplied)
+        plot_series = combined.pop("_plot_series", {})
+        _save_mode_transitions(combined)
+        _save_sysnotengage(combined)
+        _save_torque_stats(combined)
         if args.trigger:
-            plot_series = combined.pop("_plot_series", {})
-            _save_mode_transitions(combined)
+            _saved_trans = list(combined.get("transitions", []))
             combined = _extract_episodes(combined,
                                          args.trigger,
                                          args.trigger_from,
@@ -1110,6 +1340,7 @@ if __name__ == "__main__":
                 _attach_episode_plots(combined, plot_series)
                 _save_flight_plots(combined, plot_series)
                 _save_takeoff_plots(combined, plot_series)
+            combined = _apply_sysnotengage_fallback(combined, _saved_trans, plot_series)
             episodes = combined.get("episodes", [])
             if not episodes:
                 print(f"  WARNING: trigger '{args.trigger}' not found in any file "
@@ -1117,11 +1348,12 @@ if __name__ == "__main__":
             else:
                 print(f"  {len(episodes)} episode(s)")
 
-        if args.trace_graph:
-            combined["trace_graph"] = args.trace_graph
         tail = _extract_tail(zip_files)
         if tail:
             combined["tail_number"] = tail
+        tg = _resolve_trace_graph(tail)
+        if tg:
+            combined["trace_graph"] = tg
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(sanitize_for_json(combined), f, separators=(",", ":"), allow_nan=False)
 
@@ -1141,9 +1373,10 @@ if __name__ == "__main__":
         if sortie:
             print(f"Sortie: {sortie}")
 
+        _sf_tail = _extract_tail([args.input])
         process_file(args.input, out_path, n_workers=n,
                      trigger=args.trigger,
                      trigger_from=args.trigger_from,
                      trigger_to=args.trigger_to,
                      plot_signals=args.plot_signals,
-                     trace_graph=args.trace_graph)
+                     trace_graph=_resolve_trace_graph(_sf_tail))

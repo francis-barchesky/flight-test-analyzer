@@ -158,6 +158,12 @@ for DAY in $DAYS; do
     DONE_MARKER="$DATA_ROOT/.pipeline_done/$DAY"
     FLAT_ZIPS=$(find "$DATA_ROOT" -maxdepth 1 -name "*.zip" 2>/dev/null | wc -l)
 
+    # ── Skip day entirely if already processed and no pending ZIPs ──────────
+    if [[ -f "$DONE_MARKER" && $FLAT_ZIPS -eq 0 ]]; then
+        echo "  Skipping — already processed ($DONE_MARKER)"
+        continue
+    fi
+
     # ── Download this day ────────────────────────────────────────────────────
     echo
     DL_START=$SECONDS
