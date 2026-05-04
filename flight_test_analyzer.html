@@ -3171,7 +3171,7 @@ function findInitiatingFault(concurrent, triggerSignal, debounceSignal) {
 
   if (!graphLoaded) {
     const FAULT_RE      = /monitor|flag|fault|xcd|exceed|mistrim|wrap/i;
-    const PROTECTION_RE = /torq.*lim|torquelim/i;
+    const PROTECTION_RE = /torq.*lim|torquelim|detectraw/i;
     const c = byTime.find(c => {
       const sfx = c.signal.split('.').pop();
       if (PROTECTION_RE.test(sfx)) return false;
@@ -3510,9 +3510,9 @@ function classifyExit(concurrent, triggerSignal, enumConcurrent = []) {
   };
 
   // 5. Mistrim — explicit mistrim assertion or threshold-exceeded flag.
-  // NOTE: Torque_Limiting is a protection mechanism (servo protection active), not a fault.
+  // NOTE: Torque_Limiting and detectRaw signals are protection/raw-detection mechanisms, not fault initiators.
   const mistrim = [...preTrig, ...atTrig].find(c =>
-    c.to === 1 && /mistrim|xcd/i.test(sfxLow(c.signal))
+    c.to === 1 && /mistrim|xcd/i.test(sfxLow(c.signal)) && !/detectraw/i.test(sfxLow(c.signal))
   );
   if (mistrim) return {
     category: 'MISTRIM', label: 'Mistrim / Torque Limit', color: '#854F0B',
