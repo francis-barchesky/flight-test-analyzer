@@ -119,14 +119,7 @@ body { font-family: system-ui, sans-serif; background: #2b2b28; color: #cac8bf; 
 <div class="layout">
   <div class="sidebar" id="appSidebar">
 
-    <div class="sidebar-section">
-      <div class="ss-hdr" onclick="_ssToggle('load')">
-        <h2>Load data</h2><span class="ss-chev">▾</span>
-      </div>
-      <div id="ss-body-load">
-        <div class="status-box" id="dirStatus" style="margin-top:5px;display:none"></div>
-      </div>
-    </div>
+    <div id="dirStatus" style="display:none"></div>
 
     <div class="sidebar-section">
       <div class="ss-hdr" onclick="_ssToggle('analysis')">
@@ -1193,7 +1186,8 @@ function addToQueue(name, data, file) {
   // Debounce so bulk-loading many files only triggers one analysis run
   clearTimeout(_activateDebounce);
   _activateDebounce = setTimeout(() => {
-    if (_dirLoadNav) { _dirLoadNav = false; activateSummary(); }
+    _dirLoadNav = false;
+    if (analysisQueue.length > 1) activateSummary();
     else activateQueueItem(activeQueueIdx);
   }, 200);
 }
@@ -4042,7 +4036,7 @@ function detectFlightPhases(data) {
     ph.latDevPts = []; ph.vertDevPts = []; ph.radAltPts = []; ph.distToRwyPts = []; ph.distToRwyGnssPts = [];
     ph.pitchActPts = []; ph.pitchCmdPts = [];
     ph.rollActPts  = []; ph.rollCmdPts  = [];
-    ph.casPts = []; ph.casTargetPts = []; ph.gndSpdPts = []; ph.torqueVotedPts = [];
+    ph.casPts = []; ph.casTargetPts = []; ph.gndSpdPts = []; ph.torqueVotedPts = []; ph.atSatTorqueCmdPts = [];
     ph.trimRatePts = [];
     ph.flapPts = [];
     ph.touchdownLat = null; ph.touchdownLon = null;
@@ -4127,9 +4121,10 @@ function detectFlightPhases(data) {
     ph.rollCmdPts  = inPhase(phasePlots['fgRollCmd']);
 
     // Throttle: CAS actual vs CAS target + engine torque
-    ph.casPts          = inPhase(phasePlots['casVoted']);
-    ph.casTargetPts    = inPhase(phasePlots['pfdCasTarget'] || phasePlots['casTarget']);
-    ph.torqueVotedPts  = inPhase(phasePlots['torqueVoted'] || []);
+    ph.casPts             = inPhase(phasePlots['casVoted']);
+    ph.casTargetPts       = inPhase(phasePlots['pfdCasTarget'] || phasePlots['casTarget']);
+    ph.torqueVotedPts     = inPhase(phasePlots['torqueVoted'] || []);
+    ph.atSatTorqueCmdPts  = inPhase(phasePlots['atSatTorqueCmd'] || []);
 
     // Pitch trim
     ph.trimRatePts  = inPhase(phasePlots['aptTrimRateServoCmd'] || []);
@@ -4956,8 +4951,9 @@ function renderFlightPhases(data, container) {
     const casPts         = merge(ph.casPts,          lph?.casPts);
     const casTargetPts   = merge(ph.casTargetPts,    lph?.casTargetPts);
     const gndSpdPts      = merge(ph.gndSpdPts,       lph?.gndSpdPts);
-    const torqueVotedPts = merge(ph.torqueVotedPts,  lph?.torqueVotedPts);
-    const trimRatePts    = merge(ph.trimRatePts,     lph?.trimRatePts);
+    const torqueVotedPts    = merge(ph.torqueVotedPts,     lph?.torqueVotedPts);
+    const atSatTorqueCmdPts = merge(ph.atSatTorqueCmdPts,  lph?.atSatTorqueCmdPts);
+    const trimRatePts       = merge(ph.trimRatePts,        lph?.trimRatePts);
     const flapPts      = merge(ph.flapPts,      lph?.flapPts);
     const allFaults   = lph ? [...ph.faults, ...lph.faults] : ph.faults;
 
@@ -4974,8 +4970,9 @@ function renderFlightPhases(data, container) {
     ph.casPts          = casPts;
     ph.casTargetPts    = casTargetPts;
     ph.gndSpdPts       = gndSpdPts;
-    ph.torqueVotedPts  = torqueVotedPts;
-    ph.trimRatePts     = trimRatePts;
+    ph.torqueVotedPts     = torqueVotedPts;
+    ph.atSatTorqueCmdPts  = atSatTorqueCmdPts;
+    ph.trimRatePts        = trimRatePts;
     ph.flapPts      = flapPts;
     ph.faults       = allFaults;
     // Extend phase window to cover landing
@@ -5838,16 +5835,17 @@ function renderFlightPhases(data, container) {
       const hasCasT   = ph.casTargetPts.length > 1;
       const hasGS     = ph.gndSpdPts.length > 1;
       const hasTorque = ph.torqueVotedPts.length > 1;
-      if (!hasCas && !hasCasT && !hasGS && !hasTorque) return '';
+      const hasAtSat  = ph.atSatTorqueCmdPts.length > 1;
+      if (!hasCas && !hasCasT && !hasGS && !hasTorque && !hasAtSat) return '';
 
-      const W = 560, H = 170, pL = 36, pR = hasTorque ? 50 : 34, pT = 22, pB = 32;
+      const W = 560, H = 170, pL = 36, pR = (hasTorque || hasAtSat) ? 50 : 34, pT = 22, pB = 32;
       const iW = W - pL - pR, iH = H - pT - pB;
       const casAcid = 'phc' + (_phaseChartSeq++);
 
       const casAllPts = [...ph.casPts, ...ph.casTargetPts, ...ph.gndSpdPts];
       const casVMax = casAllPts.length ? Math.max(...casAllPts.map(p => p[1])) : 0;
       const casVMin = casAllPts.length ? Math.min(...casAllPts.map(p => p[1])) : 0;
-      const trqAllPts = ph.torqueVotedPts;
+      const trqAllPts = [...ph.torqueVotedPts, ...ph.atSatTorqueCmdPts];
       const trqVMax = trqAllPts.length ? Math.max(...trqAllPts.map(p => p[1])) : 0;
       const trqVMin = trqAllPts.length ? Math.min(...trqAllPts.map(p => p[1])) : 0;
 
@@ -5865,9 +5863,9 @@ function renderFlightPhases(data, container) {
         }
         // Torque scale (right axis, ft-lb)
         let trqLo = 0, trqHi = 1;
-        if (hasTorque) {
-          const trqVis  = ph.torqueVotedPts.filter(p => p[0] >= t0 && p[0] <= t1);
-          const trqSrc  = trqVis.length ? trqVis : ph.torqueVotedPts;
+        if (hasTorque || hasAtSat) {
+          const trqVis  = [...ph.torqueVotedPts, ...ph.atSatTorqueCmdPts].filter(p => p[0] >= t0 && p[0] <= t1);
+          const trqSrc  = trqVis.length ? trqVis : [...ph.torqueVotedPts, ...ph.atSatTorqueCmdPts];
           const trqVals = trqSrc.map(p => p[1]);
           const tMin    = Math.min(...trqVals), tMax = Math.max(...trqVals);
           const tPad    = Math.max((tMax - tMin) * 0.12, 10);
@@ -5965,6 +5963,20 @@ function renderFlightPhases(data, container) {
           });
         }
         if (hasTorque) s += polyTq(ph.torqueVotedPts);
+        if (hasAtSat) {
+          const vis = ph.atSatTorqueCmdPts.filter(p => p[0] >= t0 && p[0] <= t1);
+          if (vis.length >= 2) {
+            const segs = []; let seg = [vis[0]];
+            for (let i = 1; i < vis.length; i++) {
+              if (vis[i][0] - vis[i-1][0] > 2.0) { segs.push(seg); seg = [vis[i]]; }
+              else seg.push(vis[i]);
+            }
+            segs.push(seg);
+            s += segs.filter(s => s.length >= 2).map(s =>
+              `<polyline points="${s.map(p=>`${tx(p[0]).toFixed(1)},${vyTq(p[1]).toFixed(1)}`).join(' ')}" fill="none" stroke="#FF44CC" stroke-width="1.2" stroke-linejoin="round"/>`
+            ).join('');
+          }
+        }
         s += poly(ph.gndSpdPts,    '#76C480');
         s += poly(ph.casTargetPts, '#E060CC', '4,2');
         s += poly(ph.casPts, '#7EB8F7');
@@ -5985,7 +5997,8 @@ function renderFlightPhases(data, container) {
           ...(hasCas    ? [{ pts: ph.casPts,         color: '#7EB8F7', label: 'CAS (kt)',       pT, iH, vMax: casVMax }] : []),
           ...(hasCasT   ? [{ pts: ph.casTargetPts,   color: '#E060CC', label: 'Target (kt)',    pT, iH, vMax: casVMax }] : []),
           ...(hasGS     ? [{ pts: ph.gndSpdPts,      color: '#76C480', label: 'GS (kt)',        pT, iH, vMax: casVMax }] : []),
-          ...(hasTorque ? [{ pts: ph.torqueVotedPts, color: '#D4924A', label: 'Torque (ft-lb)', pT, iH, vMax: trqVMax, vMin: trqVMin, yMode: 'secondary' }] : []),
+          ...(hasTorque ? [{ pts: ph.torqueVotedPts,    color: '#D4924A', label: 'Torque (ft-lb)',       pT, iH, vMax: trqVMax, vMin: trqVMin, yMode: 'secondary' }] : []),
+          ...(hasAtSat  ? [{ pts: ph.atSatTorqueCmdPts, color: '#FF44CC', label: 'AT Sat Torque (ft-lb)', pT, iH, vMax: trqVMax, vMin: trqVMin, yMode: 'secondary' }] : []),
         ],
         rebuild: (t0, t1) => buildCasSvg(t0, t1),
       };

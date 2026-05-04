@@ -17,3 +17,9 @@ __pycache__/
 # OS
 .DS_Store
 Thumbs.db
+
+.pipeline_done/
+
+.claude/
+
+*.pdf

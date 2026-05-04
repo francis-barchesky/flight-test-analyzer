@@ -1,0 +1,1195 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.1 Portable) (preloaded format=pdflatex 2026.3.5)  27 APR 2026 15:02
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**./flightTestAnalysisProposal-rev1.tex
+(flightTestAnalysisProposal-rev1.tex
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/base\article.cls
+Document Class: article 2025/01/22 v1.4n Standard LaTeX document class
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/base\size11.clo
+File: size11.clo 2025/01/22 v1.4n Standard LaTeX file (size option)
+)
+\c@part=\count275
+\c@section=\count276
+\c@subsection=\count277
+\c@subsubsection=\count278
+\c@paragraph=\count279
+\c@subparagraph=\count280
+\c@figure=\count281
+\c@table=\count282
+\abovecaptionskip=\skip49
+\belowcaptionskip=\skip50
+\bibindent=\dimen148
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/geometry\geometry.sty
+Package: geometry 2020/01/02 v5.9 Page Geometry
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics\keyval.sty
+Package: keyval 2022/05/29 v1.15 key=value parser (DPC)
+\KV@toks@=\toks17
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/iftex\ifvtex.sty
+Package: ifvtex 2019/10/25 v1.7 ifvtex legacy package. Use iftex instead.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/iftex\iftex.sty
+Package: iftex 2024/12/12 v1.0g TeX engine tests
+))
+\Gm@cnth=\count283
+\Gm@cntv=\count284
+\c@Gm@tempcnt=\count285
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks18
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/geometry\geometry.cfg))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/booktabs\booktabs.sty
+Package: booktabs 2020/01/12 v1.61803398 Publication quality tables
+\heavyrulewidth=\dimen157
+\lightrulewidth=\dimen158
+\cmidrulewidth=\dimen159
+\belowrulesep=\dimen160
+\belowbottomsep=\dimen161
+\aboverulesep=\dimen162
+\abovetopsep=\dimen163
+\cmidrulesep=\dimen164
+\cmidrulekern=\dimen165
+\defaultaddspace=\dimen166
+\@cmidla=\count286
+\@cmidlb=\count287
+\@aboverulesep=\dimen167
+\@belowrulesep=\dimen168
+\@thisruleclass=\count288
+\@lastruleclass=\count289
+\@thisrulewidth=\dimen169
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/tools\tabularx.sty
+Package: tabularx 2023/12/11 v2.12a `tabularx' package (DPC)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/tools\array.sty
+Package: array 2025/09/25 v2.6n Tabular extension package (FMi)
+\col@sep=\dimen170
+\ar@mcellbox=\box53
+\extrarowheight=\dimen171
+\NC@list=\toks19
+\extratabsurround=\skip51
+\backup@length=\skip52
+\ar@cellbox=\box54
+)
+\TX@col@width=\dimen172
+\TX@old@table=\dimen173
+\TX@old@col=\dimen174
+\TX@target=\dimen175
+\TX@delta=\dimen176
+\TX@cols=\count290
+\TX@ftn=\toks20
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/amsmath\amsmath.sty
+Package: amsmath 2025/07/09 v2.17z AMS math features
+\@mathmargin=\skip53
+
+For additional information on amsmath, use the `?' option.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/amsmath\amstext.sty
+Package: amstext 2024/11/17 v2.01 AMS text
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/amsmath\amsgen.sty
+File: amsgen.sty 1999/11/30 v2.0 generic functions
+\@emptytoks=\toks21
+\ex@=\dimen177
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/amsmath\amsbsy.sty
+Package: amsbsy 1999/11/29 v1.2d Bold Symbols
+\pmbraise@=\dimen178
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/amsmath\amsopn.sty
+Package: amsopn 2022/04/08 v2.04 operator names
+)
+\inf@bad=\count291
+LaTeX Info: Redefining \frac on input line 233.
+\uproot@=\count292
+\leftroot@=\count293
+LaTeX Info: Redefining \overline on input line 398.
+LaTeX Info: Redefining \colon on input line 409.
+\classnum@=\count294
+\DOTSCASE@=\count295
+LaTeX Info: Redefining \ldots on input line 495.
+LaTeX Info: Redefining \dots on input line 498.
+LaTeX Info: Redefining \cdots on input line 619.
+\Mathstrutbox@=\box55
+\strutbox@=\box56
+LaTeX Info: Redefining \big on input line 721.
+LaTeX Info: Redefining \Big on input line 722.
+LaTeX Info: Redefining \bigg on input line 723.
+LaTeX Info: Redefining \Bigg on input line 724.
+\big@size=\dimen179
+LaTeX Font Info:    Redeclaring font encoding OML on input line 742.
+LaTeX Font Info:    Redeclaring font encoding OMS on input line 743.
+\macc@depth=\count296
+LaTeX Info: Redefining \bmod on input line 904.
+LaTeX Info: Redefining \pmod on input line 909.
+LaTeX Info: Redefining \smash on input line 939.
+LaTeX Info: Redefining \relbar on input line 969.
+LaTeX Info: Redefining \Relbar on input line 970.
+\c@MaxMatrixCols=\count297
+\dotsspace@=\muskip17
+\c@parentequation=\count298
+\dspbrk@lvl=\count299
+\tag@help=\toks22
+\row@=\count300
+\column@=\count301
+\maxfields@=\count302
+\andhelp@=\toks23
+\eqnshift@=\dimen180
+\alignsep@=\dimen181
+\tagshift@=\dimen182
+\tagwidth@=\dimen183
+\totwidth@=\dimen184
+\lineht@=\dimen185
+\@envbody=\toks24
+\multlinegap=\skip54
+\multlinetaggap=\skip55
+\mathdisplay@stack=\toks25
+LaTeX Info: Redefining \[ on input line 2950.
+LaTeX Info: Redefining \] on input line 2951.
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hyperref\hyperref.sty
+Package: hyperref 2026-01-29 v7.01p Hypertext links for LaTeX
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/kvsetkeys\kvsetkeys.sty
+Package: kvsetkeys 2022-10-05 v1.19 Key value parser (HO)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/kvdefinekeys\kvdefinekeys.sty
+Package: kvdefinekeys 2019-12-19 v1.6 Define keys (HO)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pdfescape\pdfescape.sty
+Package: pdfescape 2019/12/09 v1.15 Implements pdfTeX's escape features (HO)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/ltxcmds\ltxcmds.sty
+Package: ltxcmds 2023-12-04 v1.26 LaTeX kernel commands for general use (HO)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pdftexcmds\pdftexcmds.sty
+Package: pdftexcmds 2020-06-27 v0.33 Utility functions of pdfTeX for LuaTeX (HO
+)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/infwarerr\infwarerr.sty
+Package: infwarerr 2019/12/03 v1.5 Providing info/warning/error messages (HO)
+)
+Package pdftexcmds Info: \pdf@primitive is available.
+Package pdftexcmds Info: \pdf@ifprimitive is available.
+Package pdftexcmds Info: \pdfdraftmode found.
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hycolor\hycolor.sty
+Package: hycolor 2020-01-27 v1.10 Color options for hyperref/bookmark (HO)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hyperref\nameref.sty
+Package: nameref 2026-01-29 v2.58 Cross-referencing by name of section
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/refcount\refcount.sty
+Package: refcount 2019/12/15 v3.6 Data extraction from label references (HO)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/gettitlestring\gettitlestring.sty
+Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/kvoptions\kvoptions.sty
+Package: kvoptions 2022-06-15 v3.15 Key value format for package options (HO)
+))
+\c@section@level=\count303
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/etoolbox\etoolbox.sty
+Package: etoolbox 2025/10/02 v2.5m e-TeX tools for LaTeX (JAW)
+\etb@tempcnta=\count304
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/stringenc\stringenc.sty
+Package: stringenc 2019/11/29 v1.12 Convert strings between diff. encodings (HO
+)
+)
+\@linkdim=\dimen186
+\Hy@linkcounter=\count305
+\Hy@pagecounter=\count306
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hyperref\pd1enc.def
+File: pd1enc.def 2026-01-29 v7.01p Hyperref: PDFDocEncoding definition (HO)
+Now handling font encoding PD1 ...
+... no UTF-8 mapping file for font encoding PD1
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/intcalc\intcalc.sty
+Package: intcalc 2019/12/15 v1.3 Expandable calculations with integers (HO)
+)
+\Hy@SavedSpaceFactor=\count307
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hyperref\puenc.def
+File: puenc.def 2026-01-29 v7.01p Hyperref: PDF Unicode definition (HO)
+Now handling font encoding PU ...
+... no UTF-8 mapping file for font encoding PU
+)
+Package hyperref Info: Hyper figures OFF on input line 4201.
+Package hyperref Info: Link nesting OFF on input line 4206.
+Package hyperref Info: Hyper index ON on input line 4209.
+Package hyperref Info: Plain pages OFF on input line 4216.
+Package hyperref Info: Backreferencing OFF on input line 4221.
+Package hyperref Info: Implicit mode ON; LaTeX internals redefined.
+Package hyperref Info: Bookmarks ON on input line 4468.
+\c@Hy@tempcnt=\count308
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/url\url.sty
+\Urlmuskip=\muskip18
+Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
+)
+LaTeX Info: Redefining \url on input line 4807.
+\XeTeXLinkMargin=\dimen187
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/bitset\bitset.sty
+Package: bitset 2019/12/09 v1.3 Handle bit-vector datatype (HO)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/bigintcalc\bigintcalc.sty
+Package: bigintcalc 2019/12/15 v1.5 Expandable calculations on big integers (HO
+)
+))
+\Fld@menulength=\count309
+\Field@Width=\dimen188
+\Fld@charsize=\dimen189
+Package hyperref Info: Hyper figures OFF on input line 6084.
+Package hyperref Info: Link nesting OFF on input line 6089.
+Package hyperref Info: Hyper index ON on input line 6092.
+Package hyperref Info: backreferencing OFF on input line 6099.
+Package hyperref Info: Link coloring OFF on input line 6104.
+Package hyperref Info: Link coloring with OCG OFF on input line 6109.
+Package hyperref Info: PDF/A mode OFF on input line 6114.
+\Hy@abspage=\count310
+\c@Item=\count311
+\c@Hfootnote=\count312
+)
+Package hyperref Info: Driver (autodetected): hpdftex.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/hyperref\hpdftex.def
+File: hpdftex.def 2026-01-29 v7.01p Hyperref driver for pdfTeX
+\Fld@listcount=\count313
+\c@bookmark@seq@number=\count314
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/rerunfilecheck\rerunfilecheck.sty
+Package: rerunfilecheck 2025-06-21 v1.11 Rerun checks for auxiliary files (HO)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/uniquecounter\uniquecounter.sty
+Package: uniquecounter 2019/12/15 v1.4 Provide unlimited unique counter (HO)
+)
+Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 2
+84.
+)
+\Hy@SectionHShift=\skip56
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/xcolor\xcolor.sty
+Package: xcolor 2024/09/29 v3.02 LaTeX color extensions (UK)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics-cfg\color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 274.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics-def\pdftex.def
+File: pdftex.def 2025/09/29 v1.2d Graphics/color driver for pdftex
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics\mathcolor.ltx)
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1349.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1353.
+Package xcolor Info: Model `RGB' extended on input line 1365.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1367.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1370.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1371.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1372.
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/colortbl\colortbl.sty
+Package: colortbl 2024/10/29 v1.0k Color table columns (DPC)
+\everycr=\toks26
+\minrowclearance=\skip57
+\rownum=\count315
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/parskip\parskip.sty
+Package: parskip 2021-03-14 v2.0h non-zero parskip adjustments
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/titlesec\titlesec.sty
+Package: titlesec 2025/01/04 v2.17 Sectioning titles
+\ttl@box=\box57
+\beforetitleunit=\skip58
+\aftertitleunit=\skip59
+\ttl@plus=\dimen190
+\ttl@minus=\dimen191
+\ttl@toksa=\toks27
+\titlewidth=\dimen192
+\titlewidthlast=\dimen193
+\titlewidthfirst=\dimen194
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/enumitem\enumitem.sty
+Package: enumitem 2025/02/06 v3.11 Customized lists
+\labelindent=\skip60
+\enit@outerparindent=\dimen195
+\enit@toks=\toks28
+\enit@inbox=\box58
+\enit@count@id=\count316
+\enitdp@description=\count317
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/microtype\microtype.sty
+Package: microtype 2026/03/01 v3.2d Micro-typographical refinements (RS)
+\MT@toks=\toks29
+\MT@tempbox=\box59
+\MT@count=\count318
+LaTeX Info: Redefining \noprotrusionifhmode on input line 1084.
+LaTeX Info: Redefining \leftprotrusion on input line 1085.
+\MT@prot@toks=\toks30
+LaTeX Info: Redefining \rightprotrusion on input line 1104.
+LaTeX Info: Redefining \textls on input line 1449.
+\MT@outer@kern=\dimen196
+LaTeX Info: Redefining \microtypecontext on input line 2053.
+LaTeX Info: Redefining \textmicrotypecontext on input line 2070.
+\MT@listname@count=\count319
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/microtype\microtype-pdftex.def
+File: microtype-pdftex.def 2026/03/01 v3.2d Definitions specific to pdftex (RS)
+
+LaTeX Info: Redefining \lsstyle on input line 944.
+LaTeX Info: Redefining \lslig on input line 944.
+\MT@outer@space=\skip61
+)
+Package microtype Info: Loading configuration file microtype.cfg.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/microtype\microtype.cfg
+File: microtype.cfg 2026/03/01 v3.2d microtype main configuration file (RS)
+)
+LaTeX Info: Redefining \microtypesetup on input line 3065.
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/caption\caption.sty
+Package: caption 2023/08/05 v3.6o Customizing captions (AR)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/caption\caption3.sty
+Package: caption3 2023/07/31 v2.4d caption3 kernel (AR)
+\caption@tempdima=\dimen197
+\captionmargin=\dimen198
+\caption@leftmargin=\dimen199
+\caption@rightmargin=\dimen256
+\caption@width=\dimen257
+\caption@indent=\dimen258
+\caption@parindent=\dimen259
+\caption@hangindent=\dimen260
+Package caption Info: Standard document class detected.
+)
+\c@caption@flags=\count320
+\c@continuedfloat=\count321
+Package caption Info: hyperref package is loaded.
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/multirow\multirow.sty
+Package: multirow 2024/11/12 v2.9 Span multiple rows of a table
+\multirow@colwidth=\skip62
+\multirow@cntb=\count322
+\multirow@dima=\skip63
+\bigstrutjot=\dimen261
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/appendix\appendix.sty
+Package: appendix 2020/02/08 v1.2c extra appendix facilities
+\c@@pps=\count323
+\c@@ppsavesec=\count324
+\c@@ppsaveapp=\count325
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics\graphicx.sty
+Package: graphicx 2024/12/31 v1.2e Enhanced LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics\graphics.sty
+Package: graphics 2024/08/06 v1.4g Standard LaTeX Graphics (DPC,SPQR)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics\trig.sty
+Package: trig 2023/12/02 v1.11 sin cos tan (DPC)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/graphics-cfg\graphics.cfg
+File: graphics.cfg 2016/06/04 v1.11 sample graphics configuration
+)
+Package graphics Info: Driver file: pdftex.def on input line 106.
+)
+\Gin@req@height=\dimen262
+\Gin@req@width=\dimen263
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/fancyhdr\fancyhdr.sty
+Package: fancyhdr 2025/02/07 v5.2 Extensive control of page headers and footers
+
+\f@nch@headwidth=\skip64
+\f@nch@offset@elh=\skip65
+\f@nch@offset@erh=\skip66
+\f@nch@offset@olh=\skip67
+\f@nch@offset@orh=\skip68
+\f@nch@offset@elf=\skip69
+\f@nch@offset@erf=\skip70
+\f@nch@offset@olf=\skip71
+\f@nch@offset@orf=\skip72
+\f@nch@height=\skip73
+\f@nch@footalignment=\skip74
+\f@nch@widthL=\skip75
+\f@nch@widthC=\skip76
+\f@nch@widthR=\skip77
+\@temptokenb=\toks31
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/lastpage\lastpage.sty
+Package: lastpage 2025/08/14 v2.1h lastpage: 2.09 or 2e? (HMM)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/lastpage\lastpage2e.sty
+Package: lastpage2e 2025/08/14 v2.1h Decide which 2e lastpage version to use (H
+MM)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/lastpage\lastpagemodern.sty
+Package: lastpagemodern 2025-08-14 v2.1h Refers to last page's name (HMM; JPG)
+\c@lastpagecount=\count326
+) 
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/frontendlayer\tikz.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/basiclayer\pgf.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/utilities\pgfrcs.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfutil-common.tex
+\pgfutil@everybye=\toks32
+\pgfutil@tempdima=\dimen264
+\pgfutil@tempdimb=\dimen265
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfutil-latex.def
+\pgfutil@abb=\box60
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfrcs.code.tex
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf\pgf.revision.tex)
+Package: pgfrcs 2025-08-29 v3.1.11a (3.1.11a)
+))
+Package: pgf 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/basiclayer\pgfcore.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/systemlayer\pgfsys.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgfsys.code.tex
+Package: pgfsys 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfkeys.code.tex
+\pgfkeys@pathtoks=\toks33
+\pgfkeys@temptoks=\toks34
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfkeyslibraryfiltered.code.tex
+\pgfkeys@tmptoks=\toks35
+))
+\pgf@x=\dimen266
+\pgf@y=\dimen267
+\pgf@xa=\dimen268
+\pgf@ya=\dimen269
+\pgf@xb=\dimen270
+\pgf@yb=\dimen271
+\pgf@xc=\dimen272
+\pgf@yc=\dimen273
+\pgf@xd=\dimen274
+\pgf@yd=\dimen275
+\w@pgf@writea=\write3
+\r@pgf@reada=\read2
+\c@pgf@counta=\count327
+\c@pgf@countb=\count328
+\c@pgf@countc=\count329
+\c@pgf@countd=\count330
+\t@pgf@toka=\toks36
+\t@pgf@tokb=\toks37
+\t@pgf@tokc=\toks38
+\pgf@sys@id@count=\count331
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgf.cfg
+File: pgf.cfg 2025-08-29 v3.1.11a (3.1.11a)
+)
+Driver file for pgf: pgfsys-pdftex.def
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgfsys-pdftex.def
+File: pgfsys-pdftex.def 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgfsys-common-pdf.def
+File: pgfsys-common-pdf.def 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgfsyssoftpath.code.tex
+File: pgfsyssoftpath.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfsyssoftpath@smallbuffer@items=\count332
+\pgfsyssoftpath@bigbuffer@items=\count333
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/systemlayer\pgfsysprotocol.code.tex
+File: pgfsysprotocol.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcore.code.tex
+Package: pgfcore 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmath.code.tex
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathutil.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathparser.code.tex
+\pgfmath@dimen=\dimen276
+\pgfmath@count=\count334
+\pgfmath@box=\box61
+\pgfmath@toks=\toks39
+\pgfmath@stack@operand=\toks40
+\pgfmath@stack@operation=\toks41
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.basic.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.trigonometric.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.random.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.comparison.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.base.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.round.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.misc.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfunctions.integerarithmetics.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathcalc.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmathfloat.code.tex
+\c@pgfmathroundto@lastzeros=\count335
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfint.code.tex)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorepoints.code.tex
+File: pgfcorepoints.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@picminx=\dimen277
+\pgf@picmaxx=\dimen278
+\pgf@picminy=\dimen279
+\pgf@picmaxy=\dimen280
+\pgf@pathminx=\dimen281
+\pgf@pathmaxx=\dimen282
+\pgf@pathminy=\dimen283
+\pgf@pathmaxy=\dimen284
+\pgf@xx=\dimen285
+\pgf@xy=\dimen286
+\pgf@yx=\dimen287
+\pgf@yy=\dimen288
+\pgf@zx=\dimen289
+\pgf@zy=\dimen290
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorepathconstruct.code.tex
+File: pgfcorepathconstruct.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@path@lastx=\dimen291
+\pgf@path@lasty=\dimen292
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorepathusage.code.tex
+File: pgfcorepathusage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@shorten@end@additional=\dimen293
+\pgf@shorten@start@additional=\dimen294
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorescopes.code.tex
+File: pgfcorescopes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfpic=\box62
+\pgf@hbox=\box63
+\pgf@layerbox@main=\box64
+\pgf@picture@serial@count=\count336
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoregraphicstate.code.tex
+File: pgfcoregraphicstate.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgflinewidth=\dimen295
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoretransformations.code.tex
+File: pgfcoretransformations.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@pt@x=\dimen296
+\pgf@pt@y=\dimen297
+\pgf@pt@temp=\dimen298
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorequick.code.tex
+File: pgfcorequick.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoreobjects.code.tex
+File: pgfcoreobjects.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorepathprocessing.code.tex
+File: pgfcorepathprocessing.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorearrows.code.tex
+File: pgfcorearrows.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowsep=\dimen299
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoreshade.code.tex
+File: pgfcoreshade.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@max=\dimen300
+\pgf@sys@shading@range@num=\count337
+\pgf@shadingcount=\count338
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoreimage.code.tex
+File: pgfcoreimage.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoreexternal.code.tex
+File: pgfcoreexternal.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfexternal@startupbox=\box65
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorelayers.code.tex
+File: pgfcorelayers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcoretransparency.code.tex
+File: pgfcoretransparency.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorepatterns.code.tex
+File: pgfcorepatterns.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/basiclayer\pgfcorerdf.code.tex
+File: pgfcorerdf.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/modules\pgfmoduleshapes.code.tex
+File: pgfmoduleshapes.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfnodeparttextbox=\box66
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/modules\pgfmoduleplot.code.tex
+File: pgfmoduleplot.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/compatibility\pgfcomp-version-0-65.sty
+Package: pgfcomp-version-0-65 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@nodesepstart=\dimen301
+\pgf@nodesepend=\dimen302
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/compatibility\pgfcomp-version-1-18.sty
+Package: pgfcomp-version-1-18 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/utilities\pgffor.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/utilities\pgfkeys.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgfkeys.code.tex))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/pgf/math\pgfmath.sty
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/math\pgfmath.code.tex))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/utilities\pgffor.code.tex
+Package: pgffor 2025-08-29 v3.1.11a (3.1.11a)
+\pgffor@iter=\dimen303
+\pgffor@skip=\dimen304
+\pgffor@stack=\toks42
+\pgffor@toks=\toks43
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/frontendlayer/tikz\tikz.code.tex
+Package: tikz 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/libraries\pgflibraryplothandlers.code.tex
+File: pgflibraryplothandlers.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgf@plot@mark@count=\count339
+\pgfplotmarksize=\dimen305
+)
+\tikz@lastx=\dimen306
+\tikz@lasty=\dimen307
+\tikz@lastxsaved=\dimen308
+\tikz@lastysaved=\dimen309
+\tikz@lastmovetox=\dimen310
+\tikz@lastmovetoy=\dimen311
+\tikzleveldistance=\dimen312
+\tikzsiblingdistance=\dimen313
+\tikz@figbox=\box67
+\tikz@figbox@bg=\box68
+\tikz@tempbox=\box69
+\tikz@tempbox@bg=\box70
+\tikztreelevel=\count340
+\tikznumberofchildren=\count341
+\tikznumberofcurrentchild=\count342
+\tikz@fig@count=\count343
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/modules\pgfmodulematrix.code.tex
+File: pgfmodulematrix.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfmatrixcurrentrow=\count344
+\pgfmatrixcurrentcolumn=\count345
+\pgf@matrix@numberofcolumns=\count346
+)
+\tikz@expandcount=\count347
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/frontendlayer/tikz/libraries\tikzlibrarytopaths.code.tex
+File: tikzlibrarytopaths.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/frontendlayer/tikz/libraries\tikzlibraryshapes.geometric.code.tex
+File: tikzlibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/libraries/shapes\pgflibraryshapes.geometric.code.tex
+File: pgflibraryshapes.geometric.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+))
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/libraries\pgflibraryarrows.meta.code.tex
+File: pgflibraryarrows.meta.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+\pgfarrowinset=\dimen314
+\pgfarrowlength=\dimen315
+\pgfarrowwidth=\dimen316
+\pgfarrowlinewidth=\dimen317
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/frontendlayer/tikz/libraries\tikzlibrarypositioning.code.tex
+File: tikzlibrarypositioning.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/gen
+eric/pgf/frontendlayer/tikz/libraries\tikzlibrarycalc.code.tex
+File: tikzlibrarycalc.code.tex 2025-08-29 v3.1.11a (3.1.11a)
+)
+Package hyperref Info: Option `colorlinks' set `true' on input line 31.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/l3backend\l3backend-pdftex.def
+File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
+\l__color_backend_stack_int=\count348
+) (flightTestAnalysisProposal-rev1.aux)
+\openout1 = `flightTestAnalysisProposal-rev1.aux'.
+
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 56.
+LaTeX Font Info:    ... okay on input line 56.
+
+*geometry* driver: auto-detecting
+*geometry* detected driver: pdftex
+*geometry* verbose mode - [ preamble ] result:
+* driver: pdftex
+* paper: letterpaper
+* layout: <same size as paper>
+* layoutoffset:(h,v)=(0.0pt,0.0pt)
+* modes: 
+* h-part:(L,W,R)=(79.49744pt, 455.30013pt, 79.49744pt)
+* v-part:(T,H,B)=(79.49744pt, 635.97511pt, 79.49744pt)
+* \paperwidth=614.295pt
+* \paperheight=794.96999pt
+* \textwidth=455.30013pt
+* \textheight=635.97511pt
+* \oddsidemargin=7.22745pt
+* \evensidemargin=7.22745pt
+* \topmargin=-29.77255pt
+* \headheight=12.0pt
+* \headsep=25.0pt
+* \topskip=11.0pt
+* \footskip=30.0pt
+* \marginparwidth=59.0pt
+* \marginparsep=10.0pt
+* \columnsep=10.0pt
+* \skip\footins=10.0pt plus 4.0pt minus 2.0pt
+* \hoffset=0.0pt
+* \voffset=0.0pt
+* \mag=1000
+* \@twocolumnfalse
+* \@twosidefalse
+* \@mparswitchfalse
+* \@reversemarginfalse
+* (1in=72.27pt=25.4mm, 1cm=28.453pt)
+
+Package hyperref Info: Link coloring ON on input line 56.
+(flightTestAnalysisProposal-rev1.out) (flightTestAnalysisProposal-rev1.out)
+\@outlinefile=\write4
+\openout4 = `flightTestAnalysisProposal-rev1.out'.
+
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/con
+text/base/mkii\supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count349
+\scratchdimen=\dimen318
+\scratchbox=\box71
+\nofMPsegments=\count350
+\nofMParguments=\count351
+\everyMPshowfont=\toks44
+\MPscratchCnt=\count352
+\MPscratchDim=\dimen319
+\MPnumerator=\count353
+\makeMPintoPDFobject=\count354
+\everyMPtoPDFconversion=\toks45
+)
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/epstopdf-pkg\epstopdf-base.sty
+Package: epstopdf-base 2020-01-24 v2.11 Base part for package epstopdf
+Package epstopdf-base Info: Redefining graphics rule for `.eps' on input line 4
+85.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/00miktex\epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2021/03/18 v2.0 Configuration of epstopdf for MiKTeX
+))
+LaTeX Info: Redefining \microtypecontext on input line 56.
+Package microtype Info: Applying patch `item' on input line 56.
+Package microtype Info: Applying patch `toc' on input line 56.
+Package microtype Info: Applying patch `eqnum' on input line 56.
+Package microtype Info: Applying patch `footnote' on input line 56.
+Package microtype Info: Applying patch `verbatim' on input line 56.
+LaTeX Info: Redefining \microtypesetup on input line 56.
+Package microtype Info: Generating PDF output.
+Package microtype Info: Character protrusion enabled (level 2).
+Package microtype Info: Using default protrusion set `alltext'.
+Package microtype Info: Automatic font expansion enabled (level 2),
+(microtype)             stretch: 20, shrink: 20, step: 1, non-selected.
+Package microtype Info: Using default expansion set `alltext-nott'.
+Package microtype Info: Patching command `\showhyphens'.
+Package microtype Info: No adjustment of tracking.
+Package microtype Info: No adjustment of interword spacing.
+Package microtype Info: No adjustment of character kerning.
+
+(C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs\install\tex/lat
+ex/microtype\mt-cmr.cfg
+File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
+(RS)
+)
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+ [1
+
+{C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/data/fonts/map/
+pdftex/pdftex.map}] [2]
+Package microtype Info: Loading generic protrusion settings for font family
+(microtype)             `cmss' (encoding: OT1).
+(microtype)             For optimal results, create family-specific settings.
+(microtype)             See the microtype manual for details.
+ [3] [4]
+Underfull \hbox (badness 10000) in paragraph at lines 506--506
+[]|\OT1/cmr/bx/n/10.95 (+20) Automated
+ []
+
+
+Underfull \hbox (badness 3098) in paragraph at lines 506--506
+[]|\OT1/cmr/m/n/10.95 (+20) Deep Simulink ex-per-tise re-
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (42.42677pt too wide) in paragraph at lines 515--521
+\OT1/cmr/m/n/10.95 (-20) flight con-trol model, pro-duced by the [][]\OT1/cmtt/
+m/n/10.95 trace-analyzer[][] \OT1/cmr/m/n/10.95 (-20) tool (\OT1/cmtt/m/n/10.95
+ traceData-EOC-714-00001-05.01.02.json\OT1/cmr/m/n/10.95 (-20) ).
+ []
+
+[5] [6]
+LaTeX Font Info:    Trying to load font information for OMS+cmtt on input line 
+548.
+LaTeX Font Info:    No file OMScmtt.fd. on input line 548.
+
+
+LaTeX Font Warning: Font shape `OMS/cmtt/m/n' undefined
+(Font)              using `OMS/cmsy/m/n' instead
+(Font)              for symbol `textbraceleft' on input line 548.
+
+[7] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 609--609
+[]|\OT1/cmr/m/n/10.95 (+20) 22,361 nodes, 137,153 edges
+ []
+
+
+Underfull \hbox (badness 10000) in paragraph at lines 609--609
+[]|\OT1/cmr/m/n/10.95 (+20) 1,323 sig-nals, 15-hop depth
+ []
+
+
+Underfull \hbox (badness 5288) in paragraph at lines 609--609
+[]|\OT1/cmr/m/n/10.95 (+20) Reads cached anal-y-sis JSONs
+ []
+
+
+Overfull \hbox (15.2947pt too wide) in paragraph at lines 646--646
+ []|$[]$\OT1/cmr/bx/n/10 (-20) (samples)|
+ []
+
+
+LaTeX Warning: `h' float specifier changed to `ht'.
+
+
+Overfull \hbox (16.48389pt too wide) in paragraph at lines 689--694
+[] []\OT1/cmr/bx/n/10.95 (-20) Phase 1 --- Flight Con-di-tion Con-text ($\OMS/c
+mtt/m/n/10.95 ^^X  \OT1/cmr/m/n/10.95 (-20) 1\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/
+10.95 (-20) 6$\OT1/cmr/bx/n/10.95 (-20) s be-fore).[] \OT1/cmr/m/n/10.95 (-20) 
+Torque-related sig-nals (\OT1/cmtt/m/n/10.95 torqGreaterEq\OT1/cmr/m/n/10.95 (-
+20) ,
+ []
+
+
+Overfull \hbox (0.63214pt too wide) in paragraph at lines 696--707
+\OT1/cmtt/m/n/10.95 ailRespEngFast \OT1/cmr/m/n/10.95 (-20) ($\OMS/cmtt/m/n/10.
+95 ^^@\OT1/cmr/m/n/10.95 (-20) 16\OML/cmm/m/it/10.95 :\OT1/cmr/m/n/10.95 (-20) 
+0$ sam-ples), \OT1/cmtt/m/n/10.95 elevRespEngFast \OT1/cmr/m/n/10.95 (-20) ($\O
+MS/cmtt/m/n/10.95 ^^@\OT1/cmr/m/n/10.95 (-20) 20\OML/cmm/m/it/10.95 :\OT1/cmr/m
+/n/10.95 (-20) 2$ sam-ples), and \OT1/cmtt/m/n/10.95 elevCmdDebounceOut
+ []
+
+[9
+
+]
+Overfull \hbox (13.41664pt too wide) in paragraph at lines 709--715
+[] []\OT1/cmr/bx/n/10.95 (-20) Phase 3 --- Health Loss and Mon-i-tor Trip ($\OM
+S/cmtt/m/n/10.95 ^^X  \OT1/cmr/m/n/10.95 (-20) 0$\OT1/cmr/bx/n/10.95 (-20) --$\
+OT1/cmr/m/n/10.95 (-20) 3$ \OT1/cmr/bx/n/10.95 (-20) sam-ples).[] \OT1/cmr/m/n/
+10.95 (-20) Mon-i-tor flags (\OT1/cmtt/m/n/10.95 afcsMonitorFlag
+ []
+
+[10] [11]
+Overfull \hbox (10.48271pt too wide) in paragraph at lines 802--804
+[]\OT1/cmr/m/n/10.95 (-20) Run \OT1/cmtt/m/n/10.95 analyze[]iads.py \OT1/cmr/m/
+n/10.95 (-20) (in [][]\OT1/cmtt/m/n/10.95 flight-test-analyzer[][]\OT1/cmr/m/n/
+10.95 (-20) ) to gen-er-ate the sor-tie's \OT1/cmtt/m/n/10.95 analysis[]*.json\
+OT1/cmr/m/n/10.95 (-20) . 
+ []
+
+[12] [13] [14]
+Overfull \hbox (15.2947pt too wide) in paragraph at lines 979--979
+ []|$[]$\OT1/cmr/bx/n/10 (-20) (samples)|
+ []
+
+
+Overfull \hbox (6.44691pt too wide) in paragraph at lines 1021--1021
+[]|\OT1/cmr/m/n/10 (-20) elevRespDebounceFastOut|  
+ []
+
+<plots/plot_correlations.pdf, id=273, 501.19182pt x 390.9009pt>
+File: plots/plot_correlations.pdf Graphic file (type pdf)
+<use plots/plot_correlations.pdf>
+Package pdftex.def Info: plots/plot_correlations.pdf  used on input line 1031.
+(pdftex.def)             Requested size: 455.30013pt x 355.106pt.
+<plots/plot_timing.pdf, id=274, 429.61554pt x 281.77095pt>
+File: plots/plot_timing.pdf Graphic file (type pdf)
+<use plots/plot_timing.pdf>
+Package pdftex.def Info: plots/plot_timing.pdf  used on input line 1040.
+(pdftex.def)             Requested size: 409.76732pt x 268.76434pt.
+<plots/plot_hop_dist.pdf, id=275, 428.92622pt x 269.44365pt>
+File: plots/plot_hop_dist.pdf Graphic file (type pdf)
+<use plots/plot_hop_dist.pdf>
+Package pdftex.def Info: plots/plot_hop_dist.pdf  used on input line 1050.
+(pdftex.def)             Requested size: 387.00787pt x 243.12196pt.
+<plots/plot_sortie_times.pdf, id=276, 573.16637pt x 320.36638pt>
+File: plots/plot_sortie_times.pdf Graphic file (type pdf)
+<use plots/plot_sortie_times.pdf>
+Package pdftex.def Info: plots/plot_sortie_times.pdf  used on input line 1060.
+(pdftex.def)             Requested size: 455.30013pt x 254.48962pt.
+[15] [16 <./plots/plot_correlations.pdf>] [17 <./plots/plot_timing.pdf> <./plot
+s/plot_hop_dist.pdf>] [18 <./plots/plot_sortie_times.pdf>]
+<plots/plot_fault_dist.pdf, id=610, 537.35822pt x 245.6515pt>
+File: plots/plot_fault_dist.pdf Graphic file (type pdf)
+<use plots/plot_fault_dist.pdf>
+Package pdftex.def Info: plots/plot_fault_dist.pdf  used on input line 1079.
+(pdftex.def)             Requested size: 455.30013pt x 208.1413pt.
+ [19
+
+ <./plots/plot_fault_dist.pdf>] [20
+
+]
+<plots/html_data_summary.png, id=683, 1632.0975pt x 121.95563pt>
+File: plots/html_data_summary.png Graphic file (type png)
+<use plots/html_data_summary.png>
+Package pdftex.def Info: plots/html_data_summary.png  used on input line 1143.
+(pdftex.def)             Requested size: 455.30013pt x 34.02078pt.
+<plots/html_fault_distribution.png, id=685, 1630.59187pt x 527.72156pt>
+File: plots/html_fault_distribution.png Graphic file (type png)
+<use plots/html_fault_distribution.png>
+Package pdftex.def Info: plots/html_fault_distribution.png  used on input line 
+1155.
+(pdftex.def)             Requested size: 455.30013pt x 147.35036pt.
+<plots/html_active_modes.png, id=688, 603.75563pt x 453.19313pt>
+File: plots/html_active_modes.png Graphic file (type png)
+<use plots/html_active_modes.png>
+Package pdftex.def Info: plots/html_active_modes.png  used on input line 1171.
+(pdftex.def)             Requested size: 455.30013pt x 341.7611pt.
+<plots/html_fault_mode_matrix.png, id=689, 609.77812pt x 392.21532pt>
+File: plots/html_fault_mode_matrix.png Graphic file (type png)
+<use plots/html_fault_mode_matrix.png>
+Package pdftex.def Info: plots/html_fault_mode_matrix.png  used on input line 1
+186.
+(pdftex.def)             Requested size: 455.30013pt x 292.86208pt.
+<plots/html_peak_torque.png, id=690, 631.60968pt x 522.45187pt>
+File: plots/html_peak_torque.png Graphic file (type png)
+<use plots/html_peak_torque.png>
+Package pdftex.def Info: plots/html_peak_torque.png  used on input line 1203.
+(pdftex.def)             Requested size: 455.30013pt x 376.61946pt.
+<plots/html_ops_per_sortie.png, id=693, 1898.59312pt x 563.10374pt>
+File: plots/html_ops_per_sortie.png Graphic file (type png)
+<use plots/html_ops_per_sortie.png>
+Package pdftex.def Info: plots/html_ops_per_sortie.png  used on input line 1220
+.
+(pdftex.def)             Requested size: 455.30013pt x 135.03595pt.
+ [21
+
+ <./plots/html_data_summary.png> <./plots/html_fault_distribution.png>] [22 <./
+plots/html_active_modes.png>] [23 <./plots/html_fault_mode_matrix.png>] [24 <./
+plots/html_peak_torque.png>] [25 <./plots/html_ops_per_sortie.png>] 
+enddocument/afterlastpage (AED): lastpage setting LastPage.
+(flightTestAnalysisProposal-rev1.aux)
+ ***********
+LaTeX2e <2025-11-01>
+L3 programming layer <2026-01-19>
+ ***********
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
+Package rerunfilecheck Info: File `flightTestAnalysisProposal-rev1.out' has not
+ changed.
+(rerunfilecheck)             Checksum: 1BFDF0388478D9B275C8F0098F576041;4223.
+ ) 
+Here is how much of TeX's memory you used:
+ 26465 strings out of 467866
+ 506178 string characters out of 5405724
+ 983732 words of memory out of 5000000
+ 54667 multiletter control sequences out of 15000+600000
+ 644532 words of font info for 178 fonts, out of 8000000 for 9000
+ 1141 hyphenation exceptions out of 8191
+ 84i,18n,94p,1222b,898s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ <C:\Users\FrancisBarchesky\AppData\Local\Programs\MiKTeX\texmfs/data\fonts/p
+k/ljfour/jknappen/ec/dpi600\tcrm1095.pk><C:/Users/FrancisBarchesky/AppData/Loca
+l/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:/
+Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1
+/public/amsfonts/cm/cmbx12.pfb><C:/Users/FrancisBarchesky/AppData/Local/Program
+s/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmex10.pfb><C:/Users/Fra
+ncisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/a
+msfonts/cm/cmitt10.pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX
+/texmfs/install/fonts/type1/public/amsfonts/cm/cmmi10.pfb><C:/Users/FrancisBarc
+hesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/
+cm/cmmi6.pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/in
+stall/fonts/type1/public/amsfonts/cm/cmmi8.pfb><C:/Users/FrancisBarchesky/AppDa
+ta/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmmib10.
+pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fon
+ts/type1/public/amsfonts/cm/cmr10.pfb><C:/Users/FrancisBarchesky/AppData/Local/
+Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr12.pfb><C:/Use
+rs/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/pu
+blic/amsfonts/cm/cmr6.pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiK
+TeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmr8.pfb><C:/Users/FrancisBar
+chesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts
+/cm/cmr9.pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/in
+stall/fonts/type1/public/amsfonts/cm/cmss8.pfb><C:/Users/FrancisBarchesky/AppDa
+ta/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmsy10.p
+fb><C:/Users/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/font
+s/type1/public/amsfonts/cm/cmsy8.pfb><C:/Users/FrancisBarchesky/AppData/Local/P
+rograms/MiKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmti10.pfb><C:/Use
+rs/FrancisBarchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/pu
+blic/amsfonts/cm/cmtt10.pfb><C:/Users/FrancisBarchesky/AppData/Local/Programs/M
+iKTeX/texmfs/install/fonts/type1/public/amsfonts/cm/cmtt8.pfb><C:/Users/Francis
+Barchesky/AppData/Local/Programs/MiKTeX/texmfs/install/fonts/type1/public/amsfo
+nts/cm/cmtt9.pfb>
+Output written on flightTestAnalysisProposal-rev1.pdf (25 pages, 961846 bytes).
+
+PDF statistics:
+ 836 PDF objects out of 1000 (max. 8388607)
+ 86 named destinations out of 1000 (max. 500000)
+ 41708 words of extra memory for PDF output out of 42996 (max. 10000000)
+
