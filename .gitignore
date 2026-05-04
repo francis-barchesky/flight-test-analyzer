@@ -2,7 +2,6 @@
 *.zip
 
 # Analysis outputs (generated, not source)
-analysis*.json
 batch_manifest.json
 
 # Temp files from pipeline
