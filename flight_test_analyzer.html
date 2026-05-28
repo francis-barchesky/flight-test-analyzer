@@ -296,6 +296,11 @@ const AXIS_RULES = [
   { re: /^ail/i,                           label: 'Roll',           color: '#085041', bg: '#E1F5EE' },
   { re: /^elev/i,                          label: 'Pitch',          color: '#3C3489', bg: '#EEEDFE' },
   { re: /^rud/i,                           label: 'Yaw',            color: '#854F0B', bg: '#FAEEDA' },
+  // Flight phase axes
+  { re: /^takeoff/i,                       label: 'Takeoff',        color: '#1A5C3A', bg: '#E0F5EB' },
+  { re: /^land/i,                          label: 'Landing',        color: '#7A3B00', bg: '#FDF0E0' },
+  { re: /^lpv|appr/i,                      label: 'Approach',       color: '#7A3B00', bg: '#FDF0E0' },
+  { re: /^lnav/i,                          label: 'Navigation',     color: '#1A3A6B', bg: '#E0EAFB' },
   // Generic / full-word fallbacks
   { re: /pitch|^pit_/i,                    label: 'Pitch',          color: '#3C3489', bg: '#EEEDFE' },
   { re: /roll|aileron/i,                   label: 'Roll',           color: '#085041', bg: '#E1F5EE' },
@@ -318,6 +323,7 @@ const FAULT_TYPE_RULES = [
   { re: /valid/i,                          label: 'Validity loss'      },
   { re: /capable$/i,                       label: 'Capability lost'    },
   { re: /engaged?$/i,                      label: 'Engage state'       },
+  { re: /fail$/i,                          label: 'Mode/Config fail'   },
   { re: /monitor|fault/i,                  label: 'Monitor/Fault'      },
 ];
 
@@ -808,7 +814,7 @@ function renderEnumPlot(transitions, sigSuffix, triggerTime, initialStates, show
   return `<div style="background:#1e1e1c;border-radius:6px;padding:6px 8px;width:100%;box-sizing:border-box">${svg}</div>`;
 }
 
-function renderPlot(points, label, triggerTime) {
+function renderPlot(points, label, triggerTime, dataGaps) {
   if (!points || points.length < 2) return '';
   const W = 700, H = 52;
   const pad = { l: 42, r: 10, t: 10, b: 16 };
@@ -834,6 +840,15 @@ function renderPlot(points, label, triggerTime) {
   svg += `<rect x="${pad.l}" y="${pad.t}" width="${iW}" height="${iH}" fill="#f5f5f0" rx="2"/>`;
   const yMidPx = py(yMidVal);
   svg += `<line x1="${pad.l}" y1="${yMidPx}" x2="${pad.l + iW}" y2="${yMidPx}" stroke="#d3d1c7" stroke-width="0.5" stroke-dasharray="2,3"/>`;
+  if (dataGaps && dataGaps.length) {
+    dataGaps.forEach(g => {
+      if (g.t_end < xMin || g.t_start > xMax) return;
+      const bx0 = parseFloat(px(Math.max(g.t_start, xMin)));
+      const bx1 = parseFloat(px(Math.min(g.t_end,   xMax)));
+      const bw  = Math.max(bx1 - bx0, 2);
+      svg += `<rect x="${bx0.toFixed(1)}" y="${pad.t}" width="${bw.toFixed(1)}" height="${iH}" fill="#E0707030" stroke="#E07070" stroke-width="0.5" stroke-dasharray="2,2"/>`;
+    });
+  }
   if (triggerTime != null) {
     const tNum = parseFloat(triggerTime);
     if (!isNaN(tNum) && tNum >= xMin && tNum <= xMax) {
@@ -852,6 +867,131 @@ function renderPlot(points, label, triggerTime) {
   return `<div style="background:#f9f9f7;border-radius:6px;padding:8px 10px;overflow:clip;margin-top:2px;width:100%">${svg}</div>`;
 }
 
+function renderDropoutSection(data) {
+  // Derive time range from flight_plots when rec_start_s / duration_s are absent
+  const plotEntries = data.flight_plots ? Object.entries(data.flight_plots) : [];
+  const plotSignals = plotEntries.map(([, pts]) => pts);
+  let t0 = data.rec_start_s != null ? data.rec_start_s : null;
+  let t1 = null;
+  plotSignals.forEach(pts => {
+    if (!pts || !pts.length) return;
+    const first = pts[0][0], last = pts[pts.length - 1][0];
+    if (t0 === null || first < t0) t0 = first;
+    if (t1 === null || last  > t1) t1 = last;
+  });
+  if (t0 === null) return '';
+  const dur = (data.duration_s > 0 ? data.duration_s : null) ?? (t1 != null ? t1 - t0 : null);
+  if (!dur) return '';
+  t1 = t0 + dur;
+
+  // Flat-segment gaps from phases — same method as fleet summary _countPhaseDataGaps.
+  // detectFlightPhases uses sample_head bootstrap so it works even for ground recordings.
+  const _phases = detectFlightPhases(data);
+  const flatGaps = [];
+  _phases.forEach(ph =>
+    _phaseDataGapWindows(ph.latDevPts || [], ph.vertDevPts || [], ph.radAltPts || [])
+      .forEach(g => flatGaps.push(g))
+  );
+  flatGaps.sort((a, b) => a.t_start - b.t_start);
+
+  // Use JSON data_gaps if present; otherwise derive from flight_plots timestamps.
+  // Use 5s minimum threshold so 1 Hz signals don't produce false positives.
+  let gaps = (data.data_gaps && data.data_gaps.length) ? data.data_gaps : null;
+  if (!gaps) {
+    const raw = [];
+    plotEntries.forEach(([sig, pts]) => {
+      if (!pts || pts.length < 2) return;
+      const dts = [];
+      for (let i = 1; i < Math.min(pts.length, 21); i++) dts.push(pts[i][0] - pts[i-1][0]);
+      dts.sort((a, b) => a - b);
+      const medDt = dts[Math.floor(dts.length / 2)] || 1;
+      const thr   = Math.max(5 * medDt, 5.0);
+      for (let i = 1; i < pts.length; i++) {
+        const dt = pts[i][0] - pts[i - 1][0];
+        if (dt > thr) raw.push({ t_start: pts[i - 1][0], t_end: pts[i][0], duration_s: dt, signals: [sig] });
+      }
+    });
+    raw.sort((a, b) => a.t_start - b.t_start);
+    const merged = [];
+    raw.forEach(g => {
+      const last = merged[merged.length - 1];
+      if (last && g.t_start <= last.t_end + 1.0) {
+        last.t_end = Math.max(last.t_end, g.t_end);
+        last.duration_s = last.t_end - last.t_start;
+      } else merged.push({ ...g });
+    });
+    gaps = merged;
+  }
+
+  // Merge flat-segment gaps from phases into the gap list
+  if (flatGaps.length) {
+    const combined = [...gaps, ...flatGaps].sort((a, b) => a.t_start - b.t_start);
+    const deduped = [];
+    combined.forEach(g => {
+      const last = deduped[deduped.length - 1];
+      if (last && g.t_start <= last.t_end + 1.0) {
+        last.t_end = Math.max(last.t_end, g.t_end);
+        last.duration_s = last.t_end - last.t_start;
+      } else deduped.push({ ...g });
+    });
+    gaps = deduped;
+  }
+
+  const W = 660, H = 28;
+  const fx = t => Math.max(0, Math.min(W, ((t - t0) / (t1 - t0)) * W));
+
+  let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;border-radius:4px;overflow:hidden">`;
+  svg += `<rect x="0" y="0" width="${W}" height="${H}" fill="#2a2a27"/>`;
+  gaps.forEach(g => {
+    const x0 = fx(g.t_start), x1 = fx(g.t_end);
+    const bw = Math.max(x1 - x0, 3);
+    svg += `<rect x="${x0.toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${H}" fill="#E07070" opacity="0.75"/>`;
+  });
+  svg += `<text x="4" y="${H - 5}" font-size="8" fill="#888780" font-family="monospace">t=0</text>`;
+  svg += `<text x="${W - 4}" y="${H - 5}" text-anchor="end" font-size="8" fill="#888780" font-family="monospace">${dur.toFixed(0)}s</text>`;
+  svg += '</svg>';
+
+  const fmtOffset = t => {
+    const off = t - t0;
+    const m = Math.floor(off / 60), s = (off % 60).toFixed(1);
+    return m > 0 ? `+${m}m${s}s` : `+${s}s`;
+  };
+
+  const headerColor = gaps.length ? '#E07070' : '#6a9645';
+  const headerIcon  = gaps.length ? '&#9888;' : '&#10003;';
+  const headerText  = gaps.length
+    ? `Data dropouts — ${gaps.length} gap${gaps.length !== 1 ? 's' : ''} detected`
+    : `No data dropouts detected`;
+  const borderColor = gaps.length ? '#3a2020' : '#2a3a2a';
+
+  let rows = gaps.map(g => {
+    const sigList = g.signals ? [...new Set(g.signals)].join(', ') : '';
+    return `<tr>
+      <td style="font-family:monospace;padding:2px 10px 2px 0;color:#E07070">${fmtOffset(g.t_start)}</td>
+      <td style="font-family:monospace;padding:2px 10px 2px 0;color:#b4b2a9">${g.duration_s.toFixed(2)}s</td>
+      <td style="font-family:monospace;padding:2px 10px 2px 0;color:#78766e">${_irigToTod(g.t_start)} → ${_irigToTod(g.t_end)}</td>
+      <td style="font-family:monospace;padding:2px 0;color:#555452;font-size:9px">${sigList}</td>
+    </tr>`;
+  }).join('');
+
+  const table = gaps.length ? `
+    <table style="border-collapse:collapse;color:#b4b2a9;margin-top:8px">
+      <thead><tr>
+        <th style="text-align:left;font-size:9px;color:#78766e;padding:0 10px 4px 0;letter-spacing:.05em">OFFSET</th>
+        <th style="text-align:left;font-size:9px;color:#78766e;padding:0 10px 4px 0;letter-spacing:.05em">DURATION</th>
+        <th style="text-align:left;font-size:9px;color:#78766e;padding:0 10px 4px 0;letter-spacing:.05em">IRIG TIME</th>
+        <th style="text-align:left;font-size:9px;color:#78766e;padding:0 0 4px 0;letter-spacing:.05em">SIGNALS</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : '';
+
+  return `<div style="background:#1e1e1c;border:1px solid ${borderColor};border-radius:6px;padding:12px 14px;margin:10px 0;font-size:11px">
+    <div style="font-size:10px;font-weight:600;color:${headerColor};text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">${headerIcon} ${headerText}</div>
+    <div>${svg}</div>
+    ${table}
+  </div>`;
+}
+
 function profileEpisode(concurrent) {
   const seen = new Set();
   const rows = [];
@@ -862,7 +1002,7 @@ function profileEpisode(concurrent) {
     //   - rising edge (0→1) for monitor/fault/exceeded flags, or NotEngage assertions
     //   - falling edge (1→0) for validity signals (always), or capable/engage only pre-trigger
     //     (post-trigger capable/engage drops are cascade effects of afcsCapable, not root causes)
-    const isFaultAssert = c.to === 1 && /monitor|flag|fault|xcd|exceed|debounce.*out|NotEngage/i.test(suffix);
+    const isFaultAssert = c.to === 1 && /monitor|flag|fault|fail|xcd|exceed|debounce.*out|NotEngage/i.test(suffix);
     const isCapLoss     = c.to === 0 && (
       /valid/i.test(suffix) ||
       (/capable|engage/i.test(suffix) && c.dt < 0)
@@ -1139,6 +1279,11 @@ function _sortieKey(name) {
 }
 
 function _sortieCompare(a, b) {
+  const aT = a.data?.rec_start_s ?? null;
+  const bT = b.data?.rec_start_s ?? null;
+  if (aT !== null && bT !== null) return aT - bT;
+  if (aT !== null) return -1;
+  if (bT !== null) return  1;
   const [at, an, ar] = _sortieKey(a.name);
   const [bt, bn, br] = _sortieKey(b.name);
   if (at !== bt) return at < bt ? -1 : 1;
@@ -1305,7 +1450,9 @@ function removeFromQueue(idx) {
 }
 
 window._queueCollapsed = false;
+window._queueAcFilter  = null;
 function _toggleQueueCollapse() { window._queueCollapsed = !window._queueCollapsed; renderQueue(); }
+function _setQueueAcFilter(tail) { window._queueAcFilter = (window._queueAcFilter === tail) ? null : tail; renderQueue(); }
 
 function renderQueue() {
   const strip = document.getElementById('queueStrip');
@@ -1351,8 +1498,41 @@ function renderQueue() {
   div.style.cssText = 'width:0.5px;height:22px;background:#3a3a37;flex-shrink:0;margin:0 2px';
   strip.appendChild(div);
 
-  // Individual sortie chips
+  // Individual sortie chips — grouped by aircraft (tail_number)
+  const _acGroups = [];
+  const _acGroupMap = new Map();
   analysisQueue.forEach((item, idx) => {
+    const tail = item.data?.tail_number || '—';
+    if (!_acGroupMap.has(tail)) {
+      const g = { tail, items: [] };
+      _acGroups.push(g);
+      _acGroupMap.set(tail, g);
+    }
+    _acGroupMap.get(tail).items.push({ item, idx });
+  });
+
+  const _acFilter = window._queueAcFilter;
+  const _visGroups = _acFilter ? _acGroups.filter(g => g.tail === _acFilter) : _acGroups;
+
+  _visGroups.forEach((grp) => {
+    // Each pool is its own full-width row so the label is always pinned at the far left
+    const poolRow = document.createElement('div');
+    poolRow.style.cssText = 'display:flex;align-items:center;gap:5px;flex-wrap:wrap;flex:0 0 100%;min-width:0';
+
+    const poolLabel = document.createElement('div');
+    poolLabel.style.cssText = 'display:inline-flex;align-items:center;flex-shrink:0;white-space:nowrap;cursor:pointer';
+    const _lActive = _acFilter === grp.tail;
+    const _lDimmed = _acFilter && !_lActive;
+    poolLabel.innerHTML =
+      `<span style="font-size:9px;font-family:monospace;font-weight:600;letter-spacing:0.04em;` +
+      `color:${_lActive ? '#88e8a8' : (_lDimmed ? '#3a5a3a' : '#5a9870')};` +
+      `padding:1px 6px;border-radius:3px;` +
+      `background:${_lActive ? '#1e3a28' : '#152215'};` +
+      `outline:${_lActive ? '1px solid #4a9060' : '0.5px solid #2a5030'}">${grp.tail}</span>`;
+    poolLabel.onclick = () => _setQueueAcFilter(grp.tail);
+    poolRow.appendChild(poolLabel);
+
+    grp.items.forEach(({ item, idx }) => {
     const active = !summaryMode && idx === activeQueueIdx;
 
     if (!item._phaseCounts) {
@@ -1392,9 +1572,6 @@ function renderQueue() {
     chip.innerHTML =
       '<span style="font-size:11px;font-family:monospace;color:' + (active ? '#d4d1f8' : '#96948c') +
         ';max-width:130px;overflow:hidden;text-overflow:ellipsis;display:inline-block" title="' + item.name + '">' + shortName + '</span>' +
-      (item.data && item.data.tail_number
-        ? '<span style="font-size:9px;font-family:monospace;padding:1px 4px;border-radius:3px;background:#1a2820;color:#4CC9A0;flex-shrink:0">' + item.data.tail_number + '</span>'
-        : '') +
       graphBadgeHtml +
       (pc.ep ? '<span style="font-size:9px;font-family:monospace;padding:1px 5px;border-radius:3px;background:#A32D2D22;color:#d97070;outline:0.5px solid #A32D2D55;flex-shrink:0" title="AFCS disengagement episodes">EP·' + pc.ep + '</span>' : '') +
       (item.data?.torque_stats?.some(ts => ts.signal?.includes('torqGreaterEq') && ts.peak === 1) ? '<span style="font-size:9px;font-family:monospace;padding:1px 5px;border-radius:3px;background:#6a2a0a44;color:#E07070;outline:0.5px solid #6a2a0a99;flex-shrink:0" title="Torque limit exceeded">TRQ</span>' : '') +
@@ -1412,17 +1589,23 @@ function renderQueue() {
     // Graph badge is display-only — trace_graph is determined at analysis time
 
     chip.onclick = () => { if (!active) activateQueueItem(idx); };
-    strip.appendChild(chip);
-  });
+    poolRow.appendChild(chip);
+    }); // grp.items.forEach
 
-  // Collapse button — pinned right via margin-left:auto on a new flex row
+    strip.appendChild(poolRow);
+  }); // _visGroups.forEach
+
+  // Collapse button — on its own full-width row, aligned right
+  const colBtnRow = document.createElement('div');
+  colBtnRow.style.cssText = 'display:flex;flex:0 0 100%;justify-content:flex-end';
   const colBtn = document.createElement('div');
   colBtn.onclick = _toggleQueueCollapse;
-  colBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;white-space:nowrap;margin-left:auto;background:#2e2e2c;outline:0.5px solid #3a3a37';
+  colBtn.style.cssText = 'display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:6px;cursor:pointer;flex-shrink:0;white-space:nowrap;background:#2e2e2c;outline:0.5px solid #3a3a37';
   colBtn.onmouseover = () => colBtn.style.background = '#3a3a37';
   colBtn.onmouseout  = () => colBtn.style.background = '#2e2e2c';
   colBtn.innerHTML = `<span style="font-size:10px;color:#9490d4">▲</span><span style="font-size:10px;color:#78766e;font-family:monospace">collapse</span>`;
-  strip.appendChild(colBtn);
+  colBtnRow.appendChild(colBtn);
+  strip.appendChild(colBtnRow);
 }
 
 // ── Data Summary ──────────────────────────────────────────────────────────
@@ -1591,6 +1774,60 @@ function _countPhaseDataGaps(latDevPts, vertDevPts, radAltPts, minDur) {
     else merged.push({ t0: g.t0, t1: g.t1 });
   }
   return merged.length;
+}
+
+// Same logic as _countPhaseDataGaps but returns [{t_start, t_end, duration_s, signals}] instead of count.
+function _phaseDataGapWindows(latDevPts, vertDevPts, radAltPts, minDur) {
+  minDur = minDur || 5.0;
+  const flatSegs = (pts, tol) => {
+    const segs = [];
+    if (pts.length < 3) return segs;
+    let i = 0;
+    while (i < pts.length) {
+      const ref = pts[i][1];
+      let j = i;
+      while (j < pts.length && Math.abs(pts[j][1] - ref) <= tol) j++;
+      if (j - i >= 3) {
+        const dur = pts[j-1][0] - pts[i][0];
+        if (dur >= 1) segs.push({ t0: pts[i][0], t1: pts[j-1][0] });
+      }
+      i = j > i ? j : i + 1;
+    }
+    return segs;
+  };
+  const sigDefs = [
+    { name: 'latDevSel',  segs: flatSegs(latDevPts,  0.1) },
+    { name: 'vertDevSel', segs: flatSegs(vertDevPts, 0.1) },
+    { name: 'radAltVoted',segs: flatSegs(radAltPts,  0.5) },
+  ].filter(s => s.segs.length > 0);
+  if (sigDefs.length < 2) return [];
+  const events = [];
+  sigDefs.forEach((sd, si) => sd.segs.forEach(seg => {
+    events.push({ t: seg.t0, d: +1, si, name: sd.name });
+    events.push({ t: seg.t1, d: -1, si, name: sd.name });
+  }));
+  events.sort((a, b) => a.t - b.t || a.d - b.d);
+  const raw = [];
+  const active = new Set();
+  let prevT = null, prevActive = new Set();
+  for (const ev of events) {
+    if (prevT !== null && ev.t > prevT && prevActive.size >= 2) {
+      if (ev.t - prevT >= minDur) raw.push({ t0: prevT, t1: ev.t, signals: [...prevActive] });
+    }
+    if (ev.d === +1) active.add(ev.name); else active.delete(ev.name);
+    prevT = ev.t;
+    prevActive = new Set(active);
+  }
+  const merged = [];
+  for (const g of raw) {
+    const last = merged[merged.length - 1];
+    if (last && last.t1 >= g.t0 - 0.1) {
+      last.t1 = g.t1;
+      g.signals.forEach(s => last.signals.add ? last.signals.add(s) : last.signals.push(s));
+    } else merged.push({ t_start: g.t0, t_end: g.t1, duration_s: g.t1 - g.t0, signals: g.signals });
+  }
+  merged.forEach(g => { g.duration_s = g.t_end - g.t_start; });
+  return merged;
 }
 
 // ── Summary filter state ───────────────────────────────────────────────────
@@ -2529,8 +2766,8 @@ function renderFleetSummary(panel) {
     const OW=580, OH=156, opL=28, opR=16, opT=24, opB=70;
     const oiW=OW-opL-opR, oiH=OH-opT-opB;
     const ogroupW = oiW / sorties.length;
-    const obarW   = Math.min(14, ogroupW * 0.28);
     const ogap    = 2;
+    const obarW   = Math.min(14, Math.max(2, (ogroupW * 0.7 - ogap * 3) / 4));
     const ocx     = i => opL + (i + 0.5) * ogroupW;
     const opy     = v => opT + oiH - (v / maxOps) * oiH;
 
@@ -2566,6 +2803,9 @@ function renderFleetSummary(panel) {
         { v: sd.autoLandingCount, color: '#4CC9A0', label: `landing${sd.autoLandingCount!==1?'s':''}` },
         { v: sd.dataGapCount,     color: '#E07070', label: `data dropout${sd.dataGapCount!==1?'s':''}` },
       ];
+      // Dim this sortie if the active fault category has no matching faults here
+      const _catDim = window._smryCatActive &&
+        !sd.faults.some(f => ((f.exitType||{}).category||'UNKNOWN') === window._smryCatActive);
       // When filtered, only render the selected bar (centered); otherwise 4-bar group
       const bars = (_opActiveBar !== null)
         ? [{ ...allBars[_opActiveBar], _single: true }]
@@ -2576,11 +2816,14 @@ function renderFleetSummary(panel) {
         const bx = (x0 + bi * (obarW + ogap)).toFixed(1);
         const bH = (b.v / maxOps) * oiH;
         if (b.v > 0) {
-          oSvg += `<rect x="${bx}" y="${(opT+oiH-bH).toFixed(1)}" width="${obarW}" height="${bH.toFixed(1)}" fill="${b.color}" rx="1" opacity="0.85"><title>${sd.name}: ${b.v} ${b.label}</title></rect>`;
-          oSvg += `<text x="${(+bx+obarW/2).toFixed(1)}" y="${(opT+oiH-bH-3).toFixed(1)}" text-anchor="middle" font-size="8" fill="${b.color}" font-family="monospace">${b.v}</text>`;
+          const barOpacity = _catDim ? '0.2' : '0.85';
+          oSvg += `<rect x="${bx}" y="${(opT+oiH-bH).toFixed(1)}" width="${obarW}" height="${bH.toFixed(1)}" fill="${b.color}" rx="1" opacity="${barOpacity}"><title>${sd.name}: ${b.v} ${b.label}</title></rect>`;
+          if (!_catDim)
+            oSvg += `<text x="${(+bx+obarW/2).toFixed(1)}" y="${(opT+oiH-bH-3).toFixed(1)}" text-anchor="middle" font-size="8" fill="${b.color}" font-family="monospace">${b.v}</text>`;
         }
       });
-      const nameColor = (_opActiveBar !== null && allBars[_opActiveBar].v === 0) ? '#3a3a37' : '#78766e';
+      const nameColor = _catDim ? '#3a3a37'
+        : (_opActiveBar !== null && allBars[_opActiveBar].v === 0) ? '#3a3a37' : '#78766e';
       const nx = ocx(si).toFixed(1), ny = (opT+oiH+4).toFixed(1);
       oSvg += `<text x="${nx}" y="${ny}" text-anchor="end" dominant-baseline="middle" font-size="8" fill="${nameColor}" font-family="monospace" transform="rotate(-90,${nx},${ny})">${sd.name}</text>`;
     });
@@ -3842,7 +4085,8 @@ function runAnalysis() {
       msgStyle = 'background:#2d2410;border-color:#6a5020;color:#b07828';
     }
 
-    panel.innerHTML = '<div class="no-faults" style="' + msgStyle + '">' + msg + '</div>';
+    panel.innerHTML = '<div class="no-faults" style="' + msgStyle + '">' + msg + '</div>' +
+                      renderDropoutSection(analysisData);
     renderFlightPhases(analysisData, panel);
     _prependFleetBar(panel);
     return;
@@ -4081,14 +4325,15 @@ function detectFlightPhases(data) {
     }
     ph.radAltPts = rad;
     {
-      const _dtrRaw = inPhase(
-        phasePlots['distToRwyVoted'] ||
-        phasePlots['distToRwy'] ||
-        phasePlots['g_distancetorunway_mdlrefdw.rtb.selValue']
-      );
-      // FCC signal is in feet — convert to NM (1 NM = 6076.12 ft)
-      const _sample = _dtrRaw[0]?.[1];
-      ph.distToRwyPts = (_sample != null && _sample > 50)
+      const _dtrKey = ['distToRwyVoted','distToRwy','selValue','g_distancetorunway_mdlrefdw.rtb.selValue']
+        .find(k => phasePlots[k]);
+      const _dtrRaw = inPhase(_dtrKey ? phasePlots[_dtrKey] : null);
+      ph.distToRwySignal = _dtrKey || null;
+      // FCC signal is in feet — convert to NM (1 NM = 6076.12 ft).
+      // Use max absolute value to detect feet scale — first sample may be negative
+      // (aircraft already past threshold) so checking _sample > 50 alone is unreliable.
+      const _absMax = _dtrRaw.reduce((m, p) => Math.max(m, Math.abs(p[1])), 0);
+      ph.distToRwyPts = (_absMax > 50)
         ? _dtrRaw.map(([t, v]) => [t, v / 6076.12])
         : _dtrRaw;
     }
@@ -4125,6 +4370,17 @@ function detectFlightPhases(data) {
     ph.casTargetPts       = inPhase(phasePlots['pfdCasTarget'] || phasePlots['casTarget']);
     ph.torqueVotedPts     = inPhase(phasePlots['torqueVoted'] || []);
     ph.atSatTorqueCmdPts  = inPhase(phasePlots['atSatTorqueCmd'] || []);
+    ph.afcsEngagePts  = inPhase(phasePlots['afcsEngageEnum'] || []);
+    const _FAIL_SIGS_DEF = [
+      { key: 'landConfigFail',    label: 'LndCfg', color: '#E05050' },
+      { key: 'landFail',          label: 'Lnd',    color: '#E07030' },
+      { key: 'lpvApprFail',       label: 'LPV',    color: '#E0A030' },
+      { key: 'takeoffConfigFail', label: 'TOCfg',  color: '#C050E0' },
+      { key: 'lnavModeFail',      label: 'LNAV',   color: '#5090E0' },
+    ];
+    ph.failSigPts = _FAIL_SIGS_DEF
+      .map(def => ({ ...def, pts: inPhase(phasePlots[def.key] || []) }))
+      .filter(f => f.pts.length > 0);
 
     // Pitch trim
     ph.trimRatePts  = inPhase(phasePlots['aptTrimRateServoCmd'] || []);
@@ -4471,7 +4727,8 @@ function _applyChartHover(oc, oid, t) {
           ? s.pT + s.iH - (v - oc.vMinCur) / (vHi - oc.vMinCur) * s.iH
           : s.pT + s.iH / 2 - (v / vHi) * (s.iH / 2);
     inner += `<circle cx="${dotX}" cy="${dotY.toFixed(1)}" r="2.8" fill="${s.color}" opacity="0.9"/>`;
-    inner += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="8" fill="${s.color}" font-family="monospace">${s.label}: ${v.toFixed(3)}</text>`;
+    const _lbl = s.srcSignal ? `${s.label} (${s.srcSignal})` : s.label;
+    inner += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="8" fill="${s.color}" font-family="monospace">${_lbl}: ${v.toFixed(3)}</text>`;
     ly += 11;
   });
   lbl.innerHTML = inner;
@@ -5446,7 +5703,7 @@ function renderFlightPhases(data, container) {
           if (ph.distToRwyGnssPts.length > 1 && ph.distToRwyGnssPts !== ph.distToRwyPts) {
             const gnssVis = ph.distToRwyGnssPts.filter(p => p[0] >= t0 && p[0] <= t1);
             if (gnssVis.length > 1) {
-              svg += `<g stroke="#FFD080" opacity="0.5"><polyline points="${dsRender(gnssVis).map(p => `${tx(p[0]).toFixed(1)},${vyDist(p[1]).toFixed(1)}`).join(' ')}" fill="none" stroke-width="1" stroke-dasharray="2,3" stroke-linejoin="round"/></g>`;
+              svg += `<g stroke="#4CC9C0" opacity="0.5"><polyline points="${dsRender(gnssVis).map(p => `${tx(p[0]).toFixed(1)},${vyDist(p[1]).toFixed(1)}`).join(' ')}" fill="none" stroke-width="1" stroke-dasharray="2,3" stroke-linejoin="round"/></g>`;
             }
           }
         }
@@ -5477,8 +5734,8 @@ function renderFlightPhases(data, container) {
           ...(ph.latDevPts.length  > 1 ? [{ pts: ph.latDevPts,  color: '#6B62D4', label: 'latDev',     pT, iH, vMax }] : []),
           ...(ph.vertDevPts.length > 1 ? [{ pts: ph.vertDevPts, color: '#4CC9A0', label: 'vertDev',    pT, iH, vMax }] : []),
           ...(ph.radAltPts.length  > 1 && radAltMax  > 0 ? [{ pts: ph.radAltPts,    color: '#7898C8', label: 'radAlt ft', pT, iH, vMax: radAltMax,    yMode: 'bottom'      }] : []),
-          ...(ph.distToRwyPts.length > 1 && distToRwyMax > 0 ? [{ pts: ph.distToRwyPts, color: '#C8922A', label: 'dist NM',   pT, iH, vMax: distToRwyMax, yMode: 'bottom-dist' }] : []),
-          ...(ph.distToRwyGnssPts.length > 1 && distToRwyMax > 0 && ph.distToRwyGnssPts !== ph.distToRwyPts ? [{ pts: ph.distToRwyGnssPts, color: '#FFD080', label: 'dist GNSS NM', pT, iH, vMax: distToRwyMax, yMode: 'bottom-dist' }] : []),
+          ...(ph.distToRwyPts.length > 1 && distToRwyMax > 0 ? [{ pts: ph.distToRwyPts, color: '#C8922A', label: 'dist NM', srcSignal: ph.distToRwySignal || null, pT, iH, vMax: distToRwyMax, yMode: 'bottom-dist' }] : []),
+          ...(ph.distToRwyGnssPts.length > 1 && distToRwyMax > 0 && ph.distToRwyGnssPts !== ph.distToRwyPts ? [{ pts: ph.distToRwyGnssPts, color: '#4CC9C0', label: 'dist GNSS NM', pT, iH, vMax: distToRwyMax, yMode: 'bottom-dist' }] : []),
         ],
         rebuild: mkDevSvg,
       };
@@ -5583,7 +5840,7 @@ function renderFlightPhases(data, container) {
       if (ph.vertDevPts.length) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#4CC9A0"><span style="display:inline-block;width:14px;height:2px;background:#4CC9A0;border-radius:1px"></span>Vertical (vertDevSel)</span>`;
       if (ph.radAltPts.length > 1) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#7898C8"><span style="display:inline-block;width:14px;height:2px;background:#7898C8;border-radius:1px"></span>Rad Alt (ft)</span>`;
       if (ph.distToRwyPts.length > 1) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#C8922A"><span style="display:inline-block;width:14px;height:2px;border-top:2px dashed #C8922A;border-radius:0"></span>Dist to Rwy (NM)</span>`;
-      if (ph.distToRwyGnssPts.length > 1 && ph.distToRwyGnssPts !== ph.distToRwyPts) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#FFD080"><span style="display:inline-block;width:14px;height:2px;border-top:2px dashed #FFD080;border-radius:0"></span>Dist GNSS (NM)</span>`;
+      if (ph.distToRwyGnssPts.length > 1 && ph.distToRwyGnssPts !== ph.distToRwyPts) sparkHtml += `<span style="display:flex;align-items:center;gap:3px;font-size:10px;color:#4CC9C0"><span style="display:inline-block;width:14px;height:2px;border-top:2px dashed #4CC9C0;border-radius:0"></span>Dist GNSS (NM)</span>`;
       sparkHtml += `<span style="font-size:10px;color:#78766e;margin-left:auto">scroll to zoom all · dbl-click to reset</span>`;
       sparkHtml += `</div>`;
       // Anomaly badges
@@ -5838,7 +6095,7 @@ function renderFlightPhases(data, container) {
       const hasAtSat  = ph.atSatTorqueCmdPts.length > 1;
       if (!hasCas && !hasCasT && !hasGS && !hasTorque && !hasAtSat) return '';
 
-      const W = 560, H = 170, pL = 36, pR = (hasTorque || hasAtSat) ? 50 : 34, pT = 22, pB = 32;
+      const W = 560, H = 200, pL = 36, pR = (hasTorque || hasAtSat) ? 50 : 34, pT = 30, pB = 40;
       const iW = W - pL - pR, iH = H - pT - pB;
       const casAcid = 'phc' + (_phaseChartSeq++);
 
@@ -6002,8 +6259,138 @@ function renderFlightPhases(data, container) {
         ],
         rebuild: (t0, t1) => buildCasSvg(t0, t1),
       };
-      return `<div style="padding:4px 14px;border-bottom:0.5px solid ${borderColor}"><div id="${casAcid}-wrap">${buildCasSvg(chartTMin, chartTMax)}</div></div>`;
+      return `<div style="flex:1 1 0;min-width:0"><div id="${casAcid}-wrap">${buildCasSvg(chartTMin, chartTMax)}</div></div>`;
     })();
+
+    // ── AFCS status: engagement enum + mode/config fail markers ──
+    const afcsEngageChartHtml = (() => {
+      const engPts  = ph.afcsEngagePts;
+      const failPts = ph.failSigPts || [];
+      if (!engPts.length && !failPts.length) return '';
+
+      const W = 560, H = 200, pL = 36, pR = 34, pT = 30, pB = 40;
+      const iW = W - pL - pR, iH = H - pT - pB;
+      const afcsAcid = 'phc' + (_phaseChartSeq++);
+
+      const ENGAGE_BANDS = {1: '#1a3020', 2: '#2e2010'};
+      const ENGAGE_LINE  = {0: '#3a3a38', 1: '#4a9850', 2: '#d4882a'};
+      const Y_LABELS     = ['Off', 'Eng', 'CWS'];
+
+      const buildAfcsSvg = (t0, t1) => {
+        const tx = t => pL + (t - t0) / (t1 - t0) * iW;
+        const vy = v => pT + iH - (Math.max(0, Math.min(v, 2)) / 2) * iH;
+
+        let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;overflow:hidden">`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#1a1a18" rx="2"/>`;
+
+        // Engagement background bands — fill from signal level down to baseline
+        const visEng = engPts.filter(p => p[0] >= t0 && p[0] <= t1);
+        for (let i = 0; i < visEng.length; i++) {
+          const tA = Math.max(visEng[i][0], t0), tB = i + 1 < visEng.length ? Math.min(visEng[i+1][0], t1) : t1;
+          const val = Math.round(visEng[i][1]);
+          const col = ENGAGE_BANDS[val];
+          if (col && tB > tA) {
+            const x1 = tx(tA), x2 = Math.min(tx(tB), pL + iW);
+            const yTop = vy(val), yBot = pT + iH;
+            s += `<rect x="${x1.toFixed(1)}" y="${yTop.toFixed(1)}" width="${(x2-x1).toFixed(1)}" height="${(yBot-yTop).toFixed(1)}" fill="${col}"/>`;
+          }
+        }
+
+        // Grid lines at y=0, 1, 2
+        for (let v = 0; v <= 2; v++) {
+          const y = vy(v).toFixed(1);
+          s += `<line x1="${pL}" y1="${y}" x2="${pL+iW}" y2="${y}" stroke="#2a2a28" stroke-width="${v===0?'0.8':'0.5'}"/>`;
+          s += `<text x="${pL-4}" y="${+y+3}" text-anchor="end" font-size="8" fill="#56544e" font-family="monospace">${Y_LABELS[v]}</text>`;
+        }
+
+        // Legend
+        s += `<g font-family="monospace" font-size="8.5">`;
+        s += `<text x="${pL+5}" y="${pT+9}" fill="#78766e" font-weight="600">AFCS Status</text>`;
+        if (engPts.length) {
+          s += `<line x1="${pL+72}" y1="${(pT+5.5).toFixed(1)}" x2="${pL+86}" y2="${(pT+5.5).toFixed(1)}" stroke="#4a9850" stroke-width="2" stroke-linecap="round"/>`;
+          s += `<text x="${pL+89}" y="${pT+9}" fill="#4a9850">Engaged</text>`;
+          s += `<line x1="${pL+136}" y1="${(pT+5.5).toFixed(1)}" x2="${pL+150}" y2="${(pT+5.5).toFixed(1)}" stroke="#d4882a" stroke-width="2" stroke-linecap="round"/>`;
+          s += `<text x="${pL+153}" y="${pT+9}" fill="#d4882a">CWS</text>`;
+        }
+        s += `</g>`;
+
+        s += modeMarkersSvg(t0, t1, pL, iW, pT, iH);
+
+        // Engagement step line
+        for (let i = 0; i < visEng.length; i++) {
+          const tA = Math.max(visEng[i][0], t0), tB = i + 1 < visEng.length ? Math.min(visEng[i+1][0], t1) : t1;
+          const val = Math.round(visEng[i][1]);
+          const col = ENGAGE_LINE[val] || '#3a3a38';
+          const y = vy(val).toFixed(1);
+          const x1 = tx(tA).toFixed(1), x2 = tx(tB).toFixed(1);
+          s += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width="2" stroke-linecap="round"/>`;
+          if (i + 1 < visEng.length) {
+            const yNext = vy(Math.round(visEng[i+1][1])).toFixed(1);
+            s += `<line x1="${x2}" y1="${y}" x2="${x2}" y2="${yNext}" stroke="${col}" stroke-width="1.5"/>`;
+          }
+        }
+
+        // Fail signal rising-edge markers
+        let labelOffsets = {};
+        for (const {pts, label, color} of failPts) {
+          let prevV = 0;
+          for (const [t, v] of pts) {
+            if (t < t0 || t > t1) { prevV = v; continue; }
+            if (v > 0 && prevV === 0) {
+              const x = tx(t).toFixed(1);
+              s += `<line x1="${x}" y1="${pT}" x2="${x}" y2="${pT+iH}" stroke="${color}" stroke-width="1" stroke-dasharray="3,2" opacity="0.85"/>`;
+              const labelY = pT + 9 + (labelOffsets[x] || 0);
+              labelOffsets[x] = (labelOffsets[x] || 0) + 10;
+              s += `<text x="${+x+2}" y="${labelY}" font-size="7.5" fill="${color}" font-family="monospace">${label}</text>`;
+            }
+            prevV = v;
+          }
+        }
+
+        // Time axis
+        { const rawInt = 52 * (t1 - t0) / iW;
+          const interval = [30, 60, 120, 300, 600].find(v => v >= rawInt) || 600;
+          const minGap = (t1 - t0) * 55 / iW;
+          const firstTk = Math.ceil(t0 / interval) * interval;
+          const ticks = [t0];
+          for (let tk = firstTk; tk < t1; tk += interval)
+            if (tk - t0 > minGap && t1 - tk > minGap) ticks.push(tk);
+          ticks.push(t1);
+          if (ticks.length === 2) ticks.splice(1, 0, (t0 + t1) / 2);
+          const midIdx = Math.floor(ticks.length / 2);
+          ticks.forEach((tk, i) => {
+            const x   = (pL + (tk - t0) / (t1 - t0) * iW).toFixed(1);
+            const an  = i === 0 ? 'start' : i === ticks.length - 1 ? 'end' : 'middle';
+            const elap = (tk - chartTMin).toFixed(1);
+            s += `<line x1="${x}" y1="${pT+iH}" x2="${x}" y2="${pT+iH+4}" stroke="#3a3a37" stroke-width="0.8"/>`;
+            s += `<text x="${x}" y="${pT+iH+13}" text-anchor="${an}" font-size="8" fill="#888780" font-family="monospace">${elap}s</text>`;
+            if (i === 0 || i === ticks.length - 1 || i === midIdx)
+              s += `<text x="${x}" y="${pT+iH+26}" text-anchor="${an}" font-size="7.5" fill="#555452" font-family="monospace">${_irigToTod(tk)}</text>`;
+          });
+        }
+        s += `<text x="${pL+iW}" y="${H-3}" text-anchor="end" font-size="8" fill="#3a3a38" font-family="monospace" pointer-events="none">Ctrl+scroll to zoom · dbl-click to reset</text>`;
+        s += `<line id="${afcsAcid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
+        s += `<g id="${afcsAcid}-lbl" style="display:none" pointer-events="none"></g>`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${afcsAcid}')" onmouseleave="_phaseChartLeave('${afcsAcid}')" onwheel="_phaseChartZoom(event,'${afcsAcid}')" ondblclick="_phaseChartReset('${afcsAcid}')"/>`;
+        s += `</svg>`;
+        return s;
+      };
+
+      window._phaseCharts[afcsAcid] = {
+        W, tMin: chartTMin, tMax: chartTMax, tMinFull: chartTMin, tMaxFull: chartTMax,
+        pL, iW, pT, iH,
+        vMaxFull: 2, vMaxCur: 2,
+        group: phaseGroupId,
+        series: [],
+        rebuild: (t0, t1) => buildAfcsSvg(t0, t1),
+      };
+      return `<div style="flex:1 1 0;min-width:0"><div id="${afcsAcid}-wrap">${buildAfcsSvg(chartTMin, chartTMax)}</div></div>`;
+    })();
+
+    // ── AFCS status + Throttle side-by-side row ──
+    const perf2RowHtml = (afcsEngageChartHtml || throttleChartHtml)
+      ? `<div style="padding:4px 14px;border-bottom:0.5px solid ${borderColor}"><div style="display:flex;gap:6px;align-items:flex-start">${afcsEngageChartHtml}${throttleChartHtml}</div></div>`
+      : '';
 
     // ── Pitch trim (aptTrimRateServoCmd) ──
     const trimChartHtml = (() => {
@@ -6172,7 +6559,7 @@ function renderFlightPhases(data, container) {
       ph.preStart ?? ph.start, ph.end ?? (ph.start + 600),
       borderColor
     );
-    card.innerHTML = hdrHtml + metricsHtml + tdHtml + attitudeChartHtml + throttleChartHtml + _devTrimRow + torqueHtml + bodyHtml;
+    card.innerHTML = hdrHtml + metricsHtml + tdHtml + attitudeChartHtml + perf2RowHtml + _devTrimRow + torqueHtml + bodyHtml;
 
     // Async airport lookup — use touchdown point or last approach path point
     if (isApproach || isPaired) {
@@ -6535,7 +6922,21 @@ function renderFlightPhases(data, container) {
     _mapsToInit.push({ id: ovMapId, entries: _overviewEntries });
   }
 
-  // ── Phase cards — profile legend chips drive selection, no separate tab strip ──
+  // ── Phase cards — tab strip shown when GNSS absent (no legend chips from overview map) ──
+  if (phaseCardEls.length > 1) {
+    const strip = document.createElement('div');
+    strip.id = 'phaseTabStrip';
+    strip.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;padding:6px 14px 0';
+    phaseCardEls.forEach(({ label }, i) => {
+      const tab = document.createElement('div');
+      tab.style.cssText = 'font-size:10px;font-family:monospace;padding:3px 10px;border-radius:5px;cursor:pointer;' +
+        (i === 0 ? 'background:#252340;color:#9490d4;outline:0.5px solid #3d3a7a' : 'background:#2e2e2c;color:#78766e;outline:0.5px solid #3a3a37');
+      tab.textContent = label;
+      tab.onclick = () => _switchPhaseTab(i);
+      strip.appendChild(tab);
+    });
+    wrap.appendChild(strip);
+  }
   phaseCardEls.forEach(({ card }, i) => {
     card.style.display = phaseCardEls.length > 1 && i > 0 ? 'none' : '';
     wrap.appendChild(card);
@@ -6682,6 +7083,13 @@ function renderResults(panel, faults, maxTrans, data, totalEpisodes) {
     '</div>' : '') +
     (excluded > 0 ? '<div style="margin-top:8px;font-size:11px;color:#888780">' + excluded + ' episode' + (excluded>1?'s':'') + ' hidden — contained a commanded-disconnect signal.</div>' : '');
   panel.appendChild(summary);
+
+  const _dropoutHtml = renderDropoutSection(data);
+  if (_dropoutHtml) {
+    const _dropoutEl = document.createElement('div');
+    _dropoutEl.innerHTML = _dropoutHtml;
+    panel.appendChild(_dropoutEl);
+  }
 
   // Flight phase section (Approach / Landing) — shown when mode_transitions present
   renderFlightPhases(data, panel);
@@ -7028,7 +7436,7 @@ function renderResults(panel, faults, maxTrans, data, totalEpisodes) {
         rightHtml += '<div class="section-label">AGL Context</div>';
         plotEntries.forEach(([sig, pts]) => {
           const windowed = pts.filter(p => p[0] >= _fWinMin && p[0] <= _fWinMax);
-          rightHtml += renderPlot(windowed.length >= 2 ? windowed : pts, sig.split('.').pop(), fault.time);
+          rightHtml += renderPlot(windowed.length >= 2 ? windowed : pts, sig.split('.').pop(), fault.time, analysisData?.data_gaps);
         });
       }
     }

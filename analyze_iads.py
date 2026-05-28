@@ -887,7 +887,7 @@ def _save_flight_plots(result, plot_series, max_pts=None):
     """Save approach/landing window → result['flight_plots'], capped at max_pts per signal.
 
     Window: earliest approach/landing mode activation − 10 s through latest
-    landing-mode DEACTIVATION + 5 s (captures full post-touchdown ground roll).
+    landing-mode DEACTIVATION + 15 s (captures full post-touchdown ground roll).
     Falls back to the full-flight dataset if no matching transitions are found.
     """
     if max_pts is None:
@@ -896,7 +896,7 @@ def _save_flight_plots(result, plot_series, max_pts=None):
     t_lo, t_hi = _phase_window(result.get("mode_transitions", []), phase_vals)
     if t_lo is not None:
         t_lo -= 10
-        t_hi += 5
+        t_hi += 15
     _GNSS_SIGS = {'GNSS_Latitude', 'GNSS_Latitude_Fine', 'GNSS_Longitude', 'GNSS_Longitude_Fine'}
     plots = {}
     for sig, pts in plot_series.items():
@@ -913,8 +913,8 @@ def _save_takeoff_plots(result, plot_series, max_pts=None):
     """Save takeoff window → result['takeoff_plots'], capped at max_pts per signal.
 
     Modes: latActive=takeoff (4), vertActive=takeoff (7), atActive=takeOff (1).
-    Window: first activation − 10 s through last deactivation + 30 s.
-    The +30 s post-margin captures the climb-out after modes revert to standby.
+    Window: first activation − 10 s through last deactivation + 40 s.
+    The +40 s post-margin captures the climb-out after modes revert to standby.
     Stores an empty dict when no takeoff modes are found.
     """
     if max_pts is None:
@@ -925,7 +925,7 @@ def _save_takeoff_plots(result, plot_series, max_pts=None):
         result["takeoff_plots"] = {}
         return
     t_lo -= 10
-    t_hi += 30
+    t_hi += 40
     _GNSS_SIGS = {'GNSS_Latitude', 'GNSS_Latitude_Fine', 'GNSS_Longitude', 'GNSS_Longitude_Fine'}
     plots = {}
     for sig, pts in plot_series.items():
@@ -950,6 +950,87 @@ def _save_hires_file(out_path, result, plot_series):
                   f, separators=(",", ":"), allow_nan=False)
     hires_kb = os.path.getsize(hires_path) / 1024
     print(f"  hires: {hires_path}  ({hires_kb:.0f} KB)")
+    return hires_path
+
+
+# ---------------------------------------------------------------------------
+# DGPS injection
+# ---------------------------------------------------------------------------
+
+_DGPS_BASE_DAY   = 110          # IADS day-of-year (0-based) for 2026-04-21
+_DGPS_SRC_COLS   = ["lat_dd", "lon_dd", "altitude_msl_m", "hae_m"]
+_DGPS_OUT_SIGS   = ["dgps_lat_dd", "dgps_lon_dd", "dgps_alt_msl_m", "dgps_hae_m"]
+
+
+def _load_dgps_stream(dgps_csv):
+    """Load a DGPS stream50 CSV and return (sorted abs-times, {col: [values]})."""
+    import bisect as _bisect
+    times = []
+    cols  = {c: [] for c in _DGPS_SRC_COLS}
+    with open(dgps_csv, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            try:
+                h, m, s = row["time_utc"].strip().split(":")
+                hi = int(h)
+                t  = hi * 3600 + int(m) * 60 + float(s)
+                day = _DGPS_BASE_DAY + (1 if hi < 12 else 0)
+                abs_t = day * 86_400 + t
+            except Exception:
+                continue
+            times.append(abs_t)
+            for c in _DGPS_SRC_COLS:
+                try:
+                    v = float(row[c])
+                    cols[c].append(v if math.isfinite(v) else None)
+                except (ValueError, TypeError):
+                    cols[c].append(None)
+    return times, cols
+
+
+def _inject_dgps_into_hires(hires_path, dgps_csv):
+    """Inject DGPS position signals into an existing *_hires.json in-place."""
+    import bisect as _bisect
+
+    print(f"  Injecting DGPS from {dgps_csv}")
+    dgps_times, dgps_cols = _load_dgps_stream(dgps_csv)
+    if not dgps_times:
+        print("  WARNING: DGPS file empty or unreadable — skipping injection")
+        return
+
+    with open(hires_path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    for section_key in ("flight_plots", "takeoff_plots"):
+        section = data.get(section_key)
+        if not section:
+            continue
+        t_lo =  math.inf
+        t_hi = -math.inf
+        for pts in section.values():
+            if pts:
+                t_lo = min(t_lo, pts[0][0])
+                t_hi = max(t_hi, pts[-1][0])
+        if not math.isfinite(t_lo):
+            continue
+
+        lo_idx = _bisect.bisect_left(dgps_times,  t_lo)
+        hi_idx = _bisect.bisect_right(dgps_times, t_hi)
+
+        for sig, src in zip(_DGPS_OUT_SIGS, _DGPS_SRC_COLS):
+            raw = [
+                [dgps_times[i], dgps_cols[src][i]]
+                for i in range(lo_idx, hi_idx)
+                if dgps_cols[src][i] is not None
+            ]
+            section[sig] = _downsample_pts(raw, _HIRES_MAX_PTS)
+
+        n_fixes = hi_idx - lo_idx
+        print(f"    {section_key}: {n_fixes} DGPS fixes in window")
+
+    with open(hires_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, separators=(",", ":"), allow_nan=False)
+    hires_kb = os.path.getsize(hires_path) / 1024
+    print(f"    updated hires: {hires_path}  ({hires_kb:.0f} KB)")
 
 
 def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0, trigger_to=0.0, plot_signals=None, keep_plots=False, quiet=False, trace_graph=None):
@@ -1221,6 +1302,9 @@ if __name__ == "__main__":
                              "--trace-graph takes precedence over config.")
     parser.add_argument("--exclude-zips", default="",
                         help="Comma-separated substrings — ZIPs whose filename contains any of these are skipped")
+    parser.add_argument("--dgps", default=None,
+                        help="Path to a DGPS stream50 parsed CSV — injects dgps_lat_dd, "
+                             "dgps_lon_dd, dgps_alt_msl_m, dgps_hae_m into the hires JSON")
     args = parser.parse_args()
 
     n = args.workers if args.workers > 0 else multiprocessing.cpu_count()
@@ -1360,7 +1444,9 @@ if __name__ == "__main__":
         out_kb = os.path.getsize(out_path) / 1024
         print(f"  saved: {out_path}  ({out_kb:.0f} KB)")
         if plot_series:
-            _save_hires_file(out_path, combined, plot_series)
+            hires_path = _save_hires_file(out_path, combined, plot_series)
+            if args.dgps and hires_path:
+                _inject_dgps_into_hires(hires_path, args.dgps)
 
     # ── Single file mode (existing behaviour) ────────────────────────────
     else:
@@ -1380,3 +1466,8 @@ if __name__ == "__main__":
                      trigger_to=args.trigger_to,
                      plot_signals=args.plot_signals,
                      trace_graph=_resolve_trace_graph(_sf_tail))
+        if args.dgps and args.trigger:
+            _root, _ext = os.path.splitext(out_path)
+            _hires = f"{_root}_hires{_ext}"
+            if os.path.exists(_hires):
+                _inject_dgps_into_hires(_hires, args.dgps)

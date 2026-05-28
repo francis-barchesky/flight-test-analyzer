@@ -308,8 +308,17 @@ def main():
             return {"sortie": name, "json": existing_json, "status": "skipped"}
 
         # ── Dry run ───────────────────────────────────────────────────────────
-        # Match sortie name against trace_graph_map (first key that is a substring of the name)
-        tg_version = next((v for k, v in trace_graph_map.items() if k in name), None)
+        # Match sortie name against trace_graph_map.
+        # Keys with '_' (e.g. "S125_N208B") match on sortie prefix + tail so
+        # "S125_N208B" hits S125_N208B, S125_2_N208B, S125_3_N208B, etc.
+        # Keys without '_' fall back to plain substring match.
+        def _tg_match(key, sname):
+            if "_" in key:
+                kparts = key.split("_", 1)
+                sparts = sname.split("_")
+                return sparts[0] == kparts[0] and sparts[-1] == kparts[1]
+            return key in sname
+        tg_version = next((v for k, v in trace_graph_map.items() if _tg_match(k, name)), None)
         cmd = [
             sys.executable, script,
             sortie_dir,

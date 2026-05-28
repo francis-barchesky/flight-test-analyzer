@@ -57,6 +57,10 @@ c = json.load(open(r'$CONFIG_WIN'))
 val = c.get('$1', '$2')
 if val is None:
     val = '$2'
+if isinstance(val, list):
+    # Join multiple regex patterns into an alternation group, e.g.
+    # ['AFCS_del', 'AFCS_MiscAnalysis'] -> '(AFCS_del|AFCS_MiscAnalysis)'
+    val = '(' + '|'.join(str(x) for x in val) + ')'
 val = str(val)
 if val.lower() == 'today':
     val = datetime.date.today().isoformat()
@@ -180,10 +184,12 @@ for DAY in $DAYS; do
         pushd "$DATA_ROOT" > /dev/null
         TMPSCRIPT="$(mktemp /tmp/iads_dl_XXXX.sh)"
         trap 'rm -f "$TMPSCRIPT"' EXIT
+        # Use '#' as sed delimiter so a regex '|' alternation inside $PATTERN
+        # (e.g. '(AFCS_del|AFCS_MiscAnalysis)') doesn't terminate the s-command.
         sed \
-            -e "s|^START_DATE=.*|START_DATE=\"$DAY\"|" \
-            -e "s|^END_DATE=.*|END_DATE=\"$DAY\"|" \
-            -e "s|^FILENAME_PATTERN=.*|FILENAME_PATTERN=\"$PATTERN\"|" \
+            -e "s#^START_DATE=.*#START_DATE=\"$DAY\"#" \
+            -e "s#^END_DATE=.*#END_DATE=\"$DAY\"#" \
+            -e "s#^FILENAME_PATTERN=.*#FILENAME_PATTERN=\"$PATTERN\"#" \
             "$DOWNLOAD_SCRIPT" > "$TMPSCRIPT"
         chmod +x "$TMPSCRIPT"
         bash "$TMPSCRIPT" <<< "Y"
