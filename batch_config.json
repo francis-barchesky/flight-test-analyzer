@@ -8,21 +8,21 @@
   "output_dir": null,
 
   "download_script": "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh",
-  "download_start_date": "2026-04-21",
+  "download_start_date": "2026-01-01",
   "download_end_date":   "today",
   "_comment_download_pattern": "Regex(es) matched against S3 keys. String or array of regexes; arrays become an OR alternation. Only ZIPs with signals used for plots/analysis are kept; the rest are listed in exclude_zip_patterns below and would just be downloaded then ignored.",
-  "download_pattern":    ["AFCS_del", "AFCS_MiscAnalysis"],
+  "download_pattern":    ["AFCS_del", "AFCS_MiscAnalysis", "iads_servo_torques_datagroup"],
 
   "trigger":       "afcsCapable",
   "trigger_from":  1.0,
   "trigger_to":    0.0,
 
-  "workers": 22,
-  "parallel_sorties": 2,
+  "workers": 8,
+  "parallel_sorties": 1,
 
-  "plot_signals": "atSatTorqueCmd,yawServoTorqueFilt,throttleServoTorqueFilt,rollServoTorqueFilt,pitchServoTorqueFilt,torqueVoted,radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,pfdCasTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,selValue,aptTrimRateServoCmd,afcsEngageEnum,landConfigFail,landFail,lpvApprFail,takeoffConfigFail,lnavModeFail,gpsApprIntegrityValid,gpsApprAnnun,apprLatDevValid",
+  "plot_signals": "atSatTorqueCmd,yawServoTorqueFilt,throttleServoTorqueFilt,rollServoTorqueFilt,pitchServoTorqueFilt,torqueVoted,radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,pfdCasTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,selValue,aptTrimRateServoCmd,srvPtTrqRunningAvgVal,trqRunningAvgVal,afcsEngageEnum,landConfigFail,landFail,lpvApprFail,takeoffConfigFail,lnavModeFail,gpsApprIntegrityValid,gpsApprAnnun,apprLatDevValid,Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg",
 
-  "skip_existing": true,
+  "skip_existing": false,
 
   "exclude_zip_patterns": [
     "SYS_parameters",
@@ -37,6 +37,20 @@
 
   "_comment_trace_graph_map": "Maps sortie name to expected trace graph version. Keys with '_' (e.g. 'S125_N208B') match sortie prefix + tail — so S125_2_N208B also matches. Plain keys fall back to substring match.",
   "trace_graph_map": {
+    "S145_N208B": "5.0.7",
+    "S144_N208B": "5.0.7",
+    "S143_N208B": "5.0.7",
+    "S142_N208B": "5.0.7",
+    "S141_N208B": "5.1.4",
+    "S140_N208B": "5.1.4",
+    "S139_N208B": "5.1.4",
+    "S138_N208B": "5.1.4",
+    "S137_N208B": "5.1.4",
+    "S136_N208B": "5.1.4",
+    "S135_N208B": "5.1.4",
+    "S134_N208B": "5.1.4",
+    "S133_N208B": "5.1.4",
+    "S132_N208B": "5.1.4",
     "S131_N208B": "5.1.4",
     "S130_N208B": "5.1.3",
     "S129_N208B": "5.1.3",
@@ -44,8 +58,8 @@
     "S127_N208B": "5.1.3",
     "S126_N208B": "5.1.3",
     "S125_N208B": "5.1.3",
-    "S124_N208B": "5.1.2",
-    "S123_N208B": "5.1.2",
+    "S124_N208B": "5.1.3",
+    "S123_N208B": "5.1.3",
     "S122_N208B": "5.1.2",
     "S121_N208B": "5.1.2",
     "S120_N208B": "5.1.2",

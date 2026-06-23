@@ -22,7 +22,34 @@ import subprocess
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timedelta
+
+
+def _flight_date_iso(existing_json):
+    """
+    Best-effort flight date from an analysis JSON.
+
+    The JSON has `rec_start_s` (seconds since start-of-year of the flight year)
+    and `generated_at` (analysis timestamp). The flight year is the same as
+    or one earlier than the analysis year — pick whichever makes the computed
+    flight date <= analysis date. Returns 'YYYY-MM-DD' or None.
+    """
+    try:
+        with open(existing_json, encoding='utf-8') as f:
+            d = json.load(f)
+        rec = d.get('rec_start_s')
+        gen = d.get('generated_at')
+        if rec is None or not gen:
+            return None
+        gen_date = datetime.fromisoformat(gen[:10])
+        # IADS day-of-year is 0-indexed in the Time column (Day 000 = Jan 1).
+        doy0 = int(float(rec) / 86400)
+        candidate = datetime(gen_date.year, 1, 1) + timedelta(days=doy0)
+        if candidate.date() > gen_date.date():
+            candidate = datetime(gen_date.year - 1, 1, 1) + timedelta(days=doy0)
+        return candidate.date().isoformat()
+    except Exception:
+        return None
 
 
 # ── Sortie name from filename ──────────────────────────────────────────────────
@@ -137,11 +164,14 @@ def find_sortie_dirs(data_root):
 def find_analysis_json(sortie_dir):
     """
     Return the path of an existing analysis JSON in sortie_dir, or None.
-    Matches analysis_*.json or analysis.json.
+    Matches analysis_*.json / analysis.json but excludes the *_hires.json
+    companions (those don't carry rec_start_s / generated_at).
     """
-    candidates = glob.glob(os.path.join(sortie_dir, "analysis*.json"))
+    candidates = [
+        p for p in glob.glob(os.path.join(sortie_dir, "analysis*.json"))
+        if not p.lower().endswith("_hires.json")
+    ]
     if candidates:
-        # Prefer the most recently modified
         return max(candidates, key=os.path.getmtime)
     return None
 
@@ -178,6 +208,11 @@ def main():
                     help="Analyze N sorties concurrently (overrides config parallel_sorties)")
     ap.add_argument("--status", action="store_true",
                     help="Show completion status of all sorties and exit")
+    ap.add_argument("--zips-only", action="store_true",
+                    help="Iterate only sortie dirs that contain at least one ZIP "
+                         "(skip dirs that only have an old analysis JSON). Useful "
+                         "from pipeline.sh so each day's pass touches only freshly-"
+                         "downloaded sorties.")
     args = ap.parse_args()
 
     config_path = os.path.abspath(args.config)
@@ -260,6 +295,14 @@ def main():
     detected_cores   = os.cpu_count() or 1
     workers          = workers or detected_cores
 
+    # Resolve download_start_date (used by the no-zips guard to flag pre-window
+    # sorties). Accepts ISO YYYY-MM-DD or the literal "today".
+    _start_raw = cfg.get("download_start_date")
+    if _start_raw and str(_start_raw).lower() == "today":
+        download_start_date = datetime.now().date().isoformat()
+    else:
+        download_start_date = _start_raw
+
     if output_dir and not os.path.isabs(output_dir):
         output_dir = os.path.normpath(os.path.join(config_dir, output_dir))
     if output_dir:
@@ -274,6 +317,12 @@ def main():
         print()
 
     sortie_dirs = find_sortie_dirs(data_root)
+    if args.zips_only:
+        before = len(sortie_dirs)
+        sortie_dirs = [d for d in sortie_dirs
+                       if glob.glob(os.path.join(d, "*.zip"))]
+        if before != len(sortie_dirs):
+            print(f"  --zips-only: {before - len(sortie_dirs)} dir(s) without ZIPs skipped")
 
     # Workers are divided across parallel sorties so total CPU usage stays bounded
     workers_per_sortie = max(1, workers // max(1, parallel_sorties))
@@ -306,6 +355,25 @@ def main():
             if delete_after and zips:
                 delete_zips(sortie_dir, dry_run=args.dry_run)
             return {"sortie": name, "json": existing_json, "status": "skipped"}
+
+        # ── No-ZIP guard ──────────────────────────────────────────────────────
+        # When skip_existing=False, the batch wants to re-analyze every sortie.
+        # But dirs with only an old analysis JSON (ZIPs deleted in a prior run)
+        # have nothing to re-analyze — calling analyze_iads.py would just error
+        # out with "No ZIP files found". Keep the existing JSON in place.
+        if not zips:
+            fdate = _flight_date_iso(existing_json) if existing_json else None
+            pre_window = bool(fdate and download_start_date and fdate < download_start_date)
+            if pre_window:
+                date_tag = f"  pre-window (flight {fdate})"
+            elif fdate:
+                date_tag = f"  (flight {fdate})"
+            else:
+                date_tag = ""
+            jtag = f"  ({os.path.basename(existing_json)})" if existing_json else ""
+            print(f"[{i}/{n}]  {name}  NO-ZIPS{date_tag}{jtag}", flush=True)
+            return {"sortie": name, "json": existing_json, "status": "no-zips",
+                    "flight_date": fdate, "pre_window": pre_window}
 
         # ── Dry run ───────────────────────────────────────────────────────────
         # Match sortie name against trace_graph_map.
@@ -369,7 +437,7 @@ def main():
         return f"{s}s"
 
     def _print_progress(results):
-        done    = sum(1 for r in results if r["status"] in ("ok", "skipped"))
+        done    = sum(1 for r in results if r["status"] in ("ok", "skipped", "no-zips"))
         errors  = sum(1 for r in results if r["status"] == "error")
         pending = n - len(results)
         pct     = int(100 * done / n) if n else 0
@@ -424,10 +492,12 @@ def main():
     # ── Summary ────────────────────────────────────────────────────────────────
     ok      = sum(1 for r in results if r["status"] == "ok")
     skipped = sum(1 for r in results if r["status"] == "skipped")
+    no_zips = sum(1 for r in results if r["status"] == "no-zips")
     errors  = sum(1 for r in results if r["status"] == "error")
 
     manifest_tag = f"  manifest={manifest_path}" if not args.dry_run else ""
-    print(f"Batch done  {total_elapsed:.1f}s  |  ok={ok}  skipped={skipped}  errors={errors}{manifest_tag}")
+    nz_tag       = f"  no-zips={no_zips}" if no_zips else ""
+    print(f"Batch done  {total_elapsed:.1f}s  |  ok={ok}  skipped={skipped}{nz_tag}  errors={errors}{manifest_tag}")
 
     sys.exit(1 if errors else 0)
 

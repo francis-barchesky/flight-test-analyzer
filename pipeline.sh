@@ -13,6 +13,12 @@
 #
 set -euo pipefail
 
+# ── Clear inherited PYTHONHOME/PYTHONPATH ──────────────────────────────────────
+# Mixing PYTHONHOME/PYTHONPATH across CPython versions causes
+# "AssertionError: SRE module mismatch" when stdlib resolution finds a
+# different version's _sre. Always launch Python with a clean env.
+unset PYTHONHOME PYTHONPATH
+
 # ── Ctrl+C guard ───────────────────────────────────────────────────────────────
 trap 'echo; read -p "  Abort pipeline? [y/N] " _yn; [[ "$_yn" =~ ^[Yy]$ ]] && exit 1 || echo "  Continuing..."' INT
 
@@ -38,7 +44,16 @@ to_win_path() {
 }
 
 # ── Detect Python ─────────────────────────────────────────────────────────────
-if command -v python3 &>/dev/null; then
+# Prefer the known Python 3.13.3 install (the project needs 3.13; 3.12 on PATH
+# in Git Bash has triggered SRE mismatches). Respect a pre-set $PYTHON override.
+PY313="/c/Users/FrancisBarchesky/AppData/Local/Programs/Python/Python313/python.exe"
+if [[ -n "${PYTHON:-}" ]] && command -v "$PYTHON" &>/dev/null; then
+    :  # already set
+elif [[ -x "$PY313" ]]; then
+    PYTHON="$PY313"
+elif command -v py &>/dev/null; then
+    PYTHON="py -3.13"
+elif command -v python3 &>/dev/null; then
     PYTHON=python3
 elif command -v python &>/dev/null; then
     PYTHON=python
@@ -80,7 +95,7 @@ END_DATE="$(cfg download_end_date "$(date +%Y-%m-%d)")"
 PATTERN="$(cfg download_pattern "*")"
 
 SCRIPT_DIR_WIN="$(to_win_path "$SCRIPT_DIR")"
-ANALYZE_CMD=("$PYTHON" "$SCRIPT_DIR_WIN/run_batch.py" "$CONFIG_WIN" --organize)
+ANALYZE_CMD=("$PYTHON" "$SCRIPT_DIR_WIN/run_batch.py" "$CONFIG_WIN" --organize --zips-only)
 [[ $DRY_RUN -eq 1 ]] && ANALYZE_CMD+=(--dry-run)
 
 # ── Generate day list ──────────────────────────────────────────────────────────
@@ -194,14 +209,18 @@ for DAY in $DAYS; do
         chmod +x "$TMPSCRIPT"
         bash "$TMPSCRIPT" <<< "Y"
         popd > /dev/null
-        # Mark this day as downloaded+organized so re-runs skip it
-        mkdir -p "$DATA_ROOT/.pipeline_done"
-        touch "$DONE_MARKER"
+        # Marker is written below only if files actually landed — empty-download
+        # days should remain unmarked so future re-runs re-attempt them in case
+        # data lands on S3 later.
     fi
 
     DL_ELAPSED=$(( SECONDS - DL_START ))
     TOTAL_DL_S=$(( TOTAL_DL_S + DL_ELAPSED ))
     echo "  Download: $(fmt_elapsed $DL_ELAPSED)"
+
+    # Count flat ZIPs AFTER download but BEFORE analyze --organize, since
+    # --organize moves them into sortie subdirs and would zero the count.
+    POST_DL_FLAT=$(find "$DATA_ROOT" -maxdepth 1 -name "*.zip" 2>/dev/null | wc -l)
 
     # ── Organize + Analyze ───────────────────────────────────────────────────
     echo
@@ -211,8 +230,12 @@ for DAY in $DAYS; do
     AN_ELAPSED=$(( SECONDS - AN_START ))
     TOTAL_AN_S=$(( TOTAL_AN_S + AN_ELAPSED ))
 
-    # Mark day done so re-runs skip download (covers data downloaded before this marker existed)
-    if [[ $DRY_RUN -eq 0 && ! -f "$DONE_MARKER" ]]; then
+    # Mark day done ONLY if work actually happened on this day — either we
+    # downloaded new ZIPs, or pre-existing flat ZIPs were waiting before this
+    # iteration started. Days with no ZIPs at all stay unmarked so a future
+    # re-run will re-attempt them (S3 data may land later).
+    if [[ $DRY_RUN -eq 0 && ! -f "$DONE_MARKER" ]] && \
+       (( FLAT_ZIPS > 0 || POST_DL_FLAT > 0 )); then
         mkdir -p "$DATA_ROOT/.pipeline_done"
         touch "$DONE_MARKER"
     fi

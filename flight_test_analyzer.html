@@ -364,6 +364,12 @@ const ENUM_DEFS = {
     { short: 'THR', full: 'thrust' },
   ],
 };
+// Arm enums share the same value space as their corresponding active enums:
+// a value of N in latArmEnum means the same mode as N in latActiveEnum, just armed
+// rather than captured.
+ENUM_DEFS.latArmEnum      = ENUM_DEFS.latActiveEnum;
+ENUM_DEFS.vertPrimArmEnum = ENUM_DEFS.vertActiveEnum;
+ENUM_DEFS.vertSecArmEnum  = ENUM_DEFS.vertActiveEnum;
 
 function enumLabel(sigSuffix, val) {
   if (val === undefined || val === null || val === '—') return val;
@@ -2577,6 +2583,93 @@ function renderFleetSummary(panel) {
     }
   }
 
+  // ── Peak Torque by Active Mode (per axis) ─────────────────────────────────
+  {
+    const _TQ_AXES = [
+      { key: 'PITCH', label: 'Pitch Servo',       re: /Pitch_Servo\.|pitchServoTorque/i,        color: '#6B62D4' },
+      { key: 'ROLL',  label: 'Roll Servo',        re: /Roll_Servo\.|rollServoTorque/i,          color: '#4CC9A0' },
+      { key: 'YAW',   label: 'Yaw Servo',         re: /Yaw_Servo\.|yawServoTorque/i,            color: '#D4924A' },
+      { key: 'THR',   label: 'Throttle Servo',    re: /Throttle_Servo\.|throttleServoTorque/i,  color: '#D45A8C' },
+      { key: 'PTRIM', label: 'Pitch Trim Servo',  re: /Pitch_Trim_Servo\.|pitchtrimservo/i,     color: '#9A6BC4' },
+    ];
+    const _TQ_MAXIS = [
+      { key: 'latActiveEnum',  label: 'LAT',  color: '#6B62D4' },
+      { key: 'vertActiveEnum', label: 'VERT', color: '#4CC9A0' },
+      { key: 'atActiveEnum',   label: 'AT',   color: '#D4924A' },
+    ];
+
+    // axisBuckets[axisKey][sigKey] = { parts, peak, absPeak, sortie, sortieIdx, signal }
+    const axisBuckets = {};
+    _TQ_AXES.forEach(ax => axisBuckets[ax.key] = {});
+
+    sorties.forEach(sd => {
+      const d  = (analysisQueue[sd.idx]?._fullData || analysisQueue[sd.idx]?.data);
+      const ts = d?.torque_stats || [];
+      ts.forEach(t => {
+        if (!t.signal || !isFinite(t.peak)) return;
+        const ax = _TQ_AXES.find(a => a.re.test(t.signal));
+        if (!ax) return;
+        const parts = [];
+        _TQ_MAXIS.forEach(m => {
+          const v = t.modes?.[m.key];
+          if (v == null) return;
+          const def = (ENUM_DEFS[m.key] || [])[Math.round(parseFloat(v))];
+          if (!def || def.short === 'SBY') return;
+          parts.push({ short: def.short, color: m.color });
+        });
+        if (window._modeFilter && !parts.some(p => p.short === window._modeFilter)) return;
+        const sigKey = parts.map(p => p.short).join('+') || '(no mode)';
+        const absPeak = Math.abs(t.peak);
+        const cur = axisBuckets[ax.key][sigKey];
+        if (!cur || absPeak > cur.absPeak) {
+          axisBuckets[ax.key][sigKey] = {
+            parts, peak: t.peak, absPeak,
+            sortie: sd.name, sortieIdx: sd.idx, signal: t.signal
+          };
+        }
+      });
+    });
+
+    const W=580, pL=130, pR=60, pT=8, pB=8;
+    const iW=W-pL-pR, barH=14, nameH=10, gap=5;
+    const rowH = barH + nameH + gap;
+
+    let sectionsHtml = '';
+    let totalBuckets = 0;
+    _TQ_AXES.forEach(ax => {
+      const entries = Object.values(axisBuckets[ax.key]).sort((a,b) => b.absPeak - a.absPeak);
+      if (!entries.length) return;
+      totalBuckets += entries.length;
+      const maxP = entries[0].absPeak || 1;
+      const iH = entries.length * rowH - gap;
+      const H  = pT + iH + pB;
+      let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="display:block;min-width:${W}px">`;
+      entries.forEach((e, i) => {
+        const y    = pT + i * rowH;
+        const bw   = (e.absPeak / maxP) * iW;
+        const midY = (y + barH/2).toFixed(1);
+        const labelHtml = e.parts.length
+          ? e.parts.map(p => `<tspan fill="${p.color}" font-weight="600">${p.short}</tspan>`).join('<tspan fill="#56544e"> + </tspan>')
+          : `<tspan fill="#56544e">(no mode)</tspan>`;
+        svg += `<rect x="${pL}" y="${y}" width="${Math.max(2,bw).toFixed(1)}" height="${barH}" fill="${ax.color}" rx="2" opacity="0.82"/>`;
+        svg += `<text x="${pL-6}" y="${midY}" text-anchor="end" dominant-baseline="middle" font-size="9" font-family="monospace">${labelHtml}</text>`;
+        svg += `<text x="${(pL + Math.max(2,bw) + 5).toFixed(1)}" y="${midY}" dominant-baseline="middle" font-size="8" font-family="monospace" fill="${ax.color}" font-weight="600">${e.peak.toFixed(1)}</text>`;
+        const abbr = e.sortie.replace(/^analysis_/i,'').split('_').slice(0,2).join('_').slice(0,10);
+        const sc   = PALETTE[e.sortieIdx % PALETTE.length];
+        svg += `<text x="${pL}" y="${(y + barH + 7).toFixed(1)}" dominant-baseline="middle" font-size="6.5" font-family="monospace" fill="${sc}" opacity="0.85" style="cursor:pointer" onclick="activateQueueItem(${e.sortieIdx})">${abbr}</text>`;
+      });
+      svg += '</svg>';
+      sectionsHtml += `<div style="margin-bottom:8px"><div style="font-size:9px;font-weight:600;color:${ax.color};margin-bottom:3px;letter-spacing:.05em;text-transform:uppercase">${ax.label}</div><div style="overflow-x:auto;max-width:100%">${svg}</div></div>`;
+    });
+
+    if (sectionsHtml) {
+      html += '<div class="summary-card" style="margin-bottom:12px">';
+      html += `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Peak Torque by Active Mode <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#555452">(${totalBuckets} mode signatures)</span></div>`;
+      html += sectionsHtml;
+      html += '</div>';
+    }
+  }
+
   // ── Fault Category × Active Mode × Control Axis (bubble matrix) ─────────
   {
     const _BMAXIS = [
@@ -2753,21 +2846,30 @@ function renderFleetSummary(panel) {
 
   // ── Operations per Sortie (approaches + landings) ─────────────────────────
   {
-    const _opF = window._opFilter; // 'takeoffs'|'approaches'|'landings'|null
+    const _opF = window._opFilter; // 'takeoffs'|'approaches'|'landings'|'dropouts'|null
     const _opBarKey = { takeoffs: 0, approaches: 1, landings: 2, dropouts: 3 };
     const _opActiveBar = (_opF != null) ? (_opBarKey[_opF] ?? null) : null;
-    const maxOps = Math.max(1, ...sorties.map(sd => {
-      if (_opF === 'takeoffs')   return sd.takeoffCount;
-      if (_opF === 'approaches') return sd.lpvCount;
-      if (_opF === 'landings')   return sd.autoLandingCount;
-      if (_opF === 'dropouts')   return sd.dataGapCount;
-      return Math.max(sd.lpvCount, sd.autoLandingCount, sd.dataGapCount, sd.takeoffCount);
-    }));
+    const _opValOf = sd =>
+        _opF === 'takeoffs'    ? sd.takeoffCount
+      : _opF === 'approaches'  ? sd.lpvCount
+      : _opF === 'landings'    ? sd.autoLandingCount
+      : _opF === 'dropouts'    ? sd.dataGapCount
+      : Math.max(sd.lpvCount, sd.autoLandingCount, sd.dataGapCount, sd.takeoffCount);
+    // When a category filter is active, drop sorties with zero count so the X-axis
+    // only shows sorties that actually have that operation type.
+    const oSorties = (_opF != null) ? sorties.filter(sd => _opValOf(sd) > 0) : sorties;
+    // When a pill is active, scale y-axis to just that category; otherwise span all bars.
+    const maxOps = (_opActiveBar !== null)
+      ? Math.max(1, ...oSorties.map(_opValOf))
+      : Math.max(1, ...oSorties.flatMap(sd =>
+          [sd.takeoffCount, sd.lpvCount, sd.autoLandingCount, sd.dataGapCount]
+        ));
     const OW=580, OH=156, opL=28, opR=16, opT=24, opB=70;
     const oiW=OW-opL-opR, oiH=OH-opT-opB;
-    const ogroupW = oiW / sorties.length;
+    const ogroupW = oiW / Math.max(1, oSorties.length);
     const ogap    = 2;
-    const obarW   = Math.min(14, Math.max(2, (ogroupW * 0.7 - ogap * 3) / 4));
+    const _opBarCount = (_opActiveBar !== null) ? 1 : 4;
+    const obarW   = Math.min(14, Math.max(2, (ogroupW * 0.7 - ogap * (_opBarCount - 1)) / _opBarCount));
     const ocx     = i => opL + (i + 0.5) * ogroupW;
     const opy     = v => opT + oiH - (v / maxOps) * oiH;
 
@@ -2787,16 +2889,16 @@ function renderFleetSummary(panel) {
     }
 
     // Vertical sortie separators — drawn behind bars
-    sorties.forEach((sd, si) => {
+    oSorties.forEach((sd, si) => {
       if (si === 0) return;
       const sepX = (opL + si * ogroupW).toFixed(1);
-      const prevIsGround = /(?:^|[_])G\d{2,5}/i.test(sorties[si-1].name);
+      const prevIsGround = /(?:^|[_])G\d{2,5}/i.test(oSorties[si-1].name);
       const curIsGround  = /(?:^|[_])G\d{2,5}/i.test(sd.name);
       const isBoundary   = prevIsGround !== curIsGround;
       oSvg += `<line x1="${sepX}" y1="${opT}" x2="${sepX}" y2="${opT+oiH}" stroke="${isBoundary ? '#4a4a46' : '#2e2e2c'}" stroke-width="${isBoundary ? 1 : 0.5}"/>`;
     });
 
-    sorties.forEach((sd, si) => {
+    oSorties.forEach((sd, si) => {
       const allBars = [
         { v: sd.takeoffCount,     color: '#D4924A', label: `takeoff${sd.takeoffCount!==1?'s':''}` },
         { v: sd.lpvCount,         color: '#9490d4', label: `approach${sd.lpvCount!==1?'es':''}` },
@@ -2806,11 +2908,9 @@ function renderFleetSummary(panel) {
       // Dim this sortie if the active fault category has no matching faults here
       const _catDim = window._smryCatActive &&
         !sd.faults.some(f => ((f.exitType||{}).category||'UNKNOWN') === window._smryCatActive);
-      // When filtered, only render the selected bar (centered); otherwise 4-bar group
-      const bars = (_opActiveBar !== null)
-        ? [{ ...allBars[_opActiveBar], _single: true }]
-        : allBars;
-      const totalW = _opActiveBar !== null ? obarW : obarW * 4 + ogap * 3;
+      // When a pill is active, render only that category's bar; otherwise all 4.
+      const bars = (_opActiveBar !== null) ? [allBars[_opActiveBar]] : allBars;
+      const totalW = obarW * bars.length + ogap * Math.max(0, bars.length - 1);
       const x0 = ocx(si) - totalW / 2;
       bars.forEach((b, bi) => {
         const bx = (x0 + bi * (obarW + ogap)).toFixed(1);
@@ -2918,13 +3018,46 @@ function renderFleetSummary(panel) {
         html += `</div>`;
       }
 
-      html += '<div style="display:flex;flex-direction:column;gap:4px">';
-
       const BAR_W  = 240;
       const LIM_X  = Math.round(BAR_W * 2 / 3);   // 100% limit sits at 2/3 of bar
-      const _maxRaw = Math.max(1, ..._tqRows.map(r => r.peak));
 
-      _tqRows.forEach(row => {
+      // Group rows by servo axis (e.g. pitchServoTorqueFilt) and show top 10
+      // per group, otherwise a fleet with many sorties produces a single
+      // unmanageable list dominated by the worst axis.
+      const TOP_N = 10;
+      const _axisOrder = ['pitchServoTorqueFilt', 'rollServoTorqueFilt', 'yawServoTorqueFilt', 'throttleServoTorqueFilt'];
+      const _axisLabel = {
+        pitchServoTorqueFilt:    'Pitch Servo',
+        rollServoTorqueFilt:     'Roll Servo',
+        yawServoTorqueFilt:      'Yaw Servo',
+        throttleServoTorqueFilt: 'Throttle Servo',
+      };
+      const _tqByAxis = {};
+      _tqRows.forEach(r => {
+        (_tqByAxis[r.sfx] = _tqByAxis[r.sfx] || []).push(r);
+      });
+      const _axisKeys = _axisOrder.filter(k => _tqByAxis[k]?.length)
+                         .concat(Object.keys(_tqByAxis).filter(k => !_axisOrder.includes(k)));
+      // Per-axis max for raw-mode bar scaling (no PDI = each axis scaled to its own max)
+      const _axisMaxRaw = {};
+      _axisKeys.forEach(k => { _axisMaxRaw[k] = Math.max(1, ..._tqByAxis[k].map(r => r.peak)); });
+
+      _axisKeys.forEach(axisKey => {
+        const axisRows = _tqByAxis[axisKey];
+        // Always sort each axis group by peak/utilization descending so the
+        // top-N clip really means "highest values" regardless of the global
+        // chrono toggle.
+        axisRows.sort((a, b) => _hasPdi
+          ? ((b.pct ?? b.peak) - (a.pct ?? a.peak))
+          : (b.peak - a.peak));
+        const totalForAxis = axisRows.length;
+        const clipped = totalForAxis > TOP_N ? axisRows.slice(0, TOP_N) : axisRows;
+        const label   = _axisLabel[axisKey] || axisKey;
+        html += `<div style="font-size:9px;font-weight:600;color:#78766e;text-transform:uppercase;letter-spacing:.05em;margin:8px 0 4px 0">${label} <span style="font-weight:400;color:#555452">(top ${clipped.length}${totalForAxis > TOP_N ? ' of ' + totalForAxis : ''})</span></div>`;
+        html += '<div style="display:flex;flex-direction:column;gap:4px">';
+
+        clipped.forEach(row => {
+          const _maxRaw = _axisMaxRaw[axisKey];
         const pct      = row.pct;
         const pdiLim   = row.pdiLim;
         const isOver   = pct != null ? pct > 100 : false;
@@ -2985,9 +3118,161 @@ function renderFleetSummary(panel) {
           html += `<span style="font-size:8px;font-family:monospace;padding:1px 5px;border-radius:3px;background:#E0707022;color:#E07070;border:0.5px solid #E0707066">OVER</span>`;
         if (modePills) html += `<div style="display:flex;gap:3px;flex-wrap:wrap">${modePills}</div>`;
         html += `</div>`;
+        });  // clipped.forEach
+
+        html += '</div>';   // close per-axis row-list
+      });    // _axisKeys.forEach
+
+      html += '</div>';   // close summary-card
+    }
+  }
+
+  // ── Peak Torque Histogram ─────────────────────────────────────────────────
+  {
+    const _hasPdi = !!window._pdiConfig;
+    // Pitch trim signal renamed between builds: pitchtrimservo.trqRunningAvgVal (S025/ZKMLN)
+    // vs inservos.srvPtTrqRunningAvgVal (S142/N208B). Both pooled under the trim axis.
+    // Each axis matches multiple signal flavors:
+    //   - FCC-internal *ServoTorqueFilt (AFCS_del bulk exports)
+    //   - Raw A429 *_Servo.<XSRV>_A429_TX_*.106.Torque_Running_Avg
+    //     (iads_servo_torques_datagroup exports)
+    // Pitch trim adds two FCC-internal aliases that vary by build.
+    const HIST_AXES = [
+      { key:'yaw',       label:'Yaw',        pdi:'pdiRudTorqueLim',             match:[/yawServoTorqueFilt$/i,      /Yaw_Servo\.YSRV.*Torque_Running_Avg\.?$/i] },
+      { key:'throttle',  label:'Throttle',   pdi:'pdiThrottleServoTorqueLimit', match:[/throttleServoTorqueFilt$/i, /Throttle_Servo\.THSRV.*Torque_Running_Avg\.?$/i] },
+      { key:'roll',      label:'Roll',       pdi:'pdiAilTorqueLim',             match:[/rollServoTorqueFilt$/i,     /Roll_Servo\.RSRV.*Torque_Running_Avg\.?$/i] },
+      { key:'pitch',     label:'Pitch',      pdi:'pdiElevTorqueLim',            match:[/pitchServoTorqueFilt$/i,    /Pitch_Servo\.PSRV.*Torque_Running_Avg\.?$/i] },
+      { key:'pitchTrim', label:'Pitch Trim', pdi:'pdiElevTorqueLim',            match:[/pitchtrimservo.*trqRunningAvgVal$/i, /inservos.*srvPtTrqRunningAvgVal$/i, /Pitch_Trim_Servo\.PTSRV.*Torque_Running_Avg\.?$/i] },
+    ];
+
+    const axisPeaks = Object.fromEntries(HIST_AXES.map(a => [a.key, []]));
+
+    sorties.forEach(sd => {
+      const d = (analysisQueue[sd.idx]?._fullData) || (analysisQueue[sd.idx]?.data);
+      if (!d) return;
+      const stats = d.torque_stats || [];
+      HIST_AXES.forEach(ax => {
+        let peak = 0, any = false;
+        stats.forEach(ts => {
+          if (ts.peak == null) return;
+          if (!ax.match.some(re => re.test(ts.signal))) return;
+          const v = Math.abs(ts.peak);
+          if (v > peak) peak = v;
+          any = true;
+        });
+        if (!any) return;
+        const rawLim = _hasPdi ? window._pdiConfig[ax.pdi] : null;
+        const lim = Number.isFinite(rawLim) && rawLim > 0 ? rawLim : null;
+        axisPeaks[ax.key].push({
+          sortie: sd.name, sortieIdx: sd.idx,
+          sortiePal: PALETTE[sd.idx % PALETTE.length],
+          peak, lim, pct: lim != null ? (peak / lim) * 100 : null,
+        });
+      });
+    });
+
+    const anyData = HIST_AXES.some(a => axisPeaks[a.key].length);
+    if (anyData) {
+      html += '<div class="summary-card" style="margin-bottom:12px">';
+      html += `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">` +
+              `Peak Torque Histogram ` +
+              `<span style="font-weight:400;text-transform:none;letter-spacing:0;color:#555452">` +
+              `— one bin per flight, ${_hasPdi ? '% of PDI limit' : 'ft-lb (load PDI to normalize)'}</span>` +
+              `</div>`;
+
+      const _utilColor = (pct, peak, lim) => {
+        if (pct != null) return pct > 100 ? '#E07070' : pct >= 90 ? '#E08040' : pct >= 70 ? '#C9A840' : '#4CC9A0';
+        if (lim != null) { const p = peak / lim * 100; return p > 100 ? '#E07070' : p >= 90 ? '#E08040' : p >= 70 ? '#C9A840' : '#4CC9A0'; }
+        return '#4CC9A0';
+      };
+
+      HIST_AXES.forEach(ax => {
+        const rows = axisPeaks[ax.key];
+        if (!rows.length) {
+          html += `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;color:#555452;font-family:monospace;font-size:10px">` +
+                  `<span style="width:46px;color:#78766e">${ax.label}</span><span>no data</span></div>`;
+          return;
+        }
+        const lim = rows.find(r => r.lim != null)?.lim ?? null;
+        const useUtil = _hasPdi && lim != null;
+        const vals = rows.map(r => useUtil ? r.pct : r.peak);
+        const vMax = Math.max(...vals, useUtil ? 100 : 0);
+
+        let binW, axisMax, nBins;
+        if (useUtil) {
+          binW = 10;
+          axisMax = Math.max(120, Math.ceil(vMax / 10) * 10);
+          nBins = Math.round(axisMax / binW);
+        } else {
+          const target = Math.max(vMax / 10, 1e-6);
+          const mag = Math.pow(10, Math.floor(Math.log10(target)));
+          const norm = target / mag;
+          binW = (norm < 1.5 ? 1 : norm < 3.5 ? 2 : norm < 7.5 ? 5 : 10) * mag;
+          axisMax = Math.max(binW, Math.ceil(vMax / binW) * binW);
+          nBins = Math.max(1, Math.round(axisMax / binW));
+        }
+
+        const bins = new Array(nBins).fill(0);
+        const binRows = Array.from({ length: nBins }, () => []);
+        vals.forEach((v, i) => {
+          const bi = Math.min(nBins - 1, Math.max(0, Math.floor(v / binW)));
+          bins[bi] += 1;
+          binRows[bi].push(rows[i]);
+        });
+        const cntMax = Math.max(1, ...bins);
+
+        const W = 580, pL = 84, pR = 18, pT = 14, pB = 22;
+        const iW = W - pL - pR;
+        const iH = 64;
+        const H  = pT + iH + pB;
+        const barW = iW / nBins;
+
+        let svg = `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">`;
+        svg += `<text x="6" y="${(pT + iH/2).toFixed(1)}" dominant-baseline="middle" font-size="10" font-weight="600" fill="#cac8bf" font-family="monospace">${ax.label}</text>`;
+        svg += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#1e1e1c" rx="3"/>`;
+
+        if (useUtil) {
+          const x100 = pL + (100 / axisMax) * iW;
+          svg += `<line x1="${x100.toFixed(1)}" y1="${pT}" x2="${x100.toFixed(1)}" y2="${(pT + iH).toFixed(1)}" stroke="#E0707088" stroke-width="0.8" stroke-dasharray="3,2"/>`;
+          svg += `<text x="${x100.toFixed(1)}" y="${(pT - 3).toFixed(1)}" text-anchor="middle" font-size="8" fill="#E07070" font-family="monospace">100%</text>`;
+        }
+
+        bins.forEach((cnt, bi) => {
+          if (!cnt) return;
+          const x = pL + bi * barW;
+          const binCenter = (bi + 0.5) * binW;
+          const bH = (cnt / cntMax) * iH;
+          const y = pT + iH - bH;
+          const color = _utilColor(useUtil ? binCenter : null, binCenter, useUtil ? null : lim);
+          const sortieList = binRows[bi].map(r => r.sortie).slice(0, 12).join(', ') +
+                             (binRows[bi].length > 12 ? `, … (+${binRows[bi].length - 12})` : '');
+          const lo = (bi * binW), hi = ((bi + 1) * binW);
+          const fmt = v => useUtil ? `${v.toFixed(0)}%` : v.toFixed(binW < 1 ? 2 : binW < 10 ? 1 : 0);
+          svg += `<rect x="${(x + 0.5).toFixed(1)}" y="${y.toFixed(1)}" width="${Math.max(0.5, barW - 1).toFixed(1)}" height="${bH.toFixed(1)}" fill="${color}" opacity="0.85" rx="1">` +
+                 `<title>${fmt(lo)}–${fmt(hi)}: ${cnt} flight${cnt !== 1 ? 's' : ''}\n${sortieList}</title></rect>`;
+          if (bH >= 10) {
+            svg += `<text x="${(x + barW/2).toFixed(1)}" y="${(y - 2).toFixed(1)}" text-anchor="middle" font-size="8" font-weight="600" fill="${color}" font-family="monospace" pointer-events="none">${cnt}</text>`;
+          }
+        });
+
+        const nTicks = Math.min(nBins, 8);
+        for (let i = 0; i <= nTicks; i++) {
+          const v = (i / nTicks) * axisMax;
+          const x = pL + (v / axisMax) * iW;
+          svg += `<line x1="${x.toFixed(1)}" y1="${(pT + iH).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(pT + iH + 3).toFixed(1)}" stroke="#3e3e3c" stroke-width="0.6"/>`;
+          const lbl = useUtil ? `${v.toFixed(0)}%` : v.toFixed(binW < 1 ? 1 : 0);
+          svg += `<text x="${x.toFixed(1)}" y="${(pT + iH + 12).toFixed(1)}" text-anchor="middle" font-size="8" fill="#78766e" font-family="monospace">${lbl}</text>`;
+        }
+
+        const maxRow = rows.reduce((a, b) => ((useUtil ? a.pct : a.peak) > (useUtil ? b.pct : b.peak) ? a : b));
+        const maxLbl = useUtil ? `${maxRow.pct.toFixed(0)}% (${maxRow.peak.toFixed(2)})` : maxRow.peak.toFixed(2);
+        svg += `<text x="${(pL + iW).toFixed(1)}" y="${(pT - 3).toFixed(1)}" text-anchor="end" font-size="8" fill="#78766e" font-family="monospace">n=${rows.length} · max ${maxLbl} @ ${maxRow.sortie}${useUtil ? '' : ' ft-lb'}</text>`;
+
+        svg += '</svg>';
+        html += '<div style="margin-bottom:2px">' + svg + '</div>';
       });
 
-      html += '</div></div>';
+      html += '</div>';
     }
   }
 
@@ -4634,6 +4919,150 @@ const _baseModeSfx  = sfx => sfx.endsWith('Enum') ? sfx.slice(0, -4) : sfx;
 // FCC lane prefix from full signal path (FCC1A, FCC1B, …)
 const _laneOf       = sig => sig.split('.')[0] || '';
 
+// Build a step-function [(t, val), ...] for a given mode enum signal over a
+// time window. Includes the value at tMin (latest transition before tMin) and
+// extends the last value to tMax for clean step-plot rendering.
+function _buildModeStep(modeTransitions, sfx, lane, tMin, tMax) {
+  const filtered = (modeTransitions || [])
+    .filter(t => {
+      const tsfx = t.signal.split('.').pop();
+      const tlane = _laneOf(t.signal);
+      return tsfx === sfx && tlane === lane;
+    })
+    .map(t => [parseFloat(t.time), parseFloat(t.to)])
+    .filter(p => isFinite(p[0]) && isFinite(p[1]))
+    .sort((a, b) => a[0] - b[0]);
+  let initVal = null;
+  for (const [t, v] of filtered) {
+    if (t <= tMin) initVal = v; else break;
+  }
+  const pts = [];
+  if (initVal !== null) pts.push([tMin, initVal]);
+  for (const [t, v] of filtered) if (t > tMin && t <= tMax) pts.push([t, v]);
+  if (pts.length && pts[pts.length - 1][0] < tMax) pts.push([tMax, pts[pts.length - 1][1]]);
+  return pts;
+}
+
+// SVG path string for a step-plot: horizontal to next x, then vertical to new y
+function _stepPathStr(pts, tx, ty) {
+  if (!pts || pts.length < 2) return '';
+  let d = `M ${tx(pts[0][0])} ${ty(pts[0][1])}`;
+  for (let i = 1; i < pts.length; i++) {
+    d += ` L ${tx(pts[i][0])} ${ty(pts[i-1][1])} L ${tx(pts[i][0])} ${ty(pts[i][1])}`;
+  }
+  return d;
+}
+
+// Build SVG for one axis's active+arm mode chart. Fail signals (failSigs:
+// [{key,label,color,pts},...]) are rendered as stacked horizontal bands at
+// the top of the chart — one row per signal — so multiple fails (landFail,
+// takeoffConfigFail, etc.) can coexist without overlapping. `cid` is a unique
+// chart id used for cursor-sync wiring with other phase charts; `group` is
+// the phase group id so all charts in the same phase track together.
+function _renderModeAxisChart(axis, primLane, modeTransitions, failSigs, tMin, tMax, cid, group) {
+  const config = axis === 'LAT'
+    ? { name: 'Lateral', enumKey: 'latActiveEnum', series: [
+        { sfx: 'latActiveEnum', label: 'Active', color: '#9890E8', dash: '' },
+        { sfx: 'latArmEnum',    label: 'Armed',  color: '#6B62D4', dash: '4,3' },
+      ] }
+    : { name: 'Vertical', enumKey: 'vertActiveEnum', series: [
+        { sfx: 'vertActiveEnum',  label: 'Active',   color: '#7FE0BC', dash: '' },
+        { sfx: 'vertPrimArmEnum', label: 'Prim Arm', color: '#4CC9A0', dash: '4,3' },
+        { sfx: 'vertSecArmEnum',  label: 'Sec Arm',  color: '#2A9E78', dash: '2,2' },
+      ] };
+  const enumDef = ENUM_DEFS[config.enumKey];
+  if (!enumDef) return '';
+  const seriesData = config.series.map(s => ({
+    ...s, pts: _buildModeStep(modeTransitions, s.sfx, primLane, tMin, tMax),
+  }));
+  if (seriesData.every(s => s.pts.length < 2)) return '';
+
+  const W = 480, H = 200, pL = 56, pR = 38, pT = 22, pB = 28;
+  const iW = W - pL - pR, iH = H - pT - pB;
+  const yLevels = enumDef.length;
+  const tx = t => +(pL + (t - tMin) / (tMax - tMin) * iW).toFixed(1);
+  const ty = v => +(pT + iH - (v / Math.max(1, yLevels - 1)) * iH).toFixed(1);
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;display:block">`;
+  s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="#111110" rx="2"/>`;
+
+  // Y-axis gridlines + enum labels
+  for (let i = 0; i < yLevels; i++) {
+    const y = ty(i);
+    s += `<line x1="${pL}" y1="${y}" x2="${pL+iW}" y2="${y}" stroke="#222221" stroke-width="0.4"/>`;
+    s += `<text x="${pL-4}" y="${y+3}" text-anchor="end" font-size="8" fill="#78766e" font-family="monospace">${enumDef[i].short}</text>`;
+  }
+
+  // Fail signal bands — stacked rows along the top of the chart, one per signal
+  const activeFails = (failSigs || []).filter(f => f.pts && f.pts.length);
+  if (activeFails.length) {
+    const bandH = 4;
+    activeFails.forEach((f, fi) => {
+      const rowY = pT + 2 + fi * (bandH + 2);
+      let segStart = null, prev = null;
+      for (let i = 0; i < f.pts.length; i++) {
+        const [t, v] = f.pts[i];
+        const active = v > 0.5;
+        if (active && segStart === null) segStart = t;
+        if (!active && segStart !== null && prev !== null) {
+          s += `<rect x="${tx(segStart)}" y="${rowY}" width="${(tx(prev) - tx(segStart)).toFixed(1)}" height="${bandH}" fill="${f.color}" opacity="0.85"/>`;
+          segStart = null;
+        }
+        prev = t;
+      }
+      if (segStart !== null && prev !== null) {
+        s += `<rect x="${tx(segStart)}" y="${rowY}" width="${(tx(prev) - tx(segStart)).toFixed(1)}" height="${bandH}" fill="${f.color}" opacity="0.85"/>`;
+      }
+      s += `<text x="${pL+iW+4}" y="${rowY+bandH}" font-size="7" fill="${f.color}" font-family="monospace">${f.label}</text>`;
+    });
+  }
+
+  // Step series
+  seriesData.forEach(sd => {
+    if (sd.pts.length < 2) return;
+    s += `<path d="${_stepPathStr(sd.pts, tx, ty)}" fill="none" stroke="${sd.color}" stroke-width="1.6" ${sd.dash ? `stroke-dasharray="${sd.dash}"` : ''} opacity="0.95"/>`;
+  });
+
+  // Axis title (top-left)
+  s += `<text x="${pL+2}" y="${pT-6}" font-size="9" fill="#cac8bf" font-family="monospace" font-weight="500">${config.name} modes</text>`;
+
+  // Series legend (top-right)
+  let lx = pL + iW - 4;
+  for (let i = seriesData.length - 1; i >= 0; i--) {
+    const sd = seriesData[i];
+    if (sd.pts.length < 2) continue;
+    s += `<text x="${lx}" y="${pT-6}" text-anchor="end" font-size="8" fill="${sd.color}" font-family="monospace">${sd.label}</text>`;
+    lx -= sd.label.length * 5 + 10;
+  }
+
+  // X-axis ticks (relative seconds)
+  const xRange = tMax - tMin;
+  for (let i = 0; i <= 4; i++) {
+    const tv = tMin + i * xRange / 4;
+    s += `<text x="${tx(tv)}" y="${pT+iH+12}" text-anchor="middle" font-size="8" fill="#56544e" font-family="monospace">${(tv - tMin).toFixed(0)}s</text>`;
+  }
+  // Cursor line + label container (driven by hover from this chart or any other
+  // chart in the same phase group).
+  if (cid) {
+    s += `<g id="${cid}-pins" pointer-events="none"></g>`;
+    s += `<line id="${cid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#5a5a50" stroke-width="0.8" stroke-dasharray="3,2" style="display:none" pointer-events="none"/>`;
+    s += `<g id="${cid}-lbl" style="display:none"></g>`;
+    s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${cid}')" onmouseleave="_phaseChartLeave('${cid}')" onclick="_phaseChartPin(event,'${cid}')"/>`;
+  }
+  s += `</svg>`;
+  // Register chart geometry + empty series so _applyChartHover can drive the
+  // cursor without trying to render value dots (modes are step plots; values
+  // are shown as Y-axis labels, not floating dots).
+  if (cid) {
+    window._phaseCharts = window._phaseCharts || {};
+    window._phaseCharts[cid] = {
+      W, H, pL, pR, pT, pB, iW, iH, tMin, tMax, group,
+      series: [],
+    };
+  }
+  return s;
+}
+
 // Convert IRIG seconds-since-year-start to time-of-day HH:MM:SS.s
 function _irigToTod(t) {
   const tod = t % 86400;
@@ -4653,6 +5082,75 @@ function _haversineNM(lat1, lon1, lat2, lon2) {
   const dL = (lat2 - lat1) * Math.PI / 180, dO = (lon2 - lon1) * Math.PI / 180;
   const x = Math.sin(dL/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dO/2)**2;
   return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+function _bearingDeg(lat1, lon1, lat2, lon2) {
+  const f1 = lat1 * Math.PI / 180, f2 = lat2 * Math.PI / 180;
+  const dl = (lon2 - lon1) * Math.PI / 180;
+  const y = Math.sin(dl) * Math.cos(f2);
+  const x = Math.cos(f1) * Math.sin(f2) - Math.sin(f1) * Math.cos(f2) * Math.cos(dl);
+  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+}
+
+// Inbound track at the runway: bearing from a point ~0.5 NM upstream to the
+// reference (touchdown or overhead). Anchors on the gnssPts entry closest to
+// the reference and walks backward in the array (chronologically upstream)
+// so fly-throughs report the inbound heading, not the climbout's reciprocal.
+function _approachHeading(gnssPts, refLat, refLon) {
+  if (!gnssPts?.length || gnssPts.length < 3 || refLat == null || refLon == null) return null;
+  let anchorIdx = gnssPts.length - 1, minD = Infinity;
+  for (let i = 0; i < gnssPts.length; i++) {
+    const d = _haversineNM(gnssPts[i].lat, gnssPts[i].lon, refLat, refLon);
+    if (d < minD) { minD = d; anchorIdx = i; }
+  }
+  let upstream = null;
+  for (let i = anchorIdx - 1; i >= 0; i--) {
+    if (_haversineNM(gnssPts[i].lat, gnssPts[i].lon, refLat, refLon) >= 0.5) { upstream = gnssPts[i]; break; }
+  }
+  if (!upstream) upstream = gnssPts[0];
+  if (_haversineNM(upstream.lat, upstream.lon, refLat, refLon) < 0.05) return null;
+  return _bearingDeg(upstream.lat, upstream.lon, refLat, refLon);
+}
+
+// Aviation runway number: heading // 10, with 0 -> 36.
+function _rwyNum(hdg) {
+  if (hdg == null || !isFinite(hdg)) return null;
+  const n = Math.round(((hdg % 360) + 360) % 360 / 10);
+  return n === 0 ? 36 : (n > 36 ? n - 36 : n);
+}
+
+// Anchor point + index for distance/heading on an approach. Prefers an actual
+// touchdown; falls back to the LAST GNSS point near the minimum radAlt so
+// multi-pass / touch-and-go patterns trim to the final pass instead of the
+// first. Returns { lat, lon, idx } where idx is the chronological index in
+// approachGnssPts to slice up to (inclusive).
+function _approachAnchor(ph) {
+  const pts = ph?.approachGnssPts;
+  if (!pts?.length) return null;
+  if (ph.touchdownLat != null && ph.touchdownLon != null) {
+    let minD = Infinity;
+    for (const p of pts) {
+      const d = _haversineNM(p.lat, p.lon, ph.touchdownLat, ph.touchdownLon);
+      if (d < minD) minD = d;
+    }
+    const distTol = Math.max(0.05, minD * 1.5);
+    let lastIdx = 0;
+    for (let i = 0; i < pts.length; i++) {
+      const d = _haversineNM(pts[i].lat, pts[i].lon, ph.touchdownLat, ph.touchdownLon);
+      if (d <= distTol) lastIdx = i;
+    }
+    return { lat: ph.touchdownLat, lon: ph.touchdownLon, idx: lastIdx };
+  }
+  // No touchdown: find the LAST sample within 50 ft of the minimum radAlt so
+  // multi-pass approaches anchor on the final pass, not the first.
+  let minAlt = Infinity;
+  for (const p of pts) if (p.alt < minAlt) minAlt = p.alt;
+  const TOL = 50;
+  let lastIdx = 0;
+  for (let i = 0; i < pts.length; i++) {
+    if (pts[i].alt <= minAlt + TOL) lastIdx = i;
+  }
+  return { lat: pts[lastIdx].lat, lon: pts[lastIdx].lon, idx: lastIdx };
 }
 
 function _updateMapCursor(group, t) {
@@ -4753,7 +5251,119 @@ function _phaseChartHover(event, cid) {
   }
 }
 
+// Click-to-pin: drop a persistent marker at the clicked x. Click again on or
+// near an existing pin to remove it. Multiple pins per phase group are kept
+// in window._pinnedT[group] as an array of times. Pins are rendered into a
+// dedicated `${cid}-pins` SVG group that survives hovers and chart rebuilds.
+window._pinnedT = window._pinnedT || {};
+
+function _renderPhasePins(cid) {
+  const c = window._phaseCharts[cid];
+  if (!c) return;
+  const el = document.getElementById(cid + '-pins');
+  if (!el) return;
+  const pins = (c.group && window._pinnedT[c.group]) || [];
+  if (!pins.length) { el.innerHTML = ''; return; }
+  const t0Full = (c.tMinFull !== undefined ? c.tMinFull : c.tMin);
+  let svg = '';
+  for (const t of pins) {
+    if (t < c.tMin || t > c.tMax) continue;
+    const x = (c.pL + (t - c.tMin) / (c.tMax - c.tMin) * c.iW).toFixed(1);
+    const yTop = c.pT, yBot = c.pT + c.iH;
+    const elapsed = (t - t0Full).toFixed(1) + 's';
+    svg += `<line x1="${x}" y1="${yTop}" x2="${x}" y2="${yBot}" stroke="#a48cf2" stroke-width="0.9" stroke-dasharray="4,2" opacity="0.85"/>`;
+    svg += `<polygon points="${x},${yTop} ${(+x-3).toFixed(1)},${(yTop-5).toFixed(1)} ${(+x+3).toFixed(1)},${(yTop-5).toFixed(1)}" fill="#a48cf2"/>`;
+    svg += `<text x="${x}" y="${(yTop-7).toFixed(1)}" text-anchor="middle" font-size="8" fill="#a48cf2" font-family="monospace" font-weight="600">${elapsed}</text>`;
+  }
+  el.innerHTML = svg;
+}
+
+function _renderGroupPins(group) {
+  if (!group) return;
+  Object.entries(window._phaseCharts).forEach(([oid, oc]) => {
+    if (oc.group === group) _renderPhasePins(oid);
+  });
+}
+
+// Map pins: drop a circle marker at the GPS sample closest to each pinned time.
+function _renderGroupMapPins(group) {
+  if (!group || !window.L) return;
+  const cursors = window._leafletMapCursors?.[group];
+  if (!cursors) return;
+  const pins = window._pinnedT[group] || [];
+  for (const entry of cursors) {
+    if (!entry.pinLayer) continue;
+    entry.pinLayer.clearLayers();
+    if (!entry.gnssPts?.length) continue;
+    for (const t of pins) {
+      const pts = entry.gnssPts;
+      let lo = 0, hi = pts.length - 1;
+      while (lo < hi) { const mid = (lo + hi) >> 1; pts[mid].t < t ? lo = mid + 1 : hi = mid; }
+      if (lo > 0 && Math.abs(pts[lo-1].t - t) < Math.abs(pts[lo].t - t)) lo--;
+      L.circleMarker([pts[lo].lat, pts[lo].lon], {
+        radius: 6, color: '#a48cf2', weight: 2, fillColor: '#a48cf2', fillOpacity: 0.5, interactive: false,
+      }).addTo(entry.pinLayer);
+    }
+  }
+}
+
+// Profile-chart pins: vertical line per pin at distance derived from gnssPts[t].
+function _renderProfilePinsForChart(pid) {
+  const pc = window._profileCharts[pid];
+  if (!pc) return;
+  const xMin = pc.xMin || 0, xRng = pc.xMax - xMin;
+  for (const [group, pd] of Object.entries(pc.gnssPtsMap || {})) {
+    const el = document.getElementById(pid + '-grppins-' + group);
+    if (!el) continue;
+    const pins = window._pinnedT[group] || [];
+    if (!pins.length || !pd.gnssPts?.length || pd.tdLat == null) { el.innerHTML = ''; continue; }
+    let svg = '';
+    for (const t of pins) {
+      const pts = pd.gnssPts;
+      let lo = 0, hi = pts.length - 1;
+      while (lo < hi) { const mid = (lo + hi) >> 1; pts[mid].t < t ? lo = mid + 1 : hi = mid; }
+      if (lo > 0 && Math.abs(pts[lo-1].t - t) < Math.abs(pts[lo].t - t)) lo--;
+      const dist = _haversineNM(pts[lo].lat, pts[lo].lon, pd.tdLat, pd.tdLon) - (pd.gpipOffset || 0);
+      if (dist > pc.xMax + 0.05 || dist < xMin - 0.05) continue;
+      const x = +(pc.pL + (1 - (dist - xMin) / xRng) * pc.iW).toFixed(1);
+      svg += `<line x1="${x}" y1="${pc.pT}" x2="${x}" y2="${pc.pT + pc.iH}" stroke="#a48cf2" stroke-width="1.2" stroke-dasharray="4,2" opacity="0.85"/>`;
+      svg += `<polygon points="${x},${pc.pT} ${(x-3).toFixed(1)},${(pc.pT-5).toFixed(1)} ${(x+3).toFixed(1)},${(pc.pT-5).toFixed(1)}" fill="#a48cf2"/>`;
+    }
+    el.innerHTML = svg;
+  }
+}
+
+function _renderGroupProfilePins(group) {
+  if (!group) return;
+  for (const [pid, pc] of Object.entries(window._profileCharts || {})) {
+    if (pc.gnssPtsMap?.[group]) _renderProfilePinsForChart(pid);
+  }
+}
+
+function _renderAllGroupPins(group) {
+  _renderGroupPins(group);
+  _renderGroupMapPins(group);
+  _renderGroupProfilePins(group);
+}
+
+function _phaseChartPin(event, cid) {
+  const c = window._phaseCharts[cid];
+  if (!c || !c.group) return;
+  const svg = event.currentTarget.closest('svg');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const vbX = (event.clientX - rect.left) * (c.W / rect.width);
+  const t   = c.tMin + (Math.max(c.pL, Math.min(c.pL + c.iW, vbX)) - c.pL) / c.iW * (c.tMax - c.tMin);
+  const arr = (window._pinnedT[c.group] = window._pinnedT[c.group] || []);
+  const tol = (c.tMax - c.tMin) * 0.02; // click within 2% of an existing pin removes it
+  const removeIdx = arr.findIndex(pt => Math.abs(pt - t) < tol);
+  if (removeIdx >= 0) arr.splice(removeIdx, 1);
+  else                arr.push(t);
+  _renderAllGroupPins(c.group);
+}
+
 function _phaseChartLeave(cid) {
+  const c = window._phaseCharts[cid];
   const hide = id => {
     const cur = document.getElementById(id + '-cur');
     if (cur) cur.style.display = 'none';
@@ -4761,7 +5371,6 @@ function _phaseChartLeave(cid) {
     if (lbl) { lbl.innerHTML = ''; lbl.style.display = 'none'; }
   };
   hide(cid);
-  const c = window._phaseCharts[cid];
   if (c && c.group) {
     Object.entries(window._phaseCharts).forEach(([oid, oc]) => {
       if (oid !== cid && oc.group === c.group) hide(oid);
@@ -4781,11 +5390,20 @@ function _profileChartHover(event, pid) {
   const rect = svg.getBoundingClientRect();
   const vbX  = (event.clientX - rect.left) * (c.W / rect.width);
   const rawX = Math.max(c.pL, Math.min(c.pL + c.iW, vbX));
+  const vbY  = (event.clientY - rect.top) * (c.H / rect.height);
+  const rawY = Math.max(c.pT, Math.min(c.pT + c.iH, vbY));
+  _profileChartShowAt(pid, rawX, rawY);
+}
+
+// Render profile chart cursor + labels at given pixel coordinates within the
+// plot area. Factored out so click-to-pin can re-render at the pinned position
+// after the mouse leaves.
+function _profileChartShowAt(pid, rawX, rawY) {
+  const c = window._profileCharts[pid];
+  if (!c) return;
   const dist = (c.xMin || 0) + (c.xMax - (c.xMin || 0)) * (1 - (rawX - c.pL) / c.iW);
   const cur  = document.getElementById(pid + '-cur');
   if (cur) { cur.setAttribute('x1', rawX); cur.setAttribute('x2', rawX); cur.style.display = ''; }
-  const vbY  = (event.clientY - rect.top) * (c.H / rect.height);
-  const rawY = Math.max(c.pT, Math.min(c.pT + c.iH, vbY));
   const hcur = document.getElementById(pid + '-hcur');
   if (hcur) { hcur.setAttribute('y1', rawY); hcur.setAttribute('y2', rawY); hcur.style.display = ''; }
   const lbl  = document.getElementById(pid + '-lbl');
@@ -4796,7 +5414,8 @@ function _profileChartHover(event, pid) {
   let inner = '', ly = c.pT + 11;
   inner += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="8" fill="#e8e6dd" font-family="monospace" font-weight="500">${dist.toFixed(2)} NM</text>`;
   ly += 12;
-  c.series.forEach(s => {
+  const _hoverSeries = c.soloGroup ? c.series.filter(s => s.group === c.soloGroup) : c.series;
+  _hoverSeries.forEach(s => {
     if (!s.pts || s.pts.length < 2) return;
     // Binary search in descending-distance array
     let lo = 0, hi = s.pts.length - 1;
@@ -4814,7 +5433,7 @@ function _profileChartHover(event, pid) {
   lbl.innerHTML = inner;
   lbl.style.display = '';
   // Drive linked phase chart cursors + map cursors via distance→time lookup
-  c.series.forEach(s => {
+  _hoverSeries.forEach(s => {
     if (!s.pts?.length || !s.group) return;
     // pts is sorted descending by dist (far→near); binary search for nearest to `dist`
     let lo = 0, hi = s.pts.length - 1;
@@ -4830,6 +5449,37 @@ function _profileChartHover(event, pid) {
   });
 }
 
+// Click-to-pin for profile chart. Maps the click distance back to the nearest
+// approach group + time, then routes through the shared _pinnedT state so the
+// marker also appears on the phase charts and the map.
+function _profileChartPin(event, pid) {
+  const c = window._profileCharts[pid];
+  if (!c) return;
+  const svg = event.currentTarget.closest('svg');
+  if (!svg) return;
+  const rect = svg.getBoundingClientRect();
+  const vbX  = (event.clientX - rect.left) * (c.W / rect.width);
+  const rawX = Math.max(c.pL, Math.min(c.pL + c.iW, vbX));
+  const dist = (c.xMin || 0) + (c.xMax - (c.xMin || 0)) * (1 - (rawX - c.pL) / c.iW);
+  const _series = c.soloGroup ? c.series.filter(s => s.group === c.soloGroup) : c.series;
+  let bestGroup = null, bestT = null, bestD = Infinity;
+  for (const s of _series) {
+    if (!s.pts?.length || !s.group) continue;
+    let lo = 0, hi = s.pts.length - 1;
+    while (lo < hi) { const mid = (lo + hi) >> 1; s.pts[mid][0] > dist ? lo = mid + 1 : hi = mid; }
+    if (lo > 0 && Math.abs(s.pts[lo-1][0] - dist) < Math.abs(s.pts[lo][0] - dist)) lo--;
+    const d = Math.abs(s.pts[lo][0] - dist);
+    if (d < bestD && s.pts[lo][2] != null) { bestD = d; bestGroup = s.group; bestT = s.pts[lo][2]; }
+  }
+  if (bestGroup === null) return;
+  const arr = (window._pinnedT[bestGroup] = window._pinnedT[bestGroup] || []);
+  const tolT = 0.5; // seconds: click within 0.5 s of an existing pin removes it
+  const removeIdx = arr.findIndex(t => Math.abs(t - bestT) < tolT);
+  if (removeIdx >= 0) arr.splice(removeIdx, 1);
+  else                arr.push(bestT);
+  _renderAllGroupPins(bestGroup);
+}
+
 function _profileChartLeave(pid) {
   const cur = document.getElementById(pid + '-cur');
   if (cur) cur.style.display = 'none';
@@ -4837,8 +5487,9 @@ function _profileChartLeave(pid) {
   if (hcur) hcur.style.display = 'none';
   const lbl = document.getElementById(pid + '-lbl');
   if (lbl) { lbl.innerHTML = ''; lbl.style.display = 'none'; }
-  // Hide all phase chart cursors that were driven by profile hover
-  Object.entries(window._phaseCharts || {}).forEach(([oid]) => {
+  // Hide all phase chart hover cursors that were driven by profile hover.
+  // Pins live in a separate `-pins` SVG group and remain visible.
+  Object.entries(window._phaseCharts || {}).forEach(([oid, oc]) => {
     const cur2 = document.getElementById(oid + '-cur');
     if (cur2) cur2.style.display = 'none';
     const lbl2 = document.getElementById(oid + '-lbl');
@@ -4995,6 +5646,7 @@ function _profileRebuildBoth(pid, xMin, xMax) {
   if (!c) return;
   const wrap = document.getElementById(pid + '-wrap');
   if (wrap) wrap.innerHTML = c.rebuild(xMin, xMax);
+  _renderProfilePinsForChart(pid);
 }
 
 // Wheel-zoom/pan: Ctrl+scroll = zoom; Shift+scroll = pan; plain scroll = page scroll.
@@ -5013,12 +5665,14 @@ function _phaseChartZoom(event, cid) {
     c.tMin = newTMin; c.tMax = newTMax;
     const wrapEl = document.getElementById(cid + '-wrap');
     if (wrapEl) wrapEl.innerHTML = c.rebuild(newTMin, newTMax);
+    _renderPhasePins(cid);
     if (c.group) {
       Object.entries(window._phaseCharts).forEach(([oid, oc]) => {
         if (oid === cid || oc.group !== c.group) return;
         oc.tMin = newTMin; oc.tMax = newTMax;
         const w = document.getElementById(oid + '-wrap');
         if (w && oc.rebuild) w.innerHTML = oc.rebuild(newTMin, newTMax);
+        _renderPhasePins(oid);
       });
     }
     return;
@@ -5050,6 +5704,7 @@ function _phaseChartZoom(event, cid) {
   c.tMin = newTMin; c.tMax = newTMax;
   const wrapEl = document.getElementById(cid + '-wrap');
   if (wrapEl) wrapEl.innerHTML = c.rebuild(newTMin, newTMax);
+  _renderPhasePins(cid);
   // Propagate to all linked charts in the same phase group
   if (c.group) {
     Object.entries(window._phaseCharts).forEach(([oid, oc]) => {
@@ -5057,6 +5712,7 @@ function _phaseChartZoom(event, cid) {
       oc.tMin = newTMin; oc.tMax = newTMax;
       const w = document.getElementById(oid + '-wrap');
       if (w && oc.rebuild) w.innerHTML = oc.rebuild(newTMin, newTMax);
+      _renderPhasePins(oid);
     });
   }
 }
@@ -5067,6 +5723,7 @@ function _phaseChartReset(cid) {
   c.tMin = c.tMinFull; c.tMax = c.tMaxFull;
   const wrapEl = document.getElementById(cid + '-wrap');
   if (wrapEl) wrapEl.innerHTML = c.rebuild(c.tMinFull, c.tMaxFull);
+  _renderPhasePins(cid);
   // Propagate to all linked charts in the same phase group
   if (c.group) {
     Object.entries(window._phaseCharts).forEach(([oid, oc]) => {
@@ -5074,6 +5731,7 @@ function _phaseChartReset(cid) {
       oc.tMin = oc.tMinFull; oc.tMax = oc.tMaxFull;
       const w = document.getElementById(oid + '-wrap');
       if (w && oc.rebuild) w.innerHTML = oc.rebuild(oc.tMinFull, oc.tMaxFull);
+      _renderPhasePins(oid);
     });
   }
 }
@@ -5141,6 +5799,7 @@ function _switchPhaseTab(idx) {
 function renderFlightPhases(data, container) {
   window._phaseCharts = {};    // clear stale registrations from previous render
   window._profileCharts = {};
+  window._pinnedT = {};        // drop stale pin times keyed by previous phase group ids
   if (window._leafletMaps) { window._leafletMaps.forEach(m => { try { m.remove(); } catch(e) {} }); }
   window._leafletMaps = [];
   window._leafletMapCursors = {};
@@ -5268,15 +5927,21 @@ function renderFlightPhases(data, container) {
 
     // Compute glideslope profile [dist_nm, alt_ft] using time-tagged GNSS + radAlt
     if (ph.type === 'APPROACH' && ph.approachGnssPts?.length >= 2) {
-      const tdLat = ph.touchdownLat ?? ph.approachGnssPts.at(-1).lat;
-      const tdLon = ph.touchdownLon ?? ph.approachGnssPts.at(-1).lon;
+      const _anchor = _approachAnchor(ph) || { lat: ph.approachGnssPts.at(-1).lat, lon: ph.approachGnssPts.at(-1).lon, idx: ph.approachGnssPts.length - 1 };
+      ph.refLat = _anchor.lat; ph.refLon = _anchor.lon;
+      const tdLat = _anchor.lat;
+      const tdLon = _anchor.lon;
       const _hav = (a, b, c, d) => {
         const R = 3440.065; // NM
         const dL = (c-a)*Math.PI/180, dO = (d-b)*Math.PI/180;
         const x = Math.sin(dL/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dO/2)**2;
         return R*2*Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
       };
-      ph.approachProfile = ph.approachGnssPts
+      // Profile only uses points up to the anchor (chronologically the final
+      // pass / touchdown) so the climbout doesn't fold back onto the chart.
+      const _inboundPts = ph.approachGnssPts.slice(0, _anchor.idx + 1);
+
+      ph.approachProfile = _inboundPts
         .map(p => [+_hav(p.lat, p.lon, tdLat, tdLon).toFixed(3), p.alt, p.t])
         .filter(([d]) => d <= 20) // cap at 20 NM
         .sort((a, b) => b[0] - a[0]); // far → near (ascending t)
@@ -5291,8 +5956,11 @@ function renderFlightPhases(data, container) {
       // FCC-based GPIP: find when FCC distToRwy reaches its minimum (near zero = at runway threshold).
       // Look up GNSS lat/lon at that timestamp — that IS the runway threshold (GPIP) position.
       // Recompute the approach profile using GPIP as the reference so x=0 = exact ILS threshold.
+      // Skip for fly-throughs (no touchdown): FCC dtr min is the most-past-threshold point,
+      // not the threshold itself, so using it as x=0 would shift the trace right and cut off
+      // the actual lowest-altitude portion of the descent.
       ph._fccGpipOffset = null;
-      if (ph.distToRwyPts !== ph.distToRwyGnssPts && ph.distToRwyPts.length > 5 && ph.approachGnssPts?.length > 2) {
+      if (ph.touchdownLat !== null && ph.distToRwyPts !== ph.distToRwyGnssPts && ph.distToRwyPts.length > 5 && ph.approachGnssPts?.length > 2) {
         const minFcc = ph.distToRwyPts.reduce((m, p) => p[1] < m[1] ? p : m);
         if (minFcc[1] < 0.5) {
           const gnssPts = ph.approachGnssPts;
@@ -5301,9 +5969,12 @@ function renderFlightPhases(data, container) {
           if (lo > 0 && Math.abs(gnssPts[lo-1].t - minFcc[0]) < Math.abs(gnssPts[lo].t - minFcc[0])) lo--;
           const gpipPt = gnssPts[lo];
           if (gpipPt && Math.abs(gpipPt.t - minFcc[0]) < 5) {
-            // GPIP lat/lon found — recompute profile distances relative to this point
+            // GPIP lat/lon found — recompute profile distances relative to this point.
+            // Trim to inbound portion (chronologically up to GPIP overhead) so the
+            // climbout after a fly-through doesn't fold back onto the chart.
             const gpLat = gpipPt.lat, gpLon = gpipPt.lon;
-            ph.approachProfile = gnssPts
+            const _inbound = gnssPts.slice(0, lo + 1);
+            ph.approachProfile = _inbound
               .map(p => [+_hav(p.lat, p.lon, gpLat, gpLon).toFixed(3), p.alt, p.t])
               .filter(([d]) => d <= 20)
               .sort((a, b) => b[0] - a[0]);
@@ -5311,6 +5982,7 @@ function renderFlightPhases(data, container) {
               .map(p => [p.t, +_hav(p.lat, p.lon, gpLat, gpLon).toFixed(3)])
               .filter(([, d]) => d <= 20);
             ph._fccGpipOffset = 0; // offset is baked in — profile already references GPIP
+            ph.refLat = gpLat; ph.refLon = gpLon;
           }
         }
       }
@@ -5377,7 +6049,15 @@ function renderFlightPhases(data, container) {
         (data.mode_transitions || []).forEach(addTrans);
         return res;
       })();
+      const _hdg = _approachHeading(ph.approachGnssPts, ph.refLat ?? ph.touchdownLat, ph.refLon ?? ph.touchdownLon);
+      const _rwy = _rwyNum(_hdg);
       _overviewEntries.push({ path: ph.approachPath, color,
+        apprIdx: _ovColorIdx,
+        apprLandMode: _apprLandMode,
+        hasTD: _hasTD,
+        startTime: ph.start,
+        hdg: _hdg,
+        rwy: _rwy,
         label: `Appr ${_ovColorIdx} (${_apprLandMode}${_hasTD ? ' w/ TD' : ''}) · ${_irigToTod(ph.start)}`,
         marker: _hasTD ? [ph.touchdownLat, ph.touchdownLon] : null,
         touchdownMethod: ph.touchdownMethod || null,
@@ -5717,10 +6397,11 @@ function renderFlightPhases(data, container) {
           svg += `<line x1="${fx}" y1="${pT}" x2="${fx}" y2="${pT+iH}" stroke="${fc}" stroke-width="0.9" stroke-dasharray="3,2" opacity="0.75" pointer-events="none"/>`;
           svg += `<text x="${fx}" y="${pT-2}" text-anchor="middle" font-size="7" fill="${fc}" font-family="monospace" opacity="0.85">ep${ep.episode}</text>`;
         });
+        svg += `<g id="${_dcid}-pins" pointer-events="none"></g>`;
         svg += `<line id="${_dcid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
         svg += `<g id="${_dcid}-lbl" style="display:none" pointer-events="none"></g>`;
         svg += `<text x="${pL+iW}" y="${pT+iH+pB-3}" text-anchor="end" font-size="8" fill="#3a3a38" font-family="monospace" pointer-events="none">Ctrl+scroll to zoom · dbl-click to reset</text>`;
-        svg += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${_dcid}')" onmouseleave="_phaseChartLeave('${_dcid}')" onwheel="_phaseChartZoom(event,'${_dcid}')" ondblclick="_phaseChartReset('${_dcid}')"/>`;
+        svg += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${_dcid}')" onmouseleave="_phaseChartLeave('${_dcid}')" onclick="_phaseChartPin(event,'${_dcid}')" onwheel="_phaseChartZoom(event,'${_dcid}')" ondblclick="_phaseChartReset('${_dcid}')"/>`;
         svg += `</svg>`;
         return svg;
       };
@@ -6035,10 +6716,11 @@ function renderFlightPhases(data, container) {
           s += `<line x1="${fx}" y1="${pT}" x2="${fx}" y2="${pT+iH}" stroke="${fc}" stroke-width="0.9" stroke-dasharray="3,2" opacity="0.75" pointer-events="none"/>`;
           s += `<text x="${fx}" y="${pT-2}" text-anchor="middle" font-size="7" fill="${fc}" font-family="monospace" opacity="0.85">ep${ep.episode}</text>`;
         });
+        s += `<g id="${acid}-pins" pointer-events="none"></g>`;
         s += `<line id="${acid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
         s += `<g id="${acid}-lbl" style="display:none" pointer-events="none"></g>`;
         s += `<text x="${pL+iW}" y="${H-3}" text-anchor="end" font-size="8" fill="#3a3a38" font-family="monospace" pointer-events="none">Ctrl+scroll to zoom · dbl-click to reset</text>`;
-        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${acid}')" onmouseleave="_phaseChartLeave('${acid}')" onwheel="_phaseChartZoom(event,'${acid}')" ondblclick="_phaseChartReset('${acid}')"/>`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${acid}')" onmouseleave="_phaseChartLeave('${acid}')" onclick="_phaseChartPin(event,'${acid}')" onwheel="_phaseChartZoom(event,'${acid}')" ondblclick="_phaseChartReset('${acid}')"/>`;
         s += `</svg>`;
         return s;
       };
@@ -6237,9 +6919,10 @@ function renderFlightPhases(data, container) {
         s += poly(ph.gndSpdPts,    '#76C480');
         s += poly(ph.casTargetPts, '#E060CC', '4,2');
         s += poly(ph.casPts, '#7EB8F7');
+        s += `<g id="${casAcid}-pins" pointer-events="none"></g>`;
         s += `<line id="${casAcid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
         s += `<g id="${casAcid}-lbl" style="display:none" pointer-events="none"></g>`;
-        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${casAcid}')" onmouseleave="_phaseChartLeave('${casAcid}')" onwheel="_phaseChartZoom(event,'${casAcid}')" ondblclick="_phaseChartReset('${casAcid}')"/>`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${casAcid}')" onmouseleave="_phaseChartLeave('${casAcid}')" onclick="_phaseChartPin(event,'${casAcid}')" onwheel="_phaseChartZoom(event,'${casAcid}')" ondblclick="_phaseChartReset('${casAcid}')"/>`;
         s += `</svg>`;
         return s;
       };
@@ -6369,9 +7052,10 @@ function renderFlightPhases(data, container) {
           });
         }
         s += `<text x="${pL+iW}" y="${H-3}" text-anchor="end" font-size="8" fill="#3a3a38" font-family="monospace" pointer-events="none">Ctrl+scroll to zoom · dbl-click to reset</text>`;
+        s += `<g id="${afcsAcid}-pins" pointer-events="none"></g>`;
         s += `<line id="${afcsAcid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
         s += `<g id="${afcsAcid}-lbl" style="display:none" pointer-events="none"></g>`;
-        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${afcsAcid}')" onmouseleave="_phaseChartLeave('${afcsAcid}')" onwheel="_phaseChartZoom(event,'${afcsAcid}')" ondblclick="_phaseChartReset('${afcsAcid}')"/>`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${afcsAcid}')" onmouseleave="_phaseChartLeave('${afcsAcid}')" onclick="_phaseChartPin(event,'${afcsAcid}')" onwheel="_phaseChartZoom(event,'${afcsAcid}')" ondblclick="_phaseChartReset('${afcsAcid}')"/>`;
         s += `</svg>`;
         return s;
       };
@@ -6391,6 +7075,20 @@ function renderFlightPhases(data, container) {
     const perf2RowHtml = (afcsEngageChartHtml || throttleChartHtml)
       ? `<div style="padding:4px 14px;border-bottom:0.5px solid ${borderColor}"><div style="display:flex;gap:6px;align-items:flex-start">${afcsEngageChartHtml}${throttleChartHtml}</div></div>`
       : '';
+
+    // ── Active+Arm mode plots per axis (LAT / VERT), with fail signals on right axis ──
+    const modeChartHtml = (() => {
+      const _failSigs = ph.failSigPts || [];
+      const _latCid  = 'mode-lat-'  + (_phaseChartSeq);
+      const _vertCid = 'mode-vert-' + (_phaseChartSeq);
+      const latSvg  = _renderModeAxisChart('LAT',  primLane, data.mode_transitions || [], _failSigs, chartTMin, chartTMax, _latCid,  phaseGroupId);
+      const vertSvg = _renderModeAxisChart('VERT', primLane, data.mode_transitions || [], _failSigs, chartTMin, chartTMax, _vertCid, phaseGroupId);
+      if (!latSvg && !vertSvg) return '';
+      return `<div style="padding:4px 14px;border-bottom:0.5px solid ${borderColor}"><div style="display:flex;gap:6px;align-items:flex-start">`
+        + (latSvg  ? `<div style="flex:1 1 0;min-width:0">${latSvg}</div>`  : '')
+        + (vertSvg ? `<div style="flex:1 1 0;min-width:0">${vertSvg}</div>` : '')
+        + `</div></div>`;
+    })();
 
     // ── Pitch trim (aptTrimRateServoCmd) ──
     const trimChartHtml = (() => {
@@ -6498,9 +7196,10 @@ function renderFlightPhases(data, container) {
             s += `<polyline points="${fp}" fill="none" stroke="#E8C87A" stroke-width="1.4" stroke-linejoin="round" opacity="0.85"/>`;
           }
         }
+        s += `<g id="${trimAcid}-pins" pointer-events="none"></g>`;
         s += `<line id="${trimAcid}-cur" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#fff" stroke-width="0.7" stroke-dasharray="3,2" opacity="0.4" style="display:none" pointer-events="none"/>`;
         s += `<g id="${trimAcid}-lbl" style="display:none" pointer-events="none"></g>`;
-        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${trimAcid}')" onmouseleave="_phaseChartLeave('${trimAcid}')" onwheel="_phaseChartZoom(event,'${trimAcid}')" ondblclick="_phaseChartReset('${trimAcid}')"/>`;
+        s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" style="cursor:crosshair" onmousemove="_phaseChartHover(event,'${trimAcid}')" onmouseleave="_phaseChartLeave('${trimAcid}')" onclick="_phaseChartPin(event,'${trimAcid}')" onwheel="_phaseChartZoom(event,'${trimAcid}')" ondblclick="_phaseChartReset('${trimAcid}')"/>`;
         s += `</svg>`;
         return s;
       };
@@ -6559,7 +7258,7 @@ function renderFlightPhases(data, container) {
       ph.preStart ?? ph.start, ph.end ?? (ph.start + 600),
       borderColor
     );
-    card.innerHTML = hdrHtml + metricsHtml + tdHtml + attitudeChartHtml + perf2RowHtml + _devTrimRow + torqueHtml + bodyHtml;
+    card.innerHTML = hdrHtml + metricsHtml + tdHtml + attitudeChartHtml + perf2RowHtml + modeChartHtml + _devTrimRow + torqueHtml + bodyHtml;
 
     // Async airport lookup — use touchdown point or last approach path point
     if (isApproach || isPaired) {
@@ -6590,6 +7289,47 @@ function renderFlightPhases(data, container) {
       phaseCardEls.push({ card: errCard, label: `ERR · ${ph.type}` });
     }
   });
+
+  // ── Group approaches by runway, re-color, re-label ───────────────────────
+  // Approaches whose touchdown bearings round to the same runway number share a
+  // color family so multi-runway sorties are visually distinct. Within a family,
+  // approaches cycle through 4 shades.
+  {
+    const _RWY_PALETTES = [
+      ['#FF6B6B', '#FF8E6E', '#FFB070', '#F58858'],   // warm / red-orange
+      ['#4ECDC4', '#5AB8E0', '#7EB8F7', '#6A98D8'],   // cool / cyan-blue
+      ['#95E77E', '#B7D85C', '#D8C04A', '#FFE66D'],   // green-yellow
+      ['#FF9FF3', '#E056FD', '#C56BFF', '#9F70FF'],   // magenta-purple
+      ['#F7A35C', '#D88040', '#B86028', '#8C4818'],   // brown (fallback)
+    ];
+    const _UNKNOWN_PALETTE = ['#96948c', '#78766e', '#56544e', '#3a3a37'];
+
+    // Assign a palette index per runway in order of first appearance
+    const _rwyOrder = [];
+    _overviewEntries.forEach(e => {
+      if (e.rwy != null && !_rwyOrder.includes(e.rwy)) _rwyOrder.push(e.rwy);
+    });
+    const _rwyPalette = {};
+    _rwyOrder.forEach((rwy, i) => { _rwyPalette[rwy] = _RWY_PALETTES[i % _RWY_PALETTES.length]; });
+
+    // Cycle within each runway's palette across the approaches assigned to it
+    const _rwyCounter = {};
+    _overviewEntries.forEach(e => {
+      const pal = e.rwy != null ? _rwyPalette[e.rwy] : _UNKNOWN_PALETTE;
+      const i = _rwyCounter[e.rwy ?? '_'] = (_rwyCounter[e.rwy ?? '_'] || 0);
+      e.color = pal[i % pal.length];
+      _rwyCounter[e.rwy ?? '_']++;
+      const rwyStr = e.rwy != null ? ` · RWY ${String(e.rwy).padStart(2,'0')}` : '';
+      e.label = `Appr ${e.apprIdx}${rwyStr} (${e.apprLandMode}${e.hasTD ? ' w/ TD' : ''}) · ${_irigToTod(e.startTime)}`;
+    });
+
+    // Sort entries so same-runway approaches are adjacent in the legend
+    _overviewEntries.sort((a, b) => {
+      const ra = a.rwy ?? 999, rb = b.rwy ?? 999;
+      if (ra !== rb) return ra - rb;
+      return a.apprIdx - b.apprIdx;
+    });
+  }
 
   // ── Overview map + glideslope profile (combined side-by-side card) ─────────
   window._ovSoloGroup = null;
@@ -6852,12 +7592,13 @@ function renderFlightPhases(data, container) {
       // Per-approach cursor lines + crosshair + hover overlay
       _visEntries.forEach(e => {
         if (e.group) s += `<line id="${pid}-grp-${e.group}" x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="${e.color}" stroke-width="1.5" opacity="0.85" style="display:none" pointer-events="none"/>`;
+        if (e.group) s += `<g id="${pid}-grppins-${e.group}" pointer-events="none"></g>`;
       });
       s += `<line id="${pid}-cur"  x1="${pL}" y1="${pT}" x2="${pL}" y2="${pT+iH}" stroke="#5a5a50" stroke-width="0.8" stroke-dasharray="3,2" style="display:none" pointer-events="none"/>`;
       s += `<line id="${pid}-hcur" x1="${pL}" y1="${pT}" x2="${pL+iW}" y2="${pT}" stroke="#5a5a50" stroke-width="0.8" stroke-dasharray="3,2" style="display:none" pointer-events="none"/>`;
       s += `<g id="${pid}-lbl" style="display:none"></g>`;
       s += `<text x="${pL+iW}" y="${H-32}" text-anchor="end" font-size="8" fill="#3a3a38" font-family="monospace" pointer-events="none">Ctrl+scroll to zoom · Shift+scroll to pan · dbl-click to reset</text>`;
-      s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" onmousemove="_profileChartHover(event,'${pid}')" onmouseleave="_profileChartLeave('${pid}')" onwheel="_profileChartZoom(event,'${pid}')" ondblclick="_profileChartReset('${pid}')"/>`;
+      s += `<rect x="${pL}" y="${pT}" width="${iW}" height="${iH}" fill="transparent" onmousemove="_profileChartHover(event,'${pid}')" onmouseleave="_profileChartLeave('${pid}')" onclick="_profileChartPin(event,'${pid}')" onwheel="_profileChartZoom(event,'${pid}')" ondblclick="_profileChartReset('${pid}')"/>`;
       s += `</svg>`;
       if (window._profileCharts[pid]) window._profileCharts[pid].yMax = yMaxVis;
       return s;
@@ -6883,11 +7624,19 @@ function renderFlightPhases(data, container) {
     const svg = _buildProfileSvg(0, xMax);
 
       const _multiAppr = _overviewEntries.length > 1;
-      const legendHtml = _overviewEntries.map(e =>
-        _multiAppr
+      const _rwySet = new Set(_overviewEntries.map(e => e.rwy).filter(r => r != null));
+      const _showRwySep = _rwySet.size > 1;
+      let legendHtml = '';
+      let _prevRwy = undefined;
+      _overviewEntries.forEach((e, idx) => {
+        if (_showRwySep && idx > 0 && e.rwy !== _prevRwy) {
+          legendHtml += `<span style="display:inline-block;width:1px;height:14px;background:#3a3a37;margin:0 2px;align-self:center"></span>`;
+        }
+        legendHtml += _multiAppr
           ? `<span id="${pid}-leg-${e.group}" onclick="_ovSolo('${pid}','${e.group}')" title="Click to isolate · click again to show all" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:monospace;color:#cac8bf;cursor:pointer;padding:2px 6px;border-radius:4px;outline:0.5px solid #3a3a37;background:#272725"><span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${e.color}"></span>${e.label}</span>`
-          : `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:monospace;color:#cac8bf"><span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${e.color}"></span>${e.label}</span>`
-      ).join('');
+          : `<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:monospace;color:#cac8bf"><span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${e.color}"></span>${e.label}</span>`;
+        _prevRwy = e.rwy;
+      });
       const combinedCard = document.createElement('div');
       combinedCard.style.cssText = 'background:#1a1a18;border:0.5px solid #3a3a37;border-radius:9px;overflow:clip';
       combinedCard.innerHTML =
@@ -6906,10 +7655,18 @@ function renderFlightPhases(data, container) {
       wrap.appendChild(combinedCard);
     } else {
       // Map-only card (no glideslope profile data available)
-      const legendHtml = _overviewEntries.map(e =>
-        `<span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:monospace;color:#cac8bf">` +
-        `<span style="display:inline-block;width:18px;height:3px;border-radius:2px;background:${e.color}"></span>${e.label}</span>`
-      ).join('');
+      const _rwySet2 = new Set(_overviewEntries.map(e => e.rwy).filter(r => r != null));
+      const _showRwySep2 = _rwySet2.size > 1;
+      let legendHtml = '';
+      let _prevRwy2 = undefined;
+      _overviewEntries.forEach((e, idx) => {
+        if (_showRwySep2 && idx > 0 && e.rwy !== _prevRwy2) {
+          legendHtml += `<span style="display:inline-block;width:1px;height:14px;background:#3a3a37;margin:0 2px;align-self:center"></span>`;
+        }
+        legendHtml += `<span style="display:inline-flex;align-items:center;gap:5px;font-size:10px;font-family:monospace;color:#cac8bf">` +
+          `<span style="display:inline-block;width:18px;height:3px;border-radius:2px;background:${e.color}"></span>${e.label}</span>`;
+        _prevRwy2 = e.rwy;
+      });
       const ovCard = document.createElement('div');
       ovCard.style.cssText = 'background:#1a1a18;border:0.5px solid #3a3a37;border-radius:9px;overflow:clip';
       ovCard.innerHTML =
@@ -7004,7 +7761,38 @@ function renderFlightPhases(data, container) {
           }).addTo(map);
           const _curDiv = document.getElementById(_curId);
           if (!window._leafletMapCursors[ce.group]) window._leafletMapCursors[ce.group] = [];
-          window._leafletMapCursors[ce.group].push({ marker: _cur, div: _curDiv, gnssPts: ce.gnssPts });
+          const _pinLayer = L.layerGroup().addTo(map);
+          window._leafletMapCursors[ce.group].push({ marker: _cur, div: _curDiv, gnssPts: ce.gnssPts, map, color: ce.color, pinLayer: _pinLayer });
+        }
+        // Map-click → pin the closest GPS point in this map's groups
+        const _mapPinSrcs = _cursorSources.filter(ce => ce.group && ce.gnssPts?.length);
+        if (_mapPinSrcs.length) {
+          map.on('click', e => {
+            const mLat = e.latlng.lat, mLon = e.latlng.lng;
+            let bestD2 = Infinity, bestGroup = null, bestT = null;
+            for (const ce of _mapPinSrcs) {
+              for (const pt of ce.gnssPts) {
+                const dLat = pt.lat - mLat, dLon = pt.lon - mLon;
+                const d2 = dLat * dLat + dLon * dLon;
+                if (d2 < bestD2) { bestD2 = d2; bestGroup = ce.group; bestT = pt.t; }
+              }
+            }
+            if (bestGroup === null) return;
+            const arr = (window._pinnedT[bestGroup] = window._pinnedT[bestGroup] || []);
+            // Tolerance: ~30 m in degree² (rough at mid-lats) → 3e-4² ≈ 9e-8
+            const removeIdx = arr.findIndex(t => {
+              const pt = _mapPinSrcs.find(ce => ce.group === bestGroup)?.gnssPts;
+              if (!pt?.length) return false;
+              let lo = 0, hi = pt.length - 1;
+              while (lo < hi) { const mid = (lo + hi) >> 1; pt[mid].t < t ? lo = mid + 1 : hi = mid; }
+              if (lo > 0 && Math.abs(pt[lo-1].t - t) < Math.abs(pt[lo].t - t)) lo--;
+              const dLat = pt[lo].lat - mLat, dLon = pt[lo].lon - mLon;
+              return (dLat*dLat + dLon*dLon) < 9e-8;
+            });
+            if (removeIdx >= 0) arr.splice(removeIdx, 1);
+            else                arr.push(bestT);
+            _renderAllGroupPins(bestGroup);
+          });
         }
         // Hover over map → drive glideslope profile cursor (and snapped map dot)
         const _mapHoverSrcs = _cursorSources.filter(ce => ce.group && ce.gnssPts?.length);

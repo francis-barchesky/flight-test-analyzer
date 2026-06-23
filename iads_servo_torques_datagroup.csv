@@ -1,0 +1,11 @@
+GroupName,ParameterName
+ServoTorques,Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg.
+ServoTorques,Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg.
+ServoTorques,Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg.
+ServoTorques,Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg.
+ServoTorques,Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg.
+ServoTorques,Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg.
+ServoTorques,Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg.
+ServoTorques,Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg.
+ServoTorques,Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg.
+ServoTorques,Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg.

@@ -136,12 +136,18 @@ def _extract_sortie(paths):
 
     Matches the pattern _SXXXNYYY_L (e.g. S102N208B_1) and returns 'S102_1'.
     Falls back to bare SXXX if no leg number is present (e.g. 'S119').
+
+    Leg number constrained to 1-3 digits so it doesn't accidentally match
+    workflow re-run timestamps like 'S125N208B_20260622191901.zip' (14 digits)
+    or test-point suffix strings.
     """
     import re
     for p in paths:
         name = os.path.basename(p)
         # S = Sortie, G = Ground  e.g. S102N208B_1, G034N208B
-        m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})[A-Z][A-Z0-9]*_(\d+)', name, re.IGNORECASE)
+        # Leg must be 1-3 digits, followed by end / dot / underscore.
+        m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})[A-Z][A-Z0-9]*_(\d{1,3})(?=[._]|$)',
+                      name, re.IGNORECASE)
         if m:
             return f"{m.group(1).upper()}_{m.group(2)}"
         # Fallback: bare SXXX/GXXX with no tail/leg
@@ -530,11 +536,18 @@ def _merge(partials, headers, time_col_idx, filename):
 _MODE_SUFFIXES = {
     'latActive', 'vertActive', 'atActive',
     'latActiveEnum', 'vertActiveEnum', 'atActiveEnum',
+    'latArmEnum', 'vertPrimArmEnum', 'vertSecArmEnum',
 }
 
 def _signal_matches(name, pattern):
-    """Match by exact name or by the last dot-separated component (IADS suffix)."""
-    return name == pattern or name.split(".")[-1] == pattern
+    """Match by exact name or by the last dot-separated component (IADS suffix).
+
+    Trailing periods in IADS column headers (e.g. "...Torque_Running_Avg.") are
+    stripped before splitting so the suffix comparison still works.
+    """
+    norm = name.rstrip(".")
+    pat  = pattern.rstrip(".")
+    return norm == pat or norm.split(".")[-1] == pat
 
 
 def _save_mode_transitions(result):
@@ -616,7 +629,7 @@ def _apply_sysnotengage_fallback(result, saved_transitions, plot_series=None):
     return result
 
 
-_TORQUE_SIG_RE  = re.compile(r'torq', re.I)
+_TORQUE_SIG_RE  = re.compile(r'torq|trq', re.I)
 _TORQUE_LIM_RE  = re.compile(r'lim',  re.I)
 
 def _save_torque_stats(result):
@@ -631,7 +644,10 @@ def _save_torque_stats(result):
     stats = []
 
     for j, h in enumerate(headers):
-        sfx = h.split(".")[-1]
+        # Strip trailing periods first — IADS metadata signals like
+        # "Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg." end with a dot,
+        # which would otherwise leave sfx="" and fail the torque regex.
+        sfx = h.rstrip(".").split(".")[-1]
         if not _TORQUE_SIG_RE.search(sfx) or _TORQUE_LIM_RE.search(sfx):
             continue
         peak = col_max[j]
@@ -938,15 +954,40 @@ def _save_takeoff_plots(result, plot_series, max_pts=None):
 
 
 def _save_hires_file(out_path, result, plot_series):
-    """Write a companion *_hires.json containing flight_plots + takeoff_plots at _HIRES_MAX_PTS."""
+    """Write a companion *_hires.json containing flight_plots + takeoff_plots at _HIRES_MAX_PTS.
+
+    Skip the write (and delete any stale hires) when both flight_plots and
+    takeoff_plots are empty/zero-point — that happens when no mode_transitions
+    are present (e.g., a torque-only ZIP without AFCS_del lane data) and the
+    file would just be a 10-empty-signal stub.
+    """
     root, ext = os.path.splitext(out_path)
     hires_path = f"{root}_hires{ext}"
     hires = {"mode_transitions": result.get("mode_transitions", [])}
     _save_flight_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
     _save_takeoff_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
+
+    def _has_points(plots):
+        if not plots:
+            return False
+        return any(isinstance(v, (list, tuple)) and len(v) > 0 for v in plots.values())
+
+    fp = hires.get("flight_plots") or {}
+    tp = hires.get("takeoff_plots") or {}
+    if not (_has_points(fp) or _has_points(tp)):
+        # Nothing meaningful to save. Remove any stale hires from a prior run.
+        if os.path.exists(hires_path):
+            try:
+                os.remove(hires_path)
+                print(f"  hires: skipped (no phase windows) — removed stale {hires_path}")
+            except OSError:
+                pass
+        else:
+            print("  hires: skipped (no phase windows)")
+        return None
+
     with open(hires_path, "w", encoding="utf-8") as f:
-        json.dump(sanitize_for_json({"flight_plots": hires["flight_plots"],
-                                     "takeoff_plots": hires["takeoff_plots"]}),
+        json.dump(sanitize_for_json({"flight_plots": fp, "takeoff_plots": tp}),
                   f, separators=(",", ":"), allow_nan=False)
     hires_kb = os.path.getsize(hires_path) / 1024
     print(f"  hires: {hires_path}  ({hires_kb:.0f} KB)")
@@ -985,6 +1026,83 @@ def _load_dgps_stream(dgps_csv):
                 except (ValueError, TypeError):
                     cols[c].append(None)
     return times, cols
+
+
+def _write_or_merge_result(out_path, result, plot_series=None, save_hires=True):
+    """
+    Write `result` to `out_path`, or merge into an existing JSON when the new
+    analysis is degraded but the prior JSON has substantial data.
+
+    Motivation: when only a torque-only export ZIP is present in a sortie dir,
+    `afcsCapable` won't be found, no episodes are produced, and a naive write
+    overwrites the previous full analysis (episodes/faults/plots) with a stub.
+    In that case we instead augment the existing JSON with the new torque_stats
+    and headers, leaving the rich fields intact.
+
+    "Substantial data" in the existing JSON = ANY of:
+       - episodes (most common case)
+       - mode_transitions     (sortie where afcsCapable never fired but modes still recorded)
+       - torque_stats         (prior torque enrichment)
+       - many headers (>50)   (full-flight CSV was previously analyzed)
+    Falsy/empty episodes alone is NOT enough to overwrite — that's the bug we
+    hit on S125_N208B where the flight had no AFCS disengagements (eps=[]) but
+    1208 headers + 75 torque_stats which the merge needs to preserve.
+
+    Returns (action, kb, n_added) where action is 'wrote' or 'merged'.
+    """
+    new_eps = result.get("episodes") or []
+    existing = None
+    if not new_eps and os.path.exists(out_path):
+        try:
+            with open(out_path, encoding='utf-8') as f:
+                cand = json.load(f)
+            has_rich_data = (
+                (cand.get("episodes") or [])
+                or (cand.get("mode_transitions") or [])
+                or (cand.get("torque_stats") or [])
+                or len(cand.get("headers") or []) > 50
+            )
+            if has_rich_data:
+                existing = cand
+        except Exception:
+            existing = None
+
+    if existing is not None:
+        # ── Merge: augment existing with new torque_stats + headers ──────────
+        # New entries override existing on signal-name collision (newer wins).
+        new_ts = result.get("torque_stats", [])
+        ts_map = {ts["signal"]: ts for ts in existing.get("torque_stats", [])}
+        before = set(ts_map)
+        for ts in new_ts:
+            ts_map[ts["signal"]] = ts
+        n_added = len(set(ts_map) - before)
+        if new_ts:
+            existing["torque_stats"] = list(ts_map.values())
+
+        new_hdrs = result.get("headers", [])
+        if new_hdrs:
+            existing_hdrs = list(existing.get("headers", []))
+            seen = set(existing_hdrs)
+            for h in new_hdrs:
+                if h not in seen:
+                    existing_hdrs.append(h)
+                    seen.add(h)
+            existing["headers"] = existing_hdrs
+
+        existing["generated_at"] = datetime.now().isoformat()
+        if result.get("trace_graph"):
+            existing["trace_graph"] = result["trace_graph"]
+
+        with open(out_path, "w", encoding="utf-8") as f:
+            json.dump(sanitize_for_json(existing), f, separators=(",", ":"), allow_nan=False)
+        return ("merged", os.path.getsize(out_path) / 1024, n_added)
+
+    # ── Normal full write ────────────────────────────────────────────────────
+    with open(out_path, "w", encoding="utf-8") as f:
+        json.dump(sanitize_for_json(result), f, separators=(",", ":"), allow_nan=False)
+    if save_hires and plot_series and new_eps:
+        _save_hires_file(out_path, result, plot_series)
+    return ("wrote", os.path.getsize(out_path) / 1024, 0)
 
 
 def _inject_dgps_into_hires(hires_path, dgps_csv):
@@ -1124,15 +1242,16 @@ def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0
     if trace_graph:
         result["trace_graph"] = trace_graph
 
-    with open(out_path, "w", encoding="utf-8") as f:
-        json.dump(sanitize_for_json(result), f, separators=(",", ":"), allow_nan=False)
+    action, out_kb, n_added = _write_or_merge_result(
+        out_path, result,
+        plot_series=plot_series,
+        save_hires=bool(trigger),
+    )
 
-    if trigger and plot_series:
-        _save_hires_file(out_path, result, plot_series)
-
-    out_kb = os.path.getsize(out_path) / 1024
     if not quiet:
-        if trigger:
+        if action == "merged":
+            print(f"  merged: +{n_added} new torque_stats entries into existing analysis  ({out_kb:.0f} KB)  ->  {out_path}")
+        elif trigger:
             n_ep = len(result["episodes"])
             print(f"  {result['total_rows']:,} rows  |  {n_ep} episode(s)  |  {result['processing_time_s']}s  |  {out_kb:.0f} KB  ->  {out_path}")
         else:
@@ -1200,6 +1319,24 @@ def _merge_results(results, trigger=None):
             merged["rec_start_s"] = min(starts)
         if merged_plot:
             merged["_plot_series"] = merged_plot
+
+        # Union torque_stats across results: dict(results[0]) only carries the
+        # first ZIP's stats, so signals exclusive to other ZIPs get lost. Keep
+        # the highest peak per signal across the whole sortie.
+        all_tstats = {}
+        for r in results:
+            for ts in r.get("torque_stats", []):
+                sig = ts.get("signal")
+                if not sig:
+                    continue
+                peak = ts.get("peak")
+                cur = all_tstats.get(sig)
+                if cur is None:
+                    all_tstats[sig] = ts
+                elif peak is not None and (cur.get("peak") is None or peak > cur["peak"]):
+                    all_tstats[sig] = ts
+        if all_tstats:
+            merged["torque_stats"] = list(all_tstats.values())
         return merged
 
     # ── Episode mode ──────────────────────────────────────────────────────
@@ -1438,15 +1575,19 @@ if __name__ == "__main__":
         tg = _resolve_trace_graph(tail)
         if tg:
             combined["trace_graph"] = tg
-        with open(out_path, "w", encoding="utf-8") as f:
-            json.dump(sanitize_for_json(combined), f, separators=(",", ":"), allow_nan=False)
-
-        out_kb = os.path.getsize(out_path) / 1024
-        print(f"  saved: {out_path}  ({out_kb:.0f} KB)")
-        if plot_series:
-            hires_path = _save_hires_file(out_path, combined, plot_series)
-            if args.dgps and hires_path:
-                _inject_dgps_into_hires(hires_path, args.dgps)
+        action, out_kb, n_added = _write_or_merge_result(
+            out_path, combined,
+            plot_series=plot_series,
+            save_hires=False,  # hires is handled below for the full-write path
+        )
+        if action == "merged":
+            print(f"  merged: +{n_added} new torque_stats entries into existing analysis  ({out_kb:.0f} KB)  ->  {out_path}")
+        else:
+            print(f"  saved: {out_path}  ({out_kb:.0f} KB)")
+            if plot_series:
+                hires_path = _save_hires_file(out_path, combined, plot_series)
+                if args.dgps and hires_path:
+                    _inject_dgps_into_hires(hires_path, args.dgps)
 
     # ── Single file mode (existing behaviour) ────────────────────────────
     else:
