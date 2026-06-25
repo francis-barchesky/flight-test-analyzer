@@ -10,6 +10,9 @@
 #   bash pipeline.sh                        # uses batch_config.json
 #   bash pipeline.sh batch_config.json      # explicit config
 #   bash pipeline.sh --dry-run              # preview without executing
+#   bash pipeline.sh --reset-markers        # drop .pipeline_done markers in the
+#                                           # configured date range before running,
+#                                           # forcing a fresh re-evaluation
 #
 set -euo pipefail
 
@@ -26,11 +29,13 @@ trap 'echo; read -p "  Abort pipeline? [y/N] " _yn; [[ "$_yn" =~ ^[Yy]$ ]] && ex
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="$SCRIPT_DIR/batch_config.json"
 DRY_RUN=0
+RESET_MARKERS=0
 
 for arg in "$@"; do
     case "$arg" in
-        --dry-run) DRY_RUN=1 ;;
-        *.json)    CONFIG="$(realpath "$arg")" ;;
+        --dry-run)       DRY_RUN=1 ;;
+        --reset-markers) RESET_MARKERS=1 ;;
+        *.json)          CONFIG="$(realpath "$arg")" ;;
     esac
 done
 
@@ -158,10 +163,28 @@ fi
 
 mkdir -p "$DATA_ROOT"
 
+# ── Optional: drop markers in the current window ──────────────────────────────
+# Use when you have markers from prior runs that you don't trust (e.g. they were
+# written while stranded flat ZIPs were blocking downloads). Only affects days
+# inside [START_DATE, END_DATE] so other ranges' markers are preserved.
+if (( RESET_MARKERS == 1 )); then
+    reset_count=0
+    for DAY in $DAYS; do
+        if [[ -f "$DATA_ROOT/.pipeline_done/$DAY" ]]; then
+            rm "$DATA_ROOT/.pipeline_done/$DAY"
+            reset_count=$(( reset_count + 1 ))
+        fi
+    done
+    echo "  --reset-markers: cleared $reset_count marker(s) in [$START_DATE..$END_DATE]"
+    echo
+fi
+
 # ── Per-day loop ───────────────────────────────────────────────────────────────
 DAY_NUM=0
 TOTAL_DL_S=0
 TOTAL_AN_S=0
+TOTAL_TRULY_DONE=0
+TOTAL_STRANDED_DAYS=0
 
 for DAY in $DAYS; do
     DAY_NUM=$(( DAY_NUM + 1 ))
@@ -230,14 +253,39 @@ for DAY in $DAYS; do
     AN_ELAPSED=$(( SECONDS - AN_START ))
     TOTAL_AN_S=$(( TOTAL_AN_S + AN_ELAPSED ))
 
-    # Mark day done ONLY if work actually happened on this day — either we
-    # downloaded new ZIPs, or pre-existing flat ZIPs were waiting before this
-    # iteration started. Days with no ZIPs at all stay unmarked so a future
-    # re-run will re-attempt them (S3 data may land later).
-    if [[ $DRY_RUN -eq 0 && ! -f "$DONE_MARKER" ]] && \
-       (( FLAT_ZIPS > 0 || POST_DL_FLAT > 0 )); then
-        mkdir -p "$DATA_ROOT/.pipeline_done"
-        touch "$DONE_MARKER"
+    # Did organize+analyze actually do anything useful? "Truly done" means at
+    # least one flat ZIP got moved into a sortie dir — if flat-ZIP count is
+    # unchanged after analyze, the ZIPs are stranded (e.g. malformed filenames
+    # that organize can't parse a sortie tag from) and writing a marker would
+    # falsely permanent-skip the day forever.
+    POST_ANAL_FLAT=$(find "$DATA_ROOT" -maxdepth 1 -name "*.zip" 2>/dev/null | wc -l)
+    HAD_ZIPS=0
+    (( FLAT_ZIPS > 0 || POST_DL_FLAT > 0 )) && HAD_ZIPS=1
+    ZIPS_ORGANIZED=$(( POST_DL_FLAT - POST_ANAL_FLAT ))
+    TRULY_DONE=0
+    if (( HAD_ZIPS == 1 )) && (( ZIPS_ORGANIZED > 0 )); then
+        TRULY_DONE=1
+    fi
+
+    if [[ $DRY_RUN -eq 0 ]]; then
+        if (( TRULY_DONE == 1 )); then
+            mkdir -p "$DATA_ROOT/.pipeline_done"
+            touch "$DONE_MARKER"
+            TOTAL_TRULY_DONE=$(( TOTAL_TRULY_DONE + 1 ))
+        else
+            # Not truly done. If a marker was carried over from a prior
+            # (presumably bogus) run, remove it so this day stays eligible
+            # for retry on the next pipeline invocation.
+            if [[ -f "$DONE_MARKER" ]]; then
+                rm "$DONE_MARKER"
+                echo "  [!] removed stale marker for $DAY (no work completed this iteration)"
+            fi
+            if (( HAD_ZIPS == 1 )) && (( POST_ANAL_FLAT > 0 )); then
+                echo "  [!] $POST_ANAL_FLAT flat ZIP(s) stranded at data_root — organize couldn't parse a sortie tag:"
+                find "$DATA_ROOT" -maxdepth 1 -name '*.zip' -printf '      %f\n' 2>/dev/null
+                TOTAL_STRANDED_DAYS=$(( TOTAL_STRANDED_DAYS + 1 ))
+            fi
+        fi
     fi
 
     DAY_ELAPSED=$(( SECONDS - DAY_START ))
@@ -249,9 +297,11 @@ done
 TOTAL_ELAPSED=$(( SECONDS - PIPELINE_START ))
 echo "========================================================"
 echo "  Pipeline complete"
-echo "  Days processed : $N_DAYS"
-echo "  Download time  : $(fmt_elapsed $TOTAL_DL_S)"
-echo "  Analysis time  : $(fmt_elapsed $TOTAL_AN_S)"
-echo "  Total elapsed  : $(fmt_elapsed $TOTAL_ELAPSED)"
-echo "  Finished       : $(date '+%Y-%m-%d %H:%M:%S')"
+echo "  Days processed   : $N_DAYS"
+echo "  Days truly done  : $TOTAL_TRULY_DONE"
+echo "  Days stranded    : $TOTAL_STRANDED_DAYS"
+echo "  Download time    : $(fmt_elapsed $TOTAL_DL_S)"
+echo "  Analysis time    : $(fmt_elapsed $TOTAL_AN_S)"
+echo "  Total elapsed    : $(fmt_elapsed $TOTAL_ELAPSED)"
+echo "  Finished         : $(date '+%Y-%m-%d %H:%M:%S')"
 echo "========================================================"

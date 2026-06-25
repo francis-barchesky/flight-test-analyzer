@@ -459,17 +459,31 @@ function detectLaneDissimilarity(transitions, triggerTime) {
 function _renderTorqueCharts(torqueStats, flightPlots, tMin, tMax, borderColor, faultT) {
   if (!torqueStats || !torqueStats.length || !flightPlots) return '';
 
-  // Group signals by servo suffix; collect per-lane series
+  // Group signals by servo; collect per-lane series.
+  // Two signal-name shapes exist:
+  //   - Flat names (e.g. "pitchServoTorqueFilt") → group by the name itself,
+  //     lane label = the name (legend reads sensibly).
+  //   - Hierarchical IADS names (e.g.
+  //     "Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg") → group by the
+  //     servo (parts[0]) and use the TX_N channel as the lane label, so each
+  //     servo gets its own chart row with TX_1/TX_2 overlaid.
   const groups = {};
   torqueStats.forEach(ts => {
     const parts = ts.signal.split('.');
-    const sfx  = parts[parts.length - 1];
-    const lane = parts[0] || '?';
+    let groupKey, laneLabel;
+    if (parts.length >= 3) {
+      groupKey = parts[0];
+      const m = parts[1].match(/TX_\d+/i);
+      laneLabel = m ? m[0] : parts[1];
+    } else {
+      groupKey = parts[parts.length - 1];
+      laneLabel = parts[0] || '?';
+    }
     const raw  = flightPlots[ts.signal] || [];
     const pts  = raw.filter(p => p[0] >= tMin && p[0] <= tMax);
     if (!pts.length) return;
-    if (!groups[sfx]) groups[sfx] = [];
-    groups[sfx].push({ lane, pts });
+    if (!groups[groupKey]) groups[groupKey] = [];
+    groups[groupKey].push({ lane: laneLabel, pts });
   });
 
   const servoKeys = Object.keys(groups).sort();
@@ -564,6 +578,52 @@ function _renderTorqueCharts(torqueStats, flightPlots, tMin, tMax, borderColor, 
   return `<div style="border-bottom:0.5px solid ${borderColor||'#3a3a37'};padding-bottom:6px">` +
     `<div style="font-size:10px;font-weight:500;color:#78766e;text-transform:uppercase;letter-spacing:.05em;padding:8px 14px 2px">${sectionLabel}</div>` +
     html + `</div>`;
+}
+
+// ── Full-flight torque card for 0-episode flights ──────────────────────────
+// When a sortie has no afcsCapable disengagement episodes, flight_plots is
+// empty (it's a phase window) and the standard torque view bails. The hires
+// JSON emits full_flight_torque containing the A429 running-avg torque series
+// across the whole recording; render that here so the page still shows torque
+// behavior for clean flights.
+function renderFullFlightTorque(data) {
+  const fft = data && data.full_flight_torque;
+  if (!fft) return '';
+  const sigs = Object.keys(fft);
+  if (!sigs.length) return '';
+
+  // _renderTorqueCharts iterates torque_stats and looks up each signal in the
+  // plot dict. Build a synthetic torque_stats list from the FFT signal keys
+  // so every captured signal renders even if it's not in data.torque_stats.
+  const existingTs = data.torque_stats || [];
+  const tsForFft = sigs.map(sig => {
+    return existingTs.find(t => t.signal === sig)
+        || { signal: sig, peak: 0, peak_time: null };
+  });
+
+  let tMin = +Infinity, tMax = -Infinity;
+  sigs.forEach(sig => {
+    const pts = fft[sig];
+    if (pts && pts.length) {
+      tMin = Math.min(tMin, pts[0][0]);
+      tMax = Math.max(tMax, pts[pts.length - 1][0]);
+    }
+  });
+  if (!isFinite(tMin) || tMax <= tMin) return '';
+
+  const inner = _renderTorqueCharts(tsForFft, fft, tMin, tMax, '#3a5a3a', null);
+  if (!inner) return '';
+
+  const dur = Math.round(tMax - tMin);
+  return '<div style="margin:12px 0;background:#fff;border:0.5px solid #d3d1c7;border-radius:6px;overflow:hidden">' +
+         '<div style="padding:8px 14px;background:#f5f4ef;border-bottom:0.5px solid #d3d1c7;font-size:11px;font-weight:500;color:#56544e;text-transform:uppercase;letter-spacing:.06em">' +
+           'Full-flight torque ' +
+           '<span style="font-weight:400;text-transform:none;color:#78766e">' +
+             '(' + dur + 's recording, no AFCS disengagements)' +
+           '</span>' +
+         '</div>' +
+         inner +
+         '</div>';
 }
 
 // ── Inline SVG time-series plot ────────────────────────────────────────────
@@ -1298,10 +1358,11 @@ function _sortieCompare(a, b) {
 }
 
 // ── Queue management ───────────────────────────────────────────────────────
-// Large plot arrays (flight_plots, takeoff_plots) are stripped from queued data to
-// save memory when many sorties are loaded. The original File is kept so the full
-// data can be re-read on demand when a sortie is activated for detail view.
-const _SLIM_KEYS = ['flight_plots','takeoff_plots','sample_head','sample_tail'];
+// Large plot arrays (flight_plots, takeoff_plots, full_flight_torque) are stripped
+// from queued data to save memory when many sorties are loaded. The original File
+// is kept so the full data can be re-read on demand when a sortie is activated for
+// detail view.
+const _SLIM_KEYS = ['flight_plots','takeoff_plots','full_flight_torque','sample_head','sample_tail'];
 
 function addToQueue(name, data, file) {
   // Strip large arrays; keep file handle for on-demand reload
@@ -1373,8 +1434,9 @@ async function activateQueueItem(idx) {
       item._hiresData = hires;
       // Overlay hires plots onto full data if already loaded
       if (item._fullData) {
-        if (hires.flight_plots)  item._fullData.flight_plots  = hires.flight_plots;
-        if (hires.takeoff_plots) item._fullData.takeoff_plots = hires.takeoff_plots;
+        if (hires.flight_plots)       item._fullData.flight_plots       = hires.flight_plots;
+        if (hires.takeoff_plots)      item._fullData.takeoff_plots      = hires.takeoff_plots;
+        if (hires.full_flight_torque) item._fullData.full_flight_torque = hires.full_flight_torque;
       }
     } catch(_) {}
   }
@@ -4371,7 +4433,8 @@ function runAnalysis() {
     }
 
     panel.innerHTML = '<div class="no-faults" style="' + msgStyle + '">' + msg + '</div>' +
-                      renderDropoutSection(analysisData);
+                      renderDropoutSection(analysisData) +
+                      renderFullFlightTorque(analysisData);
     renderFlightPhases(analysisData, panel);
     _prependFleetBar(panel);
     return;

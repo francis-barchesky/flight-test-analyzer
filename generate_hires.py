@@ -99,8 +99,11 @@ def process_sortie(sortie_dir, exclude_patterns=None, plot_signals=None,
         print(f"  ERROR  {sortie_dir}  (no plot_series extracted)")
         return False
 
-    # Inject mode_transitions from existing analysis for correct windowing
+    # Inject mode_transitions (for flight_plots/takeoff_plots windowing) and
+    # episodes (so the full_flight_torque save knows whether to populate) from
+    # the existing analysis JSON.
     merged["mode_transitions"] = analysis.get("mode_transitions", [])
+    merged["episodes"]         = analysis.get("episodes", [])
 
     ai._save_hires_file(analysis_path, merged, plot_series)
     elapsed = time.perf_counter() - t0

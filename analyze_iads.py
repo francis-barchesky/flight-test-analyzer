@@ -626,6 +626,7 @@ def _apply_sysnotengage_fallback(result, saved_transitions, plot_series=None):
         _attach_episode_plots(result, plot_series)
         _save_flight_plots(result, plot_series)
         _save_takeoff_plots(result, plot_series)
+        _save_full_flight_torque(result, plot_series)
     return result
 
 
@@ -866,8 +867,25 @@ def _phase_window(mode_transitions, phase_vals):
     return t_lo, t_hi
 
 
-_FLIGHT_MAX_PTS = 2000
-_HIRES_MAX_PTS  = 8000
+_FLIGHT_MAX_PTS      = 2000
+_HIRES_MAX_PTS       = 8000
+_FULL_FLIGHT_MAX_PTS = 4000
+
+# Running-avg A429 torque signals captured across the entire flight when no
+# AFCS disengagement episodes are detected. The episode-bound flight_plots view
+# is empty in that case, so we fall back to a torque-only full-flight series.
+_FULL_FLIGHT_TORQUE_SIGS = frozenset([
+    "Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg",
+    "Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg",
+    "Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg",
+    "Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg",
+    "Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg",
+    "Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg",
+    "Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg",
+    "Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg",
+    "Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg",
+    "Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg",
+])
 
 
 def _downsample_pts(pts, max_pts):
@@ -953,28 +971,62 @@ def _save_takeoff_plots(result, plot_series, max_pts=None):
     result["takeoff_plots"] = plots
 
 
+def _save_full_flight_torque(result, plot_series, max_pts=None):
+    """Save full-flight running-avg torque series for 0-episode flights.
+
+    For flights where no AFCS disengagement (afcsCapable 1->0) episodes were
+    detected, flight_plots is windowed to approach/landing — which can be empty
+    if those modes never activated. This function captures the A429 running-avg
+    torque signals over the entire recording so the browser can still show
+    torque behavior throughout the flight.
+
+    No-ops (and clears any stale entry) when episodes > 0.
+    """
+    if max_pts is None:
+        max_pts = _FULL_FLIGHT_MAX_PTS
+    if result.get("episodes"):
+        result.pop("full_flight_torque", None)
+        return
+    plots = {}
+    for sig in _FULL_FLIGHT_TORQUE_SIGS:
+        pts = plot_series.get(sig)
+        if not pts:
+            continue
+        pts = _downsample_pts(pts, max_pts)
+        plots[sig] = [[p[0], p[1]] for p in pts]
+    if plots:
+        result["full_flight_torque"] = plots
+
+
 def _save_hires_file(out_path, result, plot_series):
     """Write a companion *_hires.json containing flight_plots + takeoff_plots at _HIRES_MAX_PTS.
 
     Skip the write (and delete any stale hires) when both flight_plots and
-    takeoff_plots are empty/zero-point — that happens when no mode_transitions
-    are present (e.g., a torque-only ZIP without AFCS_del lane data) and the
-    file would just be a 10-empty-signal stub.
+    takeoff_plots are empty/zero-point AND no full_flight_torque was captured —
+    that happens when no mode_transitions are present (e.g., a torque-only ZIP
+    without AFCS_del lane data) and the file would just be a 10-empty-signal stub.
     """
     root, ext = os.path.splitext(out_path)
     hires_path = f"{root}_hires{ext}"
-    hires = {"mode_transitions": result.get("mode_transitions", [])}
+    hires = {
+        "mode_transitions": result.get("mode_transitions", []),
+        # Propagate episode list so _save_full_flight_torque can decide whether
+        # to populate the full-flight torque view.
+        "episodes":         result.get("episodes", []),
+    }
     _save_flight_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
     _save_takeoff_plots(hires, plot_series, max_pts=_HIRES_MAX_PTS)
+    _save_full_flight_torque(hires, plot_series, max_pts=_HIRES_MAX_PTS)
 
     def _has_points(plots):
         if not plots:
             return False
         return any(isinstance(v, (list, tuple)) and len(v) > 0 for v in plots.values())
 
-    fp = hires.get("flight_plots") or {}
-    tp = hires.get("takeoff_plots") or {}
-    if not (_has_points(fp) or _has_points(tp)):
+    fp  = hires.get("flight_plots") or {}
+    tp  = hires.get("takeoff_plots") or {}
+    fft = hires.get("full_flight_torque") or {}
+    if not (_has_points(fp) or _has_points(tp) or _has_points(fft)):
         # Nothing meaningful to save. Remove any stale hires from a prior run.
         if os.path.exists(hires_path):
             try:
@@ -986,8 +1038,11 @@ def _save_hires_file(out_path, result, plot_series):
             print("  hires: skipped (no phase windows)")
         return None
 
+    payload = {"flight_plots": fp, "takeoff_plots": tp}
+    if fft:
+        payload["full_flight_torque"] = fft
     with open(hires_path, "w", encoding="utf-8") as f:
-        json.dump(sanitize_for_json({"flight_plots": fp, "takeoff_plots": tp}),
+        json.dump(sanitize_for_json(payload),
                   f, separators=(",", ":"), allow_nan=False)
     hires_kb = os.path.getsize(hires_path) / 1024
     print(f"  hires: {hires_path}  ({hires_kb:.0f} KB)")
@@ -1093,6 +1148,16 @@ def _write_or_merge_result(out_path, result, plot_series=None, save_hires=True):
         if result.get("trace_graph"):
             existing["trace_graph"] = result["trace_graph"]
 
+        # Adopt newly-added top-level fields from incoming result when present.
+        # The merge is designed to preserve rich existing data against a partial
+        # incoming run, but new fields like full_flight_torque (added for the
+        # 0-episode torque view) don't exist on old JSONs, so a fresh re-run
+        # should be able to fill them in without overwriting torque_stats/headers.
+        for k in ("full_flight_torque",):
+            v = result.get(k)
+            if v:
+                existing[k] = v
+
         with open(out_path, "w", encoding="utf-8") as f:
             json.dump(sanitize_for_json(existing), f, separators=(",", ":"), allow_nan=False)
         return ("merged", os.path.getsize(out_path) / 1024, n_added)
@@ -1100,7 +1165,10 @@ def _write_or_merge_result(out_path, result, plot_series=None, save_hires=True):
     # ── Normal full write ────────────────────────────────────────────────────
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(sanitize_for_json(result), f, separators=(",", ":"), allow_nan=False)
-    if save_hires and plot_series and new_eps:
+    if save_hires and plot_series:
+        # _save_hires_file self-gates when none of flight_plots / takeoff_plots /
+        # full_flight_torque have anything to write, so this is safe to call
+        # even for 0-episode flights (where full_flight_torque is the value-add).
         _save_hires_file(out_path, result, plot_series)
     return ("wrote", os.path.getsize(out_path) / 1024, 0)
 
@@ -1232,6 +1300,7 @@ def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0
             _attach_episode_plots(result, plot_series)
             _save_flight_plots(result, plot_series)
             _save_takeoff_plots(result, plot_series)
+            _save_full_flight_torque(result, plot_series)
         result = _apply_sysnotengage_fallback(result, _saved_trans, plot_series)
     elif keep_plots and plot_series:
         # Directory mode: preserve raw plot series so the caller can merge and
@@ -1561,6 +1630,7 @@ if __name__ == "__main__":
                 _attach_episode_plots(combined, plot_series)
                 _save_flight_plots(combined, plot_series)
                 _save_takeoff_plots(combined, plot_series)
+                _save_full_flight_torque(combined, plot_series)
             combined = _apply_sysnotengage_fallback(combined, _saved_trans, plot_series)
             episodes = combined.get("episodes", [])
             if not episodes:
