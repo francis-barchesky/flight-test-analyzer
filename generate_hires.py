@@ -139,8 +139,7 @@ def main():
         data_root = os.path.join(os.path.dirname(cfg_path), data_root)
 
     exclude_patterns = cfg.get("exclude_zip_patterns", [])
-    plot_signals_str = cfg.get("plot_signals", "")
-    plot_signals = [s.strip() for s in plot_signals_str.split(",") if s.strip()] or None
+    plot_signals = cfg.get("plot_signals", "") or None
     n_workers = args.workers or cfg.get("workers", 8)
 
     # Determine sortie directories to process
