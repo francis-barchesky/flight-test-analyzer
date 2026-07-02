@@ -4,8 +4,8 @@
   "data_root": ".",
   "output_dir": null,
   "download_script": "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh",
-  "download_start_date": "2025-05-07",
-  "download_end_date": "2026-06-24",
+  "download_start_date": "2026-06-01",
+  "download_end_date": "2026-06-30",
   "_comment_download_pattern": "Regex(es) matched against S3 keys. String or array of regexes; arrays become an OR alternation. Only ZIPs with signals used for plots/analysis are kept; the rest are listed in exclude_zip_patterns below and would just be downloaded then ignored.",
   "download_pattern": [
     "AFCS_del",
@@ -17,7 +17,7 @@
   "trigger_to": 0.0,
   "workers": 8,
   "parallel_sorties": 1,
-  "plot_signals": "atSatTorqueCmd,yawServoTorqueFilt,throttleServoTorqueFilt,rollServoTorqueFilt,pitchServoTorqueFilt,torqueVoted,radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,pfdCasTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,selValue,aptTrimRateServoCmd,srvPtTrqRunningAvgVal,trqRunningAvgVal,afcsEngageEnum,landConfigFail,landFail,lpvApprFail,takeoffConfigFail,lnavModeFail,gpsApprIntegrityValid,gpsApprAnnun,apprLatDevValid,Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg",
+  "plot_signals": "atSatTorqueCmd,yawServoTorqueFilt,throttleServoTorqueFilt,rollServoTorqueFilt,pitchServoTorqueFilt,torqueVoted,radAltVoted,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,pfdCasTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,selValue,aptTrimRateServoCmd,srvPtTrqRunningAvgVal,trqRunningAvgVal,afcsEngageEnum,landConfigFail,landFail,lpvApprFail,takeoffConfigFail,lnavModeFail,gpsApprIntegrityValid,gpsApprAnnun,apprLatDevValid,Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg,RDC1.RDC1_A429_TX_1.315.Elev_Trim_Tab_Capstan_Pos,RDC2.RDC2_A429_TX_1.315.Elev_Trim_Tab_Capstan_Pos",
   "skip_existing": false,
   "exclude_zip_patterns": [
     "SYS_parameters",
