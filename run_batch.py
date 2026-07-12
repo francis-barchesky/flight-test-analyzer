@@ -44,6 +44,10 @@ def _flight_date_iso(existing_json):
         gen_date = datetime.fromisoformat(gen[:10])
         # IADS day-of-year is 0-indexed in the Time column (Day 000 = Jan 1).
         doy0 = int(float(rec) / 86400)
+        # doy0 == 0 means the time column was HH:MM:SS (seconds-since-midnight),
+        # not DDD:HH:MM:SS day-of-year — flight date is indeterminate.
+        if doy0 == 0:
+            return None
         candidate = datetime(gen_date.year, 1, 1) + timedelta(days=doy0)
         if candidate.date() > gen_date.date():
             candidate = datetime(gen_date.year - 1, 1, 1) + timedelta(days=doy0)
@@ -213,6 +217,11 @@ def main():
                          "(skip dirs that only have an old analysis JSON). Useful "
                          "from pipeline.sh so each day's pass touches only freshly-"
                          "downloaded sorties.")
+    ap.add_argument("--from-date", default=None,
+                    help="Re-analyze only sorties whose flight date is >= YYYY-MM-DD. "
+                         "Overrides skip_existing for matching sorties; pre-date sorties "
+                         "are skipped regardless of skip_existing. Requires ZIPs to be "
+                         "present (sorties without ZIPs are always skipped).")
     args = ap.parse_args()
 
     config_path = os.path.abspath(args.config)
@@ -350,7 +359,17 @@ def main():
         out_path = os.path.join(out_dir, "analysis.json")
 
         # ── Skip check ────────────────────────────────────────────────────────
-        if skip_existing and existing_json:
+        # --from-date: determine whether this sortie is in-window.
+        # In-window sorties ignore skip_existing (always re-run if ZIPs present).
+        # Pre-window sorties are always skipped, even if skip_existing is False.
+        from_date = args.from_date
+        if from_date and existing_json:
+            fdate = _flight_date_iso(existing_json)
+            if fdate is not None and fdate < from_date:
+                print(f"[{i}/{n}]  {name}  SKIP  pre-date ({fdate})", flush=True)
+                return {"sortie": name, "json": existing_json, "status": "skipped"}
+            # In-window (or indeterminate date): fall through to re-analyze (ignore skip_existing)
+        elif skip_existing and existing_json:
             print(f"[{i}/{n}]  {name}  SKIP  ({os.path.basename(existing_json)})", flush=True)
             if delete_after and zips:
                 delete_zips(sortie_dir, dry_run=args.dry_run)
