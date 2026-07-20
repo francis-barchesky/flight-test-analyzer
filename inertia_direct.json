@@ -1,0 +1,273 @@
+{
+  "method": "direct",
+  "sigma_ft2": 49.0,
+  "y_tank_ft": 7.0,
+  "Ixx_ZFW": 3188.3840248493293,
+  "se_Ixx_ZFW": 89.23737800304592,
+  "Cl_p_raw": -2.405316368983689,
+  "se_Cl_p": 0.061909202234239784,
+  "Cl_da": -0.20637891054300947,
+  "resid_std": 2351.288498256648,
+  "n_total": 18033819,
+  "n_sorties": 52,
+  "mean_fuel_lb": 831.1510858270295,
+  "Ixx_at_mean_fuel": 4454.201243893416,
+  "rejected": [
+    {
+      "sortie": "G026_N208B",
+      "reason": "G026_N208B: ground sortie"
+    },
+    {
+      "sortie": "G028_N208B",
+      "reason": "G028_N208B: ground sortie"
+    },
+    {
+      "sortie": "G029_N208B",
+      "reason": "G029_N208B: ground sortie"
+    },
+    {
+      "sortie": "G030_N208B",
+      "reason": "G030_N208B: ground sortie"
+    },
+    {
+      "sortie": "G032_N208B",
+      "reason": "G032_N208B: ground sortie"
+    },
+    {
+      "sortie": "G033_1_N208B",
+      "reason": "G033_1_N208B: ground sortie"
+    },
+    {
+      "sortie": "G033_2_N208B",
+      "reason": "G033_2_N208B: ground sortie"
+    },
+    {
+      "sortie": "G033_3_N208B",
+      "reason": "G033_3_N208B: ground sortie"
+    },
+    {
+      "sortie": "G033_N208B",
+      "reason": "G033_N208B: ground sortie"
+    },
+    {
+      "sortie": "G034_2_N208B",
+      "reason": "G034_2_N208B: ground sortie"
+    },
+    {
+      "sortie": "G034_N208B",
+      "reason": "G034_N208B: ground sortie"
+    },
+    {
+      "sortie": "G035_2_N208B",
+      "reason": "G035_2_N208B: ground sortie"
+    },
+    {
+      "sortie": "G035_N208B",
+      "reason": "G035_N208B: ground sortie"
+    },
+    {
+      "sortie": "G036_2_N208B",
+      "reason": "G036_2_N208B: ground sortie"
+    },
+    {
+      "sortie": "G036_N208B",
+      "reason": "G036_N208B: ground sortie"
+    },
+    {
+      "sortie": "G037_N208B",
+      "reason": "G037_N208B: ground sortie"
+    },
+    {
+      "sortie": "G038_N208B",
+      "reason": "G038_N208B: ground sortie"
+    },
+    {
+      "sortie": "G040_N208B",
+      "reason": "G040_N208B: ground sortie"
+    },
+    {
+      "sortie": "S101_N208B",
+      "reason": "S101_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S102_1_N208B",
+      "reason": "S102_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S102_2_N208B",
+      "reason": "S102_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S103_N208B",
+      "reason": "S103_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S105_1_N208B",
+      "reason": "S105_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S106_1_N208B",
+      "reason": "S106_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S107_2_N208B",
+      "reason": "S107_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S107_3_N208B",
+      "reason": "S107_3_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S107_N208B",
+      "reason": "S107_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S108_1_N208B",
+      "reason": "S108_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S108_2_N208B",
+      "reason": "S108_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S109_1_N208B",
+      "reason": "S109_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S109_2_N208B",
+      "reason": "S109_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S110_2_N208B",
+      "reason": "S110_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S110_3_N208B",
+      "reason": "S110_3_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S110_N208B",
+      "reason": "S110_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S111_N208B",
+      "reason": "S111_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S112_2_N208B",
+      "reason": "S112_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S112_N208B",
+      "reason": "S112_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S113_2_N208B",
+      "reason": "S113_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S113_N208B",
+      "reason": "S113_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S115_3_N208B",
+      "reason": "S115_3_N208B: WT_current ~= total_fuel (1368 vs 1368 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S116_2_N208B",
+      "reason": "S116_2_N208B: WT_current ~= total_fuel (910 vs 910 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S121_2_N208B",
+      "reason": "S121_2_N208B: WT_current ~= total_fuel (620 vs 620 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S121_3_N208B",
+      "reason": "S121_3_N208B: WT_current ~= total_fuel (445 vs 445 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S121_4_N208B",
+      "reason": "S121_4_N208B: WT_current ~= total_fuel (553 vs 553 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S123_2_N208B",
+      "reason": "S123_2_N208B: WT_current ~= total_fuel (1146 vs 1146 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S125_2_N208B",
+      "reason": "S125_2_N208B: WT_current ~= total_fuel (1233 vs 1233 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S125_N208B",
+      "reason": "S125_N208B: WT_current ~= total_fuel (1348 vs 1348 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S128_2_N208B",
+      "reason": "S128_2_N208B: WT_current ~= total_fuel (1132 vs 1132 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S130_1_N208B",
+      "reason": "S130_1_N208B: WT_current ~= total_fuel (816 vs 816 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S130_4_N208B",
+      "reason": "S130_4_N208B: TAS never > 50 kts"
+    },
+    {
+      "sortie": "S131_0_N208B",
+      "reason": "S131_0_N208B: WT_current ~= total_fuel (1341 vs 1341 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S133_1_N208B",
+      "reason": "S133_1_N208B: WT_current ~= total_fuel (1503 vs 1503 lb) \u2014 FCC ZFW not initialized"
+    },
+    {
+      "sortie": "S135_1_N208B",
+      "reason": "S135_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S135_2_N208B",
+      "reason": "S135_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S137_1_N208B",
+      "reason": "S137_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S137_2_N208B",
+      "reason": "S137_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S138_1_N208B",
+      "reason": "S138_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S138_2_N208B",
+      "reason": "S138_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S138_3_N208B",
+      "reason": "S138_3_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S142_1_N208B",
+      "reason": "S142_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S142_3_N208B",
+      "reason": "S142_3_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S143_2_N208B",
+      "reason": "S143_2_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S144_1_N208B",
+      "reason": "S144_1_N208B: AFCS cache missing ['daL', 'daR', 'p', 'tas']"
+    },
+    {
+      "sortie": "S149_2_N208B",
+      "reason": "S149_2_N208B: WT_current ~= total_fuel (890 vs 890 lb) \u2014 FCC ZFW not initialized"
+    }
+  ]
+}

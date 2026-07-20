@@ -1,0 +1,375 @@
+{
+  "method": "pitch",
+  "c_bar_ft": 5.355086372360844,
+  "xi": 0.0012886603521297063,
+  "xi_se": 1.3073731669493592e-06,
+  "stage1_resid_std": 11.752277769175986,
+  "n_sorties": 52,
+  "cm_q_supplied": null,
+  "sorties": [
+    {
+      "sortie": "S114_1_N208B",
+      "Psi_pitch": 0.4902999063910381,
+      "Psi_pitch_se": 0.6121835023828991,
+      "fuel_mean_lb": 1417.3401123953195,
+      "Iyy": null
+    },
+    {
+      "sortie": "S115_1_N208B",
+      "Psi_pitch": 0.3344707689236827,
+      "Psi_pitch_se": 0.3271986757789208,
+      "fuel_mean_lb": 965.51016361233,
+      "Iyy": null
+    },
+    {
+      "sortie": "S115_2_N208B",
+      "Psi_pitch": 0.3510836011618003,
+      "Psi_pitch_se": 0.2864003660416457,
+      "fuel_mean_lb": 982.2865382864587,
+      "Iyy": null
+    },
+    {
+      "sortie": "S116_N208B",
+      "Psi_pitch": 0.16689162263437674,
+      "Psi_pitch_se": 0.29198048288426326,
+      "fuel_mean_lb": 1048.6958432899153,
+      "Iyy": null
+    },
+    {
+      "sortie": "S117_2_N208B",
+      "Psi_pitch": 0.8259679730187995,
+      "Psi_pitch_se": 0.3846303154411516,
+      "fuel_mean_lb": 1096.1380863511079,
+      "Iyy": null
+    },
+    {
+      "sortie": "S117_N208B",
+      "Psi_pitch": 0.26276909535886983,
+      "Psi_pitch_se": 0.40274755570332277,
+      "fuel_mean_lb": 1131.7939872128163,
+      "Iyy": null
+    },
+    {
+      "sortie": "S118_1_N208B",
+      "Psi_pitch": 0.7488562038951667,
+      "Psi_pitch_se": 0.7507770397013404,
+      "fuel_mean_lb": 894.6739915949316,
+      "Iyy": null
+    },
+    {
+      "sortie": "S118_2_N208B",
+      "Psi_pitch": 0.030777885346080006,
+      "Psi_pitch_se": 0.7677425192827945,
+      "fuel_mean_lb": 676.7608866186897,
+      "Iyy": null
+    },
+    {
+      "sortie": "S118_3_N208B",
+      "Psi_pitch": -0.32838519945424044,
+      "Psi_pitch_se": 0.5971455016315225,
+      "fuel_mean_lb": 875.8968814404323,
+      "Iyy": null
+    },
+    {
+      "sortie": "S119_1_N208B",
+      "Psi_pitch": 0.2550578001451981,
+      "Psi_pitch_se": 0.37314990318243396,
+      "fuel_mean_lb": 1046.450043187603,
+      "Iyy": null
+    },
+    {
+      "sortie": "S119_2_N208B",
+      "Psi_pitch": 0.9136499865203432,
+      "Psi_pitch_se": 0.4883716945114245,
+      "fuel_mean_lb": 852.8112843841196,
+      "Iyy": null
+    },
+    {
+      "sortie": "S120_1_N208B",
+      "Psi_pitch": 0.7895980918741503,
+      "Psi_pitch_se": 0.6388277752038752,
+      "fuel_mean_lb": 1129.4995355872584,
+      "Iyy": null
+    },
+    {
+      "sortie": "S120_2_N208B",
+      "Psi_pitch": 0.41178627519248984,
+      "Psi_pitch_se": 0.35301716453661125,
+      "fuel_mean_lb": 887.4042634015487,
+      "Iyy": null
+    },
+    {
+      "sortie": "S121_N208B",
+      "Psi_pitch": 1.84142314350209,
+      "Psi_pitch_se": 0.5246655453580865,
+      "fuel_mean_lb": 492.01338718872586,
+      "Iyy": null
+    },
+    {
+      "sortie": "S122_1_N208B",
+      "Psi_pitch": -0.9532952012343195,
+      "Psi_pitch_se": 0.8715415805671859,
+      "fuel_mean_lb": 1067.333917713336,
+      "Iyy": null
+    },
+    {
+      "sortie": "S122_2_N208B",
+      "Psi_pitch": 0.2980454017739736,
+      "Psi_pitch_se": 0.4742335455707738,
+      "fuel_mean_lb": 1091.4628229341974,
+      "Iyy": null
+    },
+    {
+      "sortie": "S122_3_N208B",
+      "Psi_pitch": 0.24860462431333,
+      "Psi_pitch_se": 0.38900912682045385,
+      "fuel_mean_lb": 1048.7271037549535,
+      "Iyy": null
+    },
+    {
+      "sortie": "S123_1_N208B",
+      "Psi_pitch": 0.2966812677987771,
+      "Psi_pitch_se": 0.7261720513445654,
+      "fuel_mean_lb": 861.3321076866157,
+      "Iyy": null
+    },
+    {
+      "sortie": "S124_1_N208B",
+      "Psi_pitch": -0.24401099738034315,
+      "Psi_pitch_se": 0.49972969254723726,
+      "fuel_mean_lb": 837.0175367574025,
+      "Iyy": null
+    },
+    {
+      "sortie": "S125_3_N208B",
+      "Psi_pitch": -0.041398883833210644,
+      "Psi_pitch_se": 0.7214043847720996,
+      "fuel_mean_lb": 978.7326326049433,
+      "Iyy": null
+    },
+    {
+      "sortie": "S125_4_N208B",
+      "Psi_pitch": 0.20190596420928944,
+      "Psi_pitch_se": 0.5326209155028274,
+      "fuel_mean_lb": 1080.1071088234273,
+      "Iyy": null
+    },
+    {
+      "sortie": "S126_1_N208B",
+      "Psi_pitch": -0.11119742354482551,
+      "Psi_pitch_se": 0.40268404168656075,
+      "fuel_mean_lb": 1133.4139860023924,
+      "Iyy": null
+    },
+    {
+      "sortie": "S127_1_N208B",
+      "Psi_pitch": 0.2880915138898269,
+      "Psi_pitch_se": 0.5784528797934552,
+      "fuel_mean_lb": 1066.25854334462,
+      "Iyy": null
+    },
+    {
+      "sortie": "S128_1_N208B",
+      "Psi_pitch": -0.6301178744880962,
+      "Psi_pitch_se": 0.6753872812309664,
+      "fuel_mean_lb": 1191.6574850755776,
+      "Iyy": null
+    },
+    {
+      "sortie": "S129_1_N208B",
+      "Psi_pitch": 1.9885093702961132,
+      "Psi_pitch_se": 0.9440836583592523,
+      "fuel_mean_lb": 523.6447080898259,
+      "Iyy": null
+    },
+    {
+      "sortie": "S130_2_N208B",
+      "Psi_pitch": 2.4071602481832057,
+      "Psi_pitch_se": 0.6611840510919533,
+      "fuel_mean_lb": 543.3886952057051,
+      "Iyy": null
+    },
+    {
+      "sortie": "S130_3_N208B",
+      "Psi_pitch": 1.3986912349604022,
+      "Psi_pitch_se": 0.3645570010315827,
+      "fuel_mean_lb": 543.7420424873598,
+      "Iyy": null
+    },
+    {
+      "sortie": "S130_5_N208B",
+      "Psi_pitch": 1.8808789960110122,
+      "Psi_pitch_se": 0.4889742257539351,
+      "fuel_mean_lb": 553.8813559492437,
+      "Iyy": null
+    },
+    {
+      "sortie": "S130_6_N208B",
+      "Psi_pitch": 1.4232321112425472,
+      "Psi_pitch_se": 0.9520822312607381,
+      "fuel_mean_lb": 915.0507280076171,
+      "Iyy": null
+    },
+    {
+      "sortie": "S131_1_N208B",
+      "Psi_pitch": 0.12259659920935968,
+      "Psi_pitch_se": 0.44149580231165575,
+      "fuel_mean_lb": 1079.797894615884,
+      "Iyy": null
+    },
+    {
+      "sortie": "S134_1_N208B",
+      "Psi_pitch": 0.4467919454594567,
+      "Psi_pitch_se": 0.35839661890851165,
+      "fuel_mean_lb": 1168.3091708074567,
+      "Iyy": null
+    },
+    {
+      "sortie": "S134_2_N208B",
+      "Psi_pitch": 0.35891154453948826,
+      "Psi_pitch_se": 0.3034187187994735,
+      "fuel_mean_lb": 1116.1003375381658,
+      "Iyy": null
+    },
+    {
+      "sortie": "S134_3_N208B",
+      "Psi_pitch": 1.1722866937710235,
+      "Psi_pitch_se": 0.49010771323948754,
+      "fuel_mean_lb": 1189.6968787964056,
+      "Iyy": null
+    },
+    {
+      "sortie": "S139_1_N208B",
+      "Psi_pitch": 1.6906620558882066,
+      "Psi_pitch_se": 0.9304403364002842,
+      "fuel_mean_lb": 548.4079117494513,
+      "Iyy": null
+    },
+    {
+      "sortie": "S140_1_N208B",
+      "Psi_pitch": 0.5910503491627053,
+      "Psi_pitch_se": 1.3628634544841831,
+      "fuel_mean_lb": 397.0448100096837,
+      "Iyy": null
+    },
+    {
+      "sortie": "S140_2_N208B",
+      "Psi_pitch": 0.7074749141436133,
+      "Psi_pitch_se": 2.828826953735369,
+      "fuel_mean_lb": 297.76540144874207,
+      "Iyy": null
+    },
+    {
+      "sortie": "S140_3_N208B",
+      "Psi_pitch": 1.2305206828015425,
+      "Psi_pitch_se": 0.7124799730008248,
+      "fuel_mean_lb": 722.653207922441,
+      "Iyy": null
+    },
+    {
+      "sortie": "S142_2_N208B",
+      "Psi_pitch": 2.3455438345365827,
+      "Psi_pitch_se": 1.1312092823190554,
+      "fuel_mean_lb": 885.82095123915,
+      "Iyy": null
+    },
+    {
+      "sortie": "S143_1_N208B",
+      "Psi_pitch": 1.5116307359539352,
+      "Psi_pitch_se": 0.5408487277789668,
+      "fuel_mean_lb": 525.7000954754573,
+      "Iyy": null
+    },
+    {
+      "sortie": "S144_2_N208B",
+      "Psi_pitch": 2.2467974128869317,
+      "Psi_pitch_se": 0.6845857339143162,
+      "fuel_mean_lb": 341.94740325678663,
+      "Iyy": null
+    },
+    {
+      "sortie": "S145_1_N208B",
+      "Psi_pitch": -0.08337942866880349,
+      "Psi_pitch_se": 0.7010442307804502,
+      "fuel_mean_lb": 745.6959037038225,
+      "Iyy": null
+    },
+    {
+      "sortie": "S146_1_N208B",
+      "Psi_pitch": -0.196658148548836,
+      "Psi_pitch_se": 0.5883657898469137,
+      "fuel_mean_lb": 479.60536479889765,
+      "Iyy": null
+    },
+    {
+      "sortie": "S146_2_N208B",
+      "Psi_pitch": 0.5176446306867067,
+      "Psi_pitch_se": 0.417199037926214,
+      "fuel_mean_lb": 606.1322601241623,
+      "Iyy": null
+    },
+    {
+      "sortie": "S147_1_N208B",
+      "Psi_pitch": 1.0600727578361042,
+      "Psi_pitch_se": 0.4358890581911552,
+      "fuel_mean_lb": 782.631455331021,
+      "Iyy": null
+    },
+    {
+      "sortie": "S147_2_N208B",
+      "Psi_pitch": 0.6469925394067095,
+      "Psi_pitch_se": 0.5090526892945556,
+      "fuel_mean_lb": 771.7508857695086,
+      "Iyy": null
+    },
+    {
+      "sortie": "S148_1_N208B",
+      "Psi_pitch": 0.4189494217198363,
+      "Psi_pitch_se": 1.3637151328058978,
+      "fuel_mean_lb": 422.77412854932595,
+      "Iyy": null
+    },
+    {
+      "sortie": "S148_2_N208B",
+      "Psi_pitch": 1.683321397483435,
+      "Psi_pitch_se": 0.9591190110116782,
+      "fuel_mean_lb": 431.0300349768484,
+      "Iyy": null
+    },
+    {
+      "sortie": "S149_1_N208B",
+      "Psi_pitch": 0.754989613076083,
+      "Psi_pitch_se": 0.5781546628471991,
+      "fuel_mean_lb": 928.3891332921328,
+      "Iyy": null
+    },
+    {
+      "sortie": "S150_2_N208B",
+      "Psi_pitch": 2.19669495171502,
+      "Psi_pitch_se": 0.6175950944423823,
+      "fuel_mean_lb": 625.5542555487481,
+      "Iyy": null
+    },
+    {
+      "sortie": "S150_N208B",
+      "Psi_pitch": 1.6147413765652323,
+      "Psi_pitch_se": 0.5678285069175728,
+      "fuel_mean_lb": 532.0265188590847,
+      "Iyy": null
+    },
+    {
+      "sortie": "S151_1_N208B",
+      "Psi_pitch": 0.7757431494747187,
+      "Psi_pitch_se": 0.415134897818335,
+      "fuel_mean_lb": 888.305632548918,
+      "Iyy": null
+    },
+    {
+      "sortie": "S152_N208B",
+      "Psi_pitch": 0.6992619349801156,
+      "Psi_pitch_se": 0.5808142342043411,
+      "fuel_mean_lb": 799.691047654965,
+      "Iyy": null
+    }
+  ]
+}
