@@ -14,20 +14,138 @@ Usage:
 
 import argparse
 import glob
+import gzip
 import json
 import os
+import pathlib
 import re
 import shutil
 import subprocess
 import sys
 import time
+import urllib.parse
+import urllib.request
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
 
+def _jira_sw_version(sortie_name):
+    """Query FFT Jira for the SW version embedded in the matching Flight Test issue summary.
+
+    Reads credentials from ~/.cia_config.json (same file as CIA generator).
+    Returns a version string like '5.01.04', or None if not found / auth missing.
+    """
+    try:
+        cfg_path = pathlib.Path.home() / '.cia_config.json'
+        if not cfg_path.exists():
+            return None
+        cfg = json.loads(cfg_path.read_text())
+        token = cfg.get('jiraToken', '')
+        auth_type = cfg.get('jiraAuthType', 'Basic')
+        base_url = cfg.get('jiraBaseUrl', 'https://merlinlabs.atlassian.net').rstrip('/')
+        if not token:
+            return None
+
+        search_tag = sortie_name.replace('_', '')  # S140_N208B -> S140N208B
+        jql = (f'project = FFT AND issuetype = "Flight Test" '
+               f'AND summary ~ "{search_tag}" ORDER BY updated DESC')
+        url = (f'{base_url}/rest/api/3/issue/search'
+               f'?jql={urllib.parse.quote(jql)}&fields=summary&maxResults=1')
+
+        req = urllib.request.Request(url, headers={
+            'Authorization': f'{auth_type} {token}',
+            'Accept': 'application/json',
+        })
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+
+        issues = data.get('issues', [])
+        if not issues:
+            return None
+        summary = issues[0].get('fields', {}).get('summary', '')
+        m = re.search(r'\b(\d+\.\d+\.\d+)\b', summary)
+        return m.group(1) if m else None
+    except Exception:
+        return None
+
+
+_FLIGHT_CARDS_FOLDER = '10E-pP0fwACMaOvoeYGLaePEyl4kZH9zV'
+
+
+def _gdrive_sw_version(sortie_name, folder_id=_FLIGHT_CARDS_FOLDER):
+    """Fallback: search the Flight Cards Google Drive folder for SW version.
+
+    Looks for a Google Doc whose title contains the sortie tag, exports it as
+    plain text, and extracts the FCC/FTS version line (e.g. 'FCC - 05.01.04').
+    Uses googleToken from ~/.cia_config.json (refresh with setupCiaAuth.m if expired).
+    """
+    try:
+        cfg_path = pathlib.Path.home() / '.cia_config.json'
+        if not cfg_path.exists():
+            return None
+        cfg = json.loads(cfg_path.read_text())
+        token = cfg.get('googleToken', '')
+        if not token:
+            return None
+
+        search_tag = sortie_name.replace('_', '')  # S140_N208B -> S140N208B
+        query = f"'{folder_id}' in parents and title contains '{search_tag}'"
+        search_url = (
+            'https://www.googleapis.com/drive/v3/files'
+            f'?q={urllib.parse.quote(query)}'
+            '&fields=files(id,name)'
+            '&includeItemsFromAllDrives=true'
+            '&supportsAllDrives=true'
+            '&pageSize=1'
+        )
+        req = urllib.request.Request(search_url, headers={
+            'Authorization': f'Bearer {token}',
+            'Accept': 'application/json',
+        })
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            data = json.loads(resp.read())
+
+        files = data.get('files', [])
+        if not files:
+            return None
+
+        file_id = files[0]['id']
+        export_url = (
+            f'https://www.googleapis.com/drive/v3/files/{file_id}/export'
+            '?mimeType=text/plain'
+        )
+        req = urllib.request.Request(export_url, headers={
+            'Authorization': f'Bearer {token}',
+        })
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            content = resp.read().decode('utf-8', errors='replace')
+
+        # Match "FCC - 05.01.04" or "FTS - 05.01.04" (zero-padded format)
+        m = re.search(r'\b(?:FCC|FTS)\s*[-–]\s*(\d{2}\.\d{2}\.\d{2})\b', content)
+        return m.group(1) if m else None
+    except Exception:
+        return None
+
+
+def _patch_json(path, extra):
+    """Merge extra fields into an existing analysis JSON (plain or gzip)."""
+    if path.endswith('.gz'):
+        with gzip.open(path, 'rt', encoding='utf-8') as f:
+            data = json.load(f)
+        data.update(extra)
+        with gzip.open(path, 'wt', encoding='utf-8') as f:
+            json.dump(data, f)
+    else:
+        with open(path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        data.update(extra)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f)
+
+
 def _flight_date_iso(existing_json):
     """
-    Best-effort flight date from an analysis JSON.
+    Best-effort flight date from an analysis JSON (plain or gzip-compressed).
 
     The JSON has `rec_start_s` (seconds since start-of-year of the flight year)
     and `generated_at` (analysis timestamp). The flight year is the same as
@@ -35,8 +153,13 @@ def _flight_date_iso(existing_json):
     flight date <= analysis date. Returns 'YYYY-MM-DD' or None.
     """
     try:
-        with open(existing_json, encoding='utf-8') as f:
-            d = json.load(f)
+        import gzip as _gzip
+        if existing_json.endswith('.json.gz'):
+            with _gzip.open(existing_json, 'rt', encoding='utf-8') as f:
+                d = json.load(f)
+        else:
+            with open(existing_json, encoding='utf-8') as f:
+                d = json.load(f)
         rec = d.get('rec_start_s')
         gen = d.get('generated_at')
         if rec is None or not gen:
@@ -159,7 +282,8 @@ def find_sortie_dirs(data_root):
         if not entry.is_dir():
             continue
         has_zips = bool(glob.glob(os.path.join(entry.path, "*.zip")))
-        has_json = bool(glob.glob(os.path.join(entry.path, "analysis*.json")))
+        has_json = bool(glob.glob(os.path.join(entry.path, "analysis*.json"))) or \
+                   bool(glob.glob(os.path.join(entry.path, "analysis*.json.gz")))
         if has_zips or has_json:
             dirs.append(entry.path)
     return dirs
@@ -167,14 +291,15 @@ def find_sortie_dirs(data_root):
 
 def find_analysis_json(sortie_dir):
     """
-    Return the path of an existing analysis JSON in sortie_dir, or None.
-    Matches analysis_*.json / analysis.json but excludes the *_hires.json
-    companions (those don't carry rec_start_s / generated_at).
+    Return the path of an existing analysis JSON (plain or gzip) in sortie_dir, or None.
+    Prefers .json.gz over .json when both exist. Excludes legacy *_hires.json companions.
     """
-    candidates = [
+    plain = [
         p for p in glob.glob(os.path.join(sortie_dir, "analysis*.json"))
         if not p.lower().endswith("_hires.json")
     ]
+    compressed = glob.glob(os.path.join(sortie_dir, "analysis*.json.gz"))
+    candidates = plain + compressed
     if candidates:
         return max(candidates, key=os.path.getmtime)
     return None
@@ -228,18 +353,20 @@ def main():
     cfg = load_config(config_path)
     config_dir = os.path.dirname(config_path)
 
-    # Resolve script path relative to config location
+    # Resolve script path relative to run_batch.py's own directory, not the config.
+    # This allows chunk configs in subdirectories to still find analyze_iads.py.
     script = cfg.get("script", "analyze_iads.py")
     if not os.path.isabs(script):
-        script = os.path.join(config_dir, script)
+        script = os.path.join(os.path.dirname(os.path.abspath(__file__)), script)
     if not os.path.exists(script):
         print(f"ERROR: analyze_iads.py not found at: {script}")
         sys.exit(1)
 
-    # Resolve data_root relative to config location
+    # Resolve data_root relative to run_batch.py's own directory so that chunk
+    # configs in subdirectories (e.g. pipeline_chunks/) still find the right root.
     data_root = cfg.get("data_root", ".")
     if not os.path.isabs(data_root):
-        data_root = os.path.normpath(os.path.join(config_dir, data_root))
+        data_root = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), data_root))
 
     if args.status:
         sortie_dirs = find_sortie_dirs(data_root)
@@ -252,8 +379,13 @@ def main():
             j = find_analysis_json(sd)
             if j:
                 try:
-                    with open(j, encoding="utf-8") as f:
-                        d = json.load(f)
+                    import gzip as _gzip
+                    if j.endswith('.json.gz'):
+                        with _gzip.open(j, 'rt', encoding='utf-8') as f:
+                            d = json.load(f)
+                    else:
+                        with open(j, encoding="utf-8") as f:
+                            d = json.load(f)
                     if not d.get("episodes"):
                         no_ep_names.append(name)
                 except Exception:
@@ -356,7 +488,7 @@ def main():
         existing_json = find_analysis_json(sortie_dir)
 
         out_dir  = output_dir or sortie_dir
-        out_path = os.path.join(out_dir, "analysis.json")
+        out_path = os.path.join(out_dir, "analysis.json.gz")
 
         # ── Skip check ────────────────────────────────────────────────────────
         # --from-date: determine whether this sortie is in-window.
@@ -424,8 +556,12 @@ def main():
             print(f"[{i}/{n}]  {name}  [dry-run]", flush=True)
             return {"sortie": name, "json": None, "status": "dry-run"}
 
+        # ── SW version lookup (quick Jira/GDrive call before analysis) ──────────
+        jira_ver = _jira_sw_version(name) or _gdrive_sw_version(name)
+        sw_tag = f"  sw={jira_ver}" if jira_ver else ""
+
         # ── Run ───────────────────────────────────────────────────────────────
-        print(f"[{i}/{n}]  {name}  ({len(zips)} ZIP(s))", flush=True)
+        print(f"[{i}/{n}]  {name}{sw_tag}  ({len(zips)} ZIP(s))", flush=True)
         t0 = time.perf_counter()
         try:
             proc = subprocess.run(cmd, capture_output=True, text=True)
@@ -441,7 +577,11 @@ def main():
             written_json = find_analysis_json(out_dir)
             if delete_after:
                 delete_zips(sortie_dir, dry_run=False)
-            return {"sortie": name, "json": written_json, "status": "ok", "elapsed_s": round(elapsed, 1)}
+
+            if jira_ver and written_json:
+                _patch_json(written_json, {'jira_sw_version': jira_ver})
+
+            return {"sortie": name, "json": written_json, "status": "ok", "elapsed_s": round(elapsed, 1), "sw_version": jira_ver}
 
         except subprocess.CalledProcessError as e:
             elapsed = time.perf_counter() - t0

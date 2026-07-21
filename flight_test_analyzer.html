@@ -127,9 +127,9 @@ body { font-family: system-ui, sans-serif; background: #2b2b28; color: #cac8bf; 
       </div>
       <div id="ss-body-analysis">
         <label for="analysisInput" class="drop-zone" id="analysisDropZone">
-          <p id="analysisText">Drop analysis.json</p>
-          <small id="analysisSub">or multiple files / folder</small>
-          <input type="file" id="analysisInput" multiple accept=".json">
+          <p id="analysisText">Drop analysis files</p>
+          <small id="analysisSub">.json.gz or .json, or folder</small>
+          <input type="file" id="analysisInput" multiple accept=".json,.json.gz,.gz">
         </label>
         <div class="status-box" id="analysisStatus" style="margin-top:5px">Ready</div>
       </div>
@@ -1173,7 +1173,7 @@ document.getElementById('analysisDropZone').addEventListener('click', async e =>
   try {
     const handles = await window.showOpenFilePicker({
       multiple: true,
-      types: [{ description: 'Analysis JSON', accept: { 'application/json': ['.json'] } }],
+      types: [{ description: 'Analysis JSON', accept: { 'application/json': ['.json', '.json.gz', '.gz'] } }],
       ...(lastDirHandle ? { startIn: lastDirHandle } : lastFileHandle ? { startIn: lastFileHandle } : { startIn: 'documents' }),
     });
     if (handles.length) lastFileHandle = handles[0];
@@ -1194,7 +1194,7 @@ document.getElementById('graphInput').addEventListener('change', function() {
     e.preventDefault(); zone.classList.remove('drag-over');
     const files = [...e.dataTransfer.files];
     if (!files.length) return;
-    if (id === 'analysisDropZone')   files.filter(f => f.name.endsWith('.json')).forEach(loadAnalysisFile);
+    if (id === 'analysisDropZone')   files.filter(f => /\.(json|gz)$/i.test(f.name)).forEach(loadAnalysisFile);
     if (id === 'graphDropZone')      loadGraphFile(files[0]);
   });
 });
@@ -1225,36 +1225,44 @@ function _sidebarToggle(forceHide) {
   try { localStorage.setItem('_sidebarHidden', hiding ? '1' : ''); } catch(e) {}
 }
 
-// ── Load analysis.json ─────────────────────────────────────────────────────
+// ── Load analysis files ────────────────────────────────────────────────────
 function setStatus(id, msg, color) {
   const el = document.getElementById(id);
   el.textContent = msg;
   el.className = 'status-box' + (color ? ' ' + color : '');
 }
 
+async function readJsonFile(file) {
+  if (/\.gz$/i.test(file.name)) {
+    const buf = await file.arrayBuffer();
+    const ds = new DecompressionStream('gzip');
+    const writer = ds.writable.getWriter();
+    const reader = ds.readable.getReader();
+    writer.write(new Uint8Array(buf));
+    writer.close();
+    const chunks = [];
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+    const total = chunks.reduce((n, c) => n + c.length, 0);
+    const merged = new Uint8Array(total);
+    let off = 0;
+    for (const c of chunks) { merged.set(c, off); off += c.length; }
+    return JSON.parse(new TextDecoder().decode(merged));
+  }
+  return JSON.parse(await file.text());
+}
+
 function loadAnalysisFile(file) {
   setStatus('analysisStatus', 'Reading ' + file.name + '...', 'blue');
-  file.text().then(text => {
-    setStatus('analysisStatus', 'Parsing ' + file.name + '...', 'blue');
-    return new Promise((res, rej) => setTimeout(() => {
-      try { res(JSON.parse(text)); } catch(e) { rej(e); }
-    }, 0));
-  }).then(data => routeJsonData(file.name, data, file))
+  readJsonFile(file)
+    .then(data => routeJsonData(file.name, data, file))
     .catch(e => setStatus('analysisStatus', 'Error (' + file.name + '): ' + e.message, 'red'));
 }
 
-// Map of baseName → hires File, populated when *_hires.json files are loaded
-const _hiresFileMap = {};
-
 function routeJsonData(name, data, file) {
-  // Hires companion files — don't add to queue, attach to matching sortie
-  if (/_hires\.json$/i.test(name)) {
-    const baseName = name.replace(/_hires(\.json)$/i, '$1');
-    _hiresFileMap[baseName] = file;
-    const entry = analysisQueue.find(q => q.name === baseName);
-    if (entry) { entry._hiresFile = file; entry._hiresData = null; }
-    return;
-  }
   // Trace graph JSON has nodes[] + edges[]; everything else is an analysis file
   if (Array.isArray(data.nodes) && Array.isArray(data.edges)) {
     applyGraphData(data, name).catch(e => setStatus('graphStatus', 'Error: ' + e.message, 'red'));
@@ -1264,14 +1272,14 @@ function routeJsonData(name, data, file) {
 }
 
 // Recursively collect JSON file handles under a directory.
-// analysis*.json → analysisOut; any other *.json → otherOut (potential graph/trace files)
+// analysis*.json(.gz) → analysisOut; any other *.json → otherOut (potential graph/trace files)
 async function collectAnalysisHandles(dirHandle, analysisOut, otherOut) {
   for await (const [name, handle] of dirHandle.entries()) {
     if (handle.kind === 'directory') {
       await collectAnalysisHandles(handle, analysisOut, otherOut);
-    } else if (handle.kind === 'file' && /\.json$/i.test(name)) {
-      if (/^analysis.*\.json$/i.test(name)) analysisOut.push(handle);
-      else otherOut.push(handle);
+    } else if (handle.kind === 'file') {
+      if (/^analysis.*\.json(\.gz)?$/i.test(name)) analysisOut.push(handle);
+      else if (/\.json$/i.test(name)) otherOut.push(handle);
     }
   }
 }
@@ -1338,7 +1346,7 @@ async function openDirectory() {
 // ── Sortie sort key: G-sorties first, then S-sorties, numeric, sub-runs in order
 // e.g. G014 -> ['G',14,0]  S114_1 -> ['S',114,1]  S116 -> ['S',116,0]
 function _sortieKey(name) {
-  const base = name.replace(/^.*[\/\\]/, '').replace(/\.json$/i, '').replace(/^analysis_?/i, '');
+  const base = name.replace(/^.*[\/\\]/, '').replace(/\.json(\.gz)?$/i, '').replace(/^analysis_?/i, '');
   const m = base.match(/^([A-Za-z]+)(\d+)(?:_(\d+))?/);
   if (!m) return ['~', 0, 0];
   return [m[1].toUpperCase(), parseInt(m[2], 10), parseInt(m[3] || '0', 10)];
@@ -1369,8 +1377,7 @@ function addToQueue(name, data, file) {
   const slim = Object.assign({}, data);
   _SLIM_KEYS.forEach(k => delete slim[k]);
 
-  const entry = { name, data: slim, file: file || null,
-    _hiresFile: _hiresFileMap[name] || null, _hiresData: null };
+  const entry = { name, data: slim, file: file || null };
   const existing = analysisQueue.findIndex(q => q.name === name);
   if (existing >= 0) {
     analysisQueue[existing] = entry;
@@ -1388,7 +1395,7 @@ function addToQueue(name, data, file) {
   if (file && !entry._fullData) {
     (async () => {
       try {
-        const full = JSON.parse(await file.text());
+        const full = await readJsonFile(file);
         const qEntry = analysisQueue.find(q => q.name === name);
         if (qEntry) { qEntry._fullData = full; qEntry._phaseCounts = null; }
       } catch(_) {}
@@ -1411,7 +1418,7 @@ async function activateQueueItem(idx) {
   if (_fs) _fs.style.display = 'none';
   renderQueue();
   const item = analysisQueue[idx];
-  const label = item.name.replace(/^analysis_/i, '').replace(/\.json$/i, '');
+  const label = item.name.replace(/^analysis_/i, '').replace(/\.json(\.gz)?$/i, '');
 
   // Show loading state immediately while file is being read
   const panel = document.getElementById('mainPanel');
@@ -1424,25 +1431,7 @@ async function activateQueueItem(idx) {
     `<line x1="4.93" y1="19.07" x2="7.76" y2="16.24"/><line x1="16.24" y1="7.76" x2="19.07" y2="4.93"/>` +
     `</svg>${label}…</div>`;
 
-  // Load hires plot data if available and not yet cached
-  async function _loadHires(item) {
-    if (item._hiresData) return;
-    const hf = item._hiresFile || _hiresFileMap[item.name] || null;
-    if (!hf) return;
-    try {
-      const hires = JSON.parse(await hf.text());
-      item._hiresData = hires;
-      // Overlay hires plots onto full data if already loaded
-      if (item._fullData) {
-        if (hires.flight_plots)       item._fullData.flight_plots       = hires.flight_plots;
-        if (hires.takeoff_plots)      item._fullData.takeoff_plots      = hires.takeoff_plots;
-        if (hires.full_flight_torque) item._fullData.full_flight_torque = hires.full_flight_torque;
-      }
-    } catch(_) {}
-  }
-
   if (item._fullData) {
-    await _loadHires(item);
     setActiveData(item._fullData, item.name);
     runAnalysis();
     return;
@@ -1450,11 +1439,9 @@ async function activateQueueItem(idx) {
   if (item.file) {
     try {
       setStatus('analysisStatus', 'Loading ' + item.name + '…', 'blue');
-      const text = await item.file.text();
-      const full = JSON.parse(text);
+      const full = await readJsonFile(item.file);
       item._fullData = full;
       item._phaseCounts = null; // recalculate with full plot data
-      await _loadHires(item);
       setStatus('analysisStatus', '', '');
       setActiveData(full, item.name);
       runAnalysis();
@@ -1487,7 +1474,7 @@ async function activateSummary() {
         `</svg>Loading ${unloaded.length} file${unloaded.length > 1 ? 's' : ''}…</div>`;
       await Promise.all(unloaded.map(async item => {
         try {
-          const full = JSON.parse(await item.file.text());
+          const full = await readJsonFile(item.file);
           item._fullData    = full;
           item._phaseCounts = null;
         } catch(_) {}

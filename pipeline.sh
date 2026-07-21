@@ -48,6 +48,14 @@ to_win_path() {
     fi
 }
 
+# Detect the Windows C: drive mount point for this shell environment.
+# Git Bash uses /c/, WSL uses /mnt/c/.
+if [[ -d "/mnt/c/Users" ]]; then
+    _WIN_C="/mnt/c"
+else
+    _WIN_C="/c"
+fi
+
 # ── Detect Python ─────────────────────────────────────────────────────────────
 # Prefer the known Python 3.13.3 install (the project needs 3.13; 3.12 on PATH
 # in Git Bash has triggered SRE mismatches). Respect a pre-set $PYTHON override.
@@ -94,10 +102,13 @@ DATA_ROOT="$(cd "$DATA_ROOT" && pwd)"
 
 DOWNLOAD_SCRIPT="$(cfg download_script "~/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh")"
 DOWNLOAD_SCRIPT="${DOWNLOAD_SCRIPT/#\~/$HOME}"
+# Normalise Windows drive prefix to match the current shell's mount convention.
+DOWNLOAD_SCRIPT="$(echo "$DOWNLOAD_SCRIPT" | sed "s|^/mnt/c/|${_WIN_C}/|; s|^/c/|${_WIN_C}/|")"
 
 START_DATE="$(cfg download_start_date "$(date +%Y-%m-%d)")"
 END_DATE="$(cfg download_end_date "$(date +%Y-%m-%d)")"
 PATTERN="$(cfg download_pattern "*")"
+MIN_FREE_GB="$(cfg min_free_gb "10")"
 
 SCRIPT_DIR_WIN="$(to_win_path "$SCRIPT_DIR")"
 ANALYZE_CMD=("$PYTHON" "$SCRIPT_DIR_WIN/run_batch.py" "$CONFIG_WIN" --organize --zips-only)
@@ -126,6 +137,25 @@ fmt_elapsed() {
     if   [[ $h -gt 0 ]]; then printf "%dh %02dm %02ds" $h $m $s
     elif [[ $m -gt 0 ]]; then printf "%dm %02ds" $m $s
     else                      printf "%ds" $s
+    fi
+}
+
+# ── Disk space guard ───────────────────────────────────────────────────────────
+check_disk_space() {
+    local required_gb=$1
+    local path=$2
+    local free_kb
+    free_kb=$(df -k "$path" 2>/dev/null | awk 'NR==2 {print $4}')
+    if [[ -z "$free_kb" ]]; then
+        echo "  [!] WARNING: could not check free disk space at $path — proceeding anyway"
+        return 0
+    fi
+    local free_gb
+    free_gb=$(awk "BEGIN {printf \"%.1f\", $free_kb / 1048576}")
+    if awk "BEGIN {exit !($free_gb < $required_gb)}"; then
+        echo "  ERROR: insufficient disk space — ${free_gb} GB free, ${required_gb} GB required."
+        echo "         Free up space or lower --chunks to reduce concurrent downloads, then re-run."
+        exit 1
     fi
 }
 
@@ -219,6 +249,7 @@ for DAY in $DAYS; do
         echo "  [dry-run] would download: $DAY (pattern '$PATTERN') -> $DATA_ROOT"
     else
         echo "  [1/2] Downloading $DAY..."
+        check_disk_space "$MIN_FREE_GB" "$DATA_ROOT"
         pushd "$DATA_ROOT" > /dev/null
         TMPSCRIPT="$(mktemp /tmp/iads_dl_XXXX.sh)"
         trap 'rm -f "$TMPSCRIPT"' EXIT
@@ -249,7 +280,7 @@ for DAY in $DAYS; do
     echo
     echo "  [2/2] Organize + Analyze..."
     AN_START=$SECONDS
-    "${ANALYZE_CMD[@]}"
+    "${ANALYZE_CMD[@]}" || echo "  [!] batch exited non-zero (some sorties errored — pipeline continues)"
     AN_ELAPSED=$(( SECONDS - AN_START ))
     TOTAL_AN_S=$(( TOTAL_AN_S + AN_ELAPSED ))
 

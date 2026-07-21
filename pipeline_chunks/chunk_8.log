@@ -1,0 +1,632 @@
+========================================================
+  IADS Pipeline  (day-by-day)
+  config      : /c/Users/FrancisBarchesky/Documents/GitHub/flight-test-analyzer/batch_config.json
+  data_root   : /c/Users/FrancisBarchesky/Documents/GitHub/flight-test-analyzer
+  dates       : 2026-04-01  ->  2026-07-20  (111 day(s))
+  pattern     : (AFCS_del|AFCS_MiscAnalysis|iads_servo_torques_datagroup|iads_radar_altitude_datagroup|iads_pressure_altitude_datagroup|iads_weight_datagroup)
+  started     : 2026-07-20 20:37:17
+========================================================
+
+  Checking AWS SSO login...
+  AWS SSO OK
+
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  Day 1 / 111  â€”  2026-04-01
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  Skipping â€” already processed (/c/Users/FrancisBarchesky/Documents/GitHub/flight-test-analyzer/.pipeline_done/2026-04-01)
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+  Day 2 / 111  â€”  2026-04-02
+â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+
+  [1/2] Downloading 2026-04-02...
+Listing s3://merlin-pilot-iads-data-exports ...
+Listing s3://merlin-pilot-iads-analysis ...
+Primary matches: 0
+
+Files matching criteria: 0  (primary=0, torque-by-sortie=0, torque total in list=0)
+
+No files to download.
+  Download: 17s
+
+  [2/2] Organize + Analyze...
+=== Organizing downloads ===
+  No flat ZIPs to organize.
+  Moved 0 file(s) into sortie subdirectories
+
+  --zips-only: 120 dir(s) without ZIPs skipped
+Batch  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer  |  174 sortie(s)  |  trigger=afcsCapable  |  parallel=8  workers/sortie=2
+[1/174]  G016_ZKMLN  (2 ZIP(s))
+[2/174]  G017_ZKMLN  (2 ZIP(s))
+[3/174]  G018_ZKMLN  (2 ZIP(s))
+[4/174]  G019_ZKMLN  (2 ZIP(s))
+[5/174]  G020_ZKMLN  (2 ZIP(s))
+[6/174]  G021_ZKMLN  (2 ZIP(s))
+[7/174]  G026_N208B  (2 ZIP(s))
+[8/174]  G028_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G028N208B.zip  (20.8s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G028N208B.zip  (51.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G028_N208B\analysis_G028.json.gz  (226 KB)
+  [------------------------------] 1/174 (0%)  ETA ~30m 42s (21:10)
+[9/174]  G029_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G026N208B.zip  (33.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G026N208B.zip  (82.3s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G026_N208B\analysis_G026.json.gz  (258 KB)
+  [------------------------------] 2/174 (1%)  ETA ~31m 56s (21:11)
+[10/174]  G030_N208B  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_G017ZKMLN.zip  ->  [Errno 28] No space left on device
+  [2/2] AFCS_MiscAnalysis_v20260501_G017ZKMLN.zip  (61.5s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (992 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G017_ZKMLN\analysis_G017.json.gz
+  [------------------------------] 3/174 (1%)  ETA ~34m 59s (21:14)
+[11/174]  G032_N208B  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260513_G018ZKMLN.zip  ->  [Errno 28] No space left on device
+  [2/2] AFCS_MiscAnalysis_v20260501_G018ZKMLN.zip  (106.5s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (210 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G018_ZKMLN\analysis_G018.json.gz
+  [------------------------------] 4/174 (2%)  ETA ~37m 18s (21:17)
+[12/174]  G033_N208B  (4 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G029N208B.zip  (18.7s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G029N208B.zip  (33.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G029_N208B\analysis_G029.json.gz  (205 KB)
+  [------------------------------] 5/174 (2%)  ETA ~32m 52s (21:13)
+[13/174]  G033_1_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_radar_altitude_datagroup_G033N208B_1.zip  (6.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_pressure_altitude_datagroup_G033N208B_1.zip  (20.0s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G033_1_N208B\analysis_G033_1.json.gz  (186 KB)
+  [#-----------------------------] 6/174 (3%)  ETA ~29m 00s (21:09)
+[14/174]  G033_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G030N208B.zip  (31.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G030N208B.zip  (60.8s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G030_N208B\analysis_G030.json.gz  (255 KB)
+  [#-----------------------------] 7/174 (4%)  ETA ~29m 00s (21:09)
+[15/174]  G033_3_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G032N208B.zip  (32.4s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G032N208B.zip  (78.0s)
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1594, in <module>
+    _save_flight_plots(combined, plot_series)
+    ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 946, in _save_flight_plots
+    plots[sig] = [[p[0], p[1]] for p in pts]
+                  ^^^^^^^^^^^^
+KeyboardInterrupt
+  ERROR  [11/174] G032_N208B  exit 3221225786  (87.0s)  — ZIPs NOT deleted
+[16/174]  G034_N208B  (4 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_G033N208B_2.zip  (22.2s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_G033N208B_2.zip  (32.7s)
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1570, in <module>
+    raw = tp.map(_process_one_closure, list(enumerate(zip_files)))
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 367, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 768, in get
+    self.wait(timeout)
+    ~~~~~~~~~^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 765, in wait
+    self._event.wait(timeout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 659, in wait
+    signaled = self._cond.wait(timeout)
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 359, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+KeyboardInterrupt
+  ERROR  [14/174] G033_2_N208B  exit 3221225786  (42.6s)  — ZIPs NOT deleted
+[17/174]  G034_2_N208B  (4 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/4] iads_pressure_altitude_datagroup_G033N208B.zip  (19.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/4] iads_radar_altitude_datagroup_G033N208B.zip  (53.3s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/4] iads_pressure_altitude_datagroup_G033N208B_ACS.zip  (50.3s)
+  [4/4] iads_radar_altitude_datagroup_G033N208B_ACS.zip  (19.3s)
+Process SpawnPoolWorker-4:
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 313, in _bootstrap
+    self.run()
+    ~~~~~~~~^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 114, in worker
+    task = get()
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\queues.py", line 385, in get
+    res = self._reader.recv_bytes()
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\connection.py", line 216, in recv_bytes
+    buf = self._recv_bytes(maxlength)
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\connection.py", line 321, in _recv_bytes
+    waitres = _winapi.WaitForMultipleObjects(
+        [ov.event], False, INFINITE)
+KeyboardInterrupt
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1570, in <module>
+    raw = tp.map(_process_one_closure, list(enumerate(zip_files)))
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 367, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 768, in get
+    self.wait(timeout)
+    ~~~~~~~~~^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\multiprocessing\pool.py", line 765, in wait
+    self._event.wait(timeout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 659, in wait
+    signaled = self._cond.wait(timeout)
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\threading.py", line 359, in wait
+    waiter.acquire()
+    ~~~~~~~~~~~~~~^^
+KeyboardInterrupt
+  ERROR  [12/174] G033_N208B  exit 3221225786  (84.7s)  — ZIPs NOT deleted
+[18/174]  G035_N208B  (4 ZIP(s))
+  ERROR  [2/4] AFCS_MiscAnalysis_v20260327_G035N208B.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/4] AFCS_del5_v20260423_G035N208B.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [4/4] iads_pressure_altitude_datagroup_G035N208B.zip  (5.3s)
+  [3/4] iads_radar_altitude_datagroup_G035N208B.zip  (6.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (1816 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G035_N208B\analysis_G035.json.gz
+[19/174]  G035_2_N208B  (4 ZIP(s))
+  ERROR  [1/4] AFCS_del5_v20260423_G034N208B_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/4] AFCS_MiscAnalysis_v20260327_G034N208B_2.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/4] iads_radar_altitude_datagroup_G034N208B_2.zip  (15.0s)
+  [4/4] iads_pressure_altitude_datagroup_G034N208B_2.zip  (20.8s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (1030 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G034_2_N208B\analysis_G034_2.json.gz
+[20/174]  G036_N208B  (4 ZIP(s))
+  ERROR  [1/4] AFCS_del5_v20260423_G035N208B_2.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/4] iads_radar_altitude_datagroup_G035N208B_2.zip  (7.9s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [4/4] iads_pressure_altitude_datagroup_G035N208B_2.zip  (8.7s)
+  [2/4] AFCS_MiscAnalysis_v20260327_G035N208B_2.zip  (39.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (593 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G035_2_N208B\analysis_G035_2.json.gz
+[21/174]  G036_2_N208B  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_G036N208B_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_G036N208B_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [21/174] G036_2_N208B  exit 1  (2.8s)  — ZIPs NOT deleted
+[22/174]  G037_N208B  (4 ZIP(s))
+  ERROR  [2/4] AFCS_MiscAnalysis_v20260327_G034N208B.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/4] iads_pressure_altitude_datagroup_G034N208B.zip  (40.1s)
+  ERROR  [1/4] AFCS_del3_v20260323_G034N208B.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [4/4] iads_radar_altitude_datagroup_G034N208B.zip  (20.3s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (1841 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G034_N208B\analysis_G034.json.gz
+[23/174]  G038_N208B  (4 ZIP(s))
+  ERROR  [1/4] AFCS_del5_v20260423_G036N208B.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/4] AFCS_MiscAnalysis_v20260327_G036N208B.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [4/4] iads_pressure_altitude_datagroup_G036N208B.zip  (17.9s)
+  [3/4] iads_radar_altitude_datagroup_G036N208B.zip  (26.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (501 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G036_N208B\analysis_G036.json.gz
+[24/174]  G040_N208B  (4 ZIP(s))
+  ERROR  [2/4] AFCS_MiscAnalysis_v20260501_G037N208B.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/4] AFCS_del5_v20260513_G037N208B.zip  ->  [Errno 28] No space left on device
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/4] iads_pressure_altitude_datagroup_G037N208B.zip  (7.9s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [4/4] iads_radar_altitude_datagroup_G037N208B.zip  (14.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G037_N208B\analysis_G037.json.gz  (188 KB)
+[25/174]  S002_N208B  (1 ZIP(s))
+  Deduped 1 superseded ZIP(s): iads_pressure_altitude_datagroup_G040N208B.zip
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/3] iads_radar_altitude_datagroup_G040N208B.zip  (5.1s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/3] iads_weight_datagroup_G040N208B.zip  (11.9s)
+  [1/3] iads_pressure_altitude_datagroup_G040N208B_20260713051356.zip  (19.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G040_N208B\analysis_G040.json.gz  (270 KB)
+[26/174]  S003_N208B  (4 ZIP(s))
+  ERROR  [1/4] S003N208B_Controls_IadsDataExport.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/4] S003N208B_systems2_IadsDataExport.zip  ->  [Errno 28] No space left on device
+  ERROR  [4/4] S003N208B_HW_RDC_IadsDataExport.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/4] S003N208B_Systems_IadsDataExport.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [26/174] S003_N208B  exit 1  (13.3s)  — ZIPs NOT deleted
+[27/174]  S006_N208B  (1 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/1] S006N208B_systems_IadsDataExport.zip  (3.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S006_N208B\analysis_S006.json.gz  (1 KB)
+[28/174]  S007_N208B  (2 ZIP(s))
+  ERROR  [1/1] S002N208B_IadsDataExport.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [25/174] S002_N208B  exit 1  (44.9s)  — ZIPs NOT deleted
+[29/174]  S007_9_N208B  (4 ZIP(s))
+  ERROR  [1/2] S007N208B_IadsDataExport.zip  ->  That compression method is not supported
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] S007N208B_systems_IadsDataExport.zip  (4.1s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S007_N208B\analysis_S007.json.gz  (1 KB)
+[30/174]  S012_N208B  (1 ZIP(s))
+  ERROR  [1/1] S012N208B_IadsDataExport.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [30/174] S012_N208B  exit 1  (3.8s)  — ZIPs NOT deleted
+[31/174]  S013_N208B  (1 ZIP(s))
+  Deduped 1 superseded ZIP(s): iads_pressure_altitude_datagroup_G038N208B.zip
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/3] iads_pressure_altitude_datagroup_G038N208B_20260713051415.zip  (23.5s)
+  [2/3] iads_radar_altitude_datagroup_G038N208B.zip  (32.7s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/3] iads_weight_datagroup_G038N208B.zip  (30.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\G038_N208B\analysis_G038.json.gz  (393 KB)
+[32/174]  S022_ZKMLN  (2 ZIP(s))
+  Deduped 1 superseded ZIP(s): iads_pressure_altitude_datagroup_S007N208B_9.zip
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/3] iads_weight_datagroup_S007N208B_9.zip  (7.3s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/3] iads_pressure_altitude_datagroup_S007N208B_9_20260713051323.zip  (17.1s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [3/3] iads_radar_altitude_datagroup_S007N208B_9.zip  (15.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S007_9_N208B\analysis_S007_9.json.gz  (1 KB)
+[33/174]  S024_ZKMLN  (2 ZIP(s))
+  ERROR  [1/1] S013N208B_IadsDataExport.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [31/174] S013_N208B  exit 1  (30.6s)  — ZIPs NOT deleted
+[34/174]  S025_ZKMLN  (3 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S024ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260417_S024ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [33/174] S024_ZKMLN  exit 1  (17.7s)  — ZIPs NOT deleted
+[35/174]  S026_ZKMLN  (2 ZIP(s))
+  ERROR  [1/3] AFCS_del5_v20260417_S025ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/3] AFCS_MiscAnalysis_v20260327_S025ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/3] AFCS_MiscAnalysis_v20260501_S025ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [34/174] S025_ZKMLN  exit 1  (21.0s)  — ZIPs NOT deleted
+[36/174]  S027_ZKMLN  (3 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260417_S026ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S026ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [35/174] S026_ZKMLN  exit 1  (18.7s)  — ZIPs NOT deleted
+[37/174]  S0028_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S022ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260417_S022ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [32/174] S022_ZKMLN  exit 1  (41.2s)  — ZIPs NOT deleted
+[38/174]  S0028_2_ZKMLN  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] AFCS_del5_v20260423_S0028ZKMLN.zip  (0.7s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] AFCS_MiscAnalysis_v20260327_S0028ZKMLN.zip  (0.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (7 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S0028_ZKMLN\analysis_S0028.json.gz
+[39/174]  S029_1_ZKMLN  (3 ZIP(s))
+  ERROR  [1/3] AFCS_del5_v20260417_S027ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/3] AFCS_MiscAnalysis_v20260501_S027ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/3] AFCS_MiscAnalysis_v20260327_S027ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [36/174] S027_ZKMLN  exit 1  (16.3s)  — ZIPs NOT deleted
+[40/174]  S030_ZKMLN  (3 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S0028ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S0028ZKMLN_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [38/174] S0028_2_ZKMLN  exit 1  (12.7s)  — ZIPs NOT deleted
+[41/174]  S030_2_ZKMLN  (2 ZIP(s))
+  ERROR  [2/3] AFCS_MiscAnalysis_v20260501_S030ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/3] AFCS_MiscAnalysis_v20260327_S030ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/3] AFCS_del5_v20260423_S030ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [40/174] S030_ZKMLN  exit 1  (17.8s)  — ZIPs NOT deleted
+[42/174]  S031_1_ZKMLN  (2 ZIP(s))
+  ERROR  [2/3] AFCS_MiscAnalysis_v20260501_S029ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/3] AFCS_del5_v20260423_S029ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/3] AFCS_MiscAnalysis_v20260327_S029ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [39/174] S029_1_ZKMLN  exit 1  (42.1s)  — ZIPs NOT deleted
+[43/174]  S031_2_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S031ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S031ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [42/174] S031_1_ZKMLN  exit 1  (23.1s)  — ZIPs NOT deleted
+[44/174]  S032_1_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S031ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S031ZKMLN_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [43/174] S031_2_ZKMLN  exit 1  (8.1s)  — ZIPs NOT deleted
+[45/174]  S032_2_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S030ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S030ZKMLN_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [41/174] S030_2_ZKMLN  exit 1  (41.4s)  — ZIPs NOT deleted
+[46/174]  S033_1_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S032ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S032ZKMLN_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [45/174] S032_2_ZKMLN  exit 1  (28.6s)  — ZIPs NOT deleted
+[47/174]  S033_2_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260327_S032ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S032ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [44/174] S032_1_ZKMLN  exit 1  (29.3s)  — ZIPs NOT deleted
+[48/174]  S033_3_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S033ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S033ZKMLN_2.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [47/174] S033_2_ZKMLN  exit 1  (19.9s)  — ZIPs NOT deleted
+[49/174]  S034_1_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S033ZKMLN_3.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S033ZKMLN_3.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [48/174] S033_3_ZKMLN  exit 1  (27.1s)  — ZIPs NOT deleted
+[50/174]  S035_3_ZKMLN  (4 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S034ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S034ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [49/174] S034_1_ZKMLN  exit 1  (8.9s)  — ZIPs NOT deleted
+[51/174]  S035_4_ZKMLN  (4 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S033ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260423_S033ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [46/174] S033_1_ZKMLN  exit 1  (55.0s)  — ZIPs NOT deleted
+[52/174]  S035_5_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S035ZKMLN_5.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S035ZKMLN_5.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [52/174] S035_5_ZKMLN  exit 1  (25.7s)  — ZIPs NOT deleted
+[53/174]  S036_ZKMLN  (2 ZIP(s))
+  Deduped 2 superseded ZIP(s): AFCS_del5_v20260423_S035ZKMLN_4.zip, AFCS_MiscAnalysis_v20260501_S035ZKMLN_4.zip
+  ERROR  [1/2] AFCS_del5_v20260423_S035ZKMLN_4_20260512212145.zip  ->  [Errno 28] No space left on device
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S035ZKMLN_4_20260512211200.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [51/174] S035_4_ZKMLN  exit 1  (26.1s)  — ZIPs NOT deleted
+[54/174]  S037_ZKMLN  (2 ZIP(s))
+  Deduped 1 superseded ZIP(s): AFCS_MiscAnalysis_v20260501_S035ZKMLN_3.zip
+  ERROR  [2/3] AFCS_del5_v20260423_S035ZKMLN_3.zip  ->  [Errno 28] No space left on device
+  ERROR  [3/3] AFCS_MiscAnalysis_v20260501_S035ZKMLN_3_20260519054416.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/3] AFCS_del5_v20260513_S035ZKMLN_3.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [50/174] S035_3_ZKMLN  exit 1  (28.7s)  — ZIPs NOT deleted
+[55/174]  S038_1_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S037ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260513_S037ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [54/174] S037_ZKMLN  exit 1  (15.6s)  — ZIPs NOT deleted
+[56/174]  S038_2_ZKMLN  (4 ZIP(s))
+  Deduped 2 superseded ZIP(s): AFCS_del5_v20260513_S038ZKMLN_2.zip, AFCS_MiscAnalysis_v20260501_S038ZKMLN_2.zip
+  [2/2] AFCS_MiscAnalysis_v20260501_S038ZKMLN_2_20260521004014.zip  (1.4s)
+  [1/2] AFCS_del5_v20260513_S038ZKMLN_2_20260521003910.zip  (18.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (484 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S038_2_ZKMLN\analysis_S038_2.json.gz
+[57/174]  S039_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S038ZKMLN_1.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260513_S038ZKMLN_1.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [55/174] S038_1_ZKMLN  exit 1  (57.6s)  — ZIPs NOT deleted
+[58/174]  S039_2_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S039ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260513_S039ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [57/174] S039_ZKMLN  exit 1  (19.2s)  — ZIPs NOT deleted
+[59/174]  S040_ZKMLN  (2 ZIP(s))
+  ERROR  [2/2] AFCS_MiscAnalysis_v20260501_S040ZKMLN.zip  ->  [Errno 28] No space left on device
+  ERROR  [1/2] AFCS_del5_v20260513_S040ZKMLN.zip  ->  [Errno 28] No space left on device
+ERROR: all files failed — nothing to merge
+  ERROR  [59/174] S040_ZKMLN  exit 1  (3.0s)  — ZIPs NOT deleted
+[60/174]  S041_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260513_S039ZKMLN_2.zip  ->  [Errno 28] No space left on device
+  [2/2] AFCS_MiscAnalysis_v20260501_S039ZKMLN_2.zip  (178.6s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  merged: +0 new torque_stats entries into existing analysis  (1940 KB)  ->  C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S039_2_ZKMLN\analysis_S039_2.json.gz
+[61/174]  S041_2_ZKMLN  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260513_S041ZKMLN.zip  ->  [Errno 28] No space left on device
+  [2/2] AFCS_MiscAnalysis_v20260501_S041ZKMLN.zip  (492.2s)
+  2 episode(s)
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1611, in <module>
+    action, out_kb, n_added = _write_or_merge_result(out_path, combined)
+                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1112, in _write_or_merge_result
+    _write_json(out_path, result)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1056, in _write_json
+    with gzip.open(path, 'wt', encoding='utf-8') as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\gzip.py", line 66, in open
+    binary_file = GzipFile(filename, gz_mode, compresslevel)
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\gzip.py", line 203, in __init__
+    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb')
+                               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\FrancisBarchesky\\Documents\\GitHub\\flight-test-analyzer\\S041_ZKMLN\\analysis_S041.json.gz'
+  ERROR  [60/174] S041_ZKMLN  exit 1  (498.1s)  — ZIPs NOT deleted
+[62/174]  S042_ZKMLN  NO-ZIPS
+[63/174]  S043_ZKMLN  NO-ZIPS
+[64/174]  S052_ZKMLN  NO-ZIPS
+[65/174]  S052_2_ZKMLN  NO-ZIPS
+[66/174]  S053_ZKMLN  NO-ZIPS
+[67/174]  S079_N208B  NO-ZIPS
+[68/174]  S082_2_N208B  NO-ZIPS
+[69/174]  S085_1_N208B  NO-ZIPS
+[70/174]  S096_1_N208B  NO-ZIPS
+[71/174]  S101_N208B  (2 ZIP(s))
+  ERROR  [1/2] AFCS_del5_v20260423_S036ZKMLN.zip  ->  [Errno 28] No space left on device
+  [2/2] AFCS_MiscAnalysis_v20260501_S036ZKMLN.zip  (724.3s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+Traceback (most recent call last):
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1611, in <module>
+    action, out_kb, n_added = _write_or_merge_result(out_path, combined)
+                              ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1112, in _write_or_merge_result
+    _write_json(out_path, result)
+    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\analyze_iads.py", line 1056, in _write_json
+    with gzip.open(path, 'wt', encoding='utf-8') as f:
+         ~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\gzip.py", line 66, in open
+    binary_file = GzipFile(filename, gz_mode, compresslevel)
+  File "C:\Users\FrancisBarchesky\AppData\Local\Programs\Python\Python313\Lib\gzip.py", line 203, in __init__
+    fileobj = self.myfileobj = builtins.open(filename, mode or 'rb')
+                               ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\FrancisBarchesky\\Documents\\GitHub\\flight-test-analyzer\\S036_ZKMLN\\analysis_S036.json.gz'
+  ERROR  [53/174] S036_ZKMLN  exit 1  (730.4s)  — ZIPs NOT deleted
+[72/174]  S102_1_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S101N208B.zip  (152.3s)
+  [2/2] iads_pressure_altitude_datagroup_S101N208B.zip  (153.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S101_N208B\analysis_S101.json.gz  (321 KB)
+[73/174]  S102_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S102N208B_2.zip  (6.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S102N208B_2.zip  (12.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S102_2_N208B\analysis_S102_2.json.gz  (324 KB)
+[74/174]  S103_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S102N208B_1.zip  (21.7s)
+  [1/2] iads_radar_altitude_datagroup_S102N208B_1.zip  (25.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S102_1_N208B\analysis_S102_1.json.gz  (413 KB)
+[75/174]  S104_N208BN  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_pressure_altitude_datagroup_S103N208B.zip  (17.4s)
+  [2/2] iads_radar_altitude_datagroup_S103N208B.zip  (30.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S103_N208B\analysis_S103.json.gz  (334 KB)
+[76/174]  S105_1_N208B  NO-ZIPS
+[77/174]  S106_1_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_pressure_altitude_datagroup_S104N208BN.zip  (31.3s)
+  [2/2] iads_radar_altitude_datagroup_S104N208BN.zip  (43.1s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S104_N208BN\analysis_S104.json.gz  (322 KB)
+[78/174]  S107_N208B  NO-ZIPS
+[79/174]  S107_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S106N208B_1.zip  (10.1s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S106N208B_1.zip  (20.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S106_1_N208B\analysis_S106_1.json.gz  (365 KB)
+[80/174]  S107_3_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S107N208B_2.zip  (21.9s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S107N208B_2.zip  (33.2s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S107_2_N208B\analysis_S107_2.json.gz  (384 KB)
+[81/174]  S108_1_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_radar_altitude_datagroup_S107N208B_3.zip  (15.3s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_pressure_altitude_datagroup_S107N208B_3.zip  (25.8s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S107_3_N208B\analysis_S107_3.json.gz  (311 KB)
+[82/174]  S108_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S108N208B_2.zip  (3.5s)
+  [2/2] iads_pressure_altitude_datagroup_S108N208B_2.zip  (10.0s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S108_2_N208B\analysis_S108_2.json.gz  (233 KB)
+[83/174]  S109_1_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S109N208B_1.zip  (1.7s)
+  [1/2] iads_radar_altitude_datagroup_S109N208B_1.zip  (1.8s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S109_1_N208B\analysis_S109_1.json.gz  (188 KB)
+[84/174]  S109_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S108N208B_1.zip  (24.4s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S108N208B_1.zip  (37.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S108_1_N208B\analysis_S108_1.json.gz  (280 KB)
+[85/174]  S110_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S110N208B.zip  (14.7s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S110N208B.zip  (22.4s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S110_N208B\analysis_S110.json.gz  (307 KB)
+[86/174]  S110_2_N208B  NO-ZIPS
+[87/174]  S110_3_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S110N208B_3.zip  (5.0s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S110N208B_3.zip  (12.7s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S110_3_N208B\analysis_S110_3.json.gz  (280 KB)
+[88/174]  S111_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S111N208B.zip  (4.6s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S111N208B.zip  (15.6s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S111_N208B\analysis_S111.json.gz  (293 KB)
+[89/174]  S112_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S109N208B_2.zip  (48.2s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S109N208B_2.zip  (87.5s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S109_2_N208B\analysis_S109_2.json.gz  (350 KB)
+[90/174]  S112_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S112N208B_2.zip  (4.5s)
+  [2/2] iads_pressure_altitude_datagroup_S112N208B_2.zip  (7.3s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S112_2_N208B\analysis_S112_2.json.gz  (233 KB)
+[91/174]  S113_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S113N208B.zip  (0.6s)
+  [2/2] iads_pressure_altitude_datagroup_S113N208B.zip  (0.6s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S113_N208B\analysis_S113.json.gz  (78 KB)
+[92/174]  S113_2_N208B  (2 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S112N208B.zip  (6.7s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S112N208B.zip  (16.5s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S112_N208B\analysis_S112.json.gz  (261 KB)
+[93/174]  S114_1_N208B  (1 ZIP(s))
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [2/2] iads_pressure_altitude_datagroup_S113N208B_2.zip  (27.1s)
+  WARNING: no torque signals found in headers — torque_stats will be empty
+  [1/2] iads_radar_altitude_datagroup_S113N208B_2.zip  (51.9s)
+  WARNING: trigger 'afcsCapable' not found in any file — no episodes produced
+  saved: C:\Users\FrancisBarchesky\Documents\GitHub\flight-test-analyzer\S113_2_N208B\analysis_S113_2.json.gz  (312 KB)
+[94/174]  S115_1_N208B  (2 ZIP(s))
