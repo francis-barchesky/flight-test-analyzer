@@ -190,7 +190,7 @@ def sortie_from_filename(filename):
     """
     name = os.path.splitext(os.path.basename(filename))[0]
     # With leg number: S107N208B_2 -> S107_2_N208B
-    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)_(\d+)', name, re.IGNORECASE)
+    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)_(\d{1,3})(?!\d)', name, re.IGNORECASE)
     if m:
         return f"{m.group(1).upper()}_{m.group(3)}_{m.group(2).upper()}"
     # Without leg number: G011ZKMLN -> G011_ZKMLN

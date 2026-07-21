@@ -30,11 +30,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="$SCRIPT_DIR/batch_config.json"
 DRY_RUN=0
 RESET_MARKERS=0
+SCAN_ONLY=0
 
 for arg in "$@"; do
     case "$arg" in
         --dry-run)       DRY_RUN=1 ;;
         --reset-markers) RESET_MARKERS=1 ;;
+        --scan-only)     SCAN_ONLY=1 ;;
         *.json)          CONFIG="$(realpath "$arg")" ;;
     esac
 done
@@ -97,6 +99,12 @@ print(val)
 }
 
 DATA_ROOT="$(cfg data_root ".")"
+# Normalize Windows absolute paths (C:\path or C:/path) to POSIX (/c/path)
+if [[ "$DATA_ROOT" =~ ^([A-Za-z]):[/\\](.*) ]]; then
+    _drive="${BASH_REMATCH[1],,}"
+    _rest="${BASH_REMATCH[2]//\\//}"
+    DATA_ROOT="/${_drive}/${_rest}"
+fi
 [[ "$DATA_ROOT" != /* ]] && DATA_ROOT="$SCRIPT_DIR/$DATA_ROOT"
 DATA_ROOT="$(cd "$DATA_ROOT" && pwd)"
 
@@ -189,6 +197,48 @@ if [[ $DRY_RUN -eq 0 ]]; then
     fi
     echo "  AWS SSO OK"
     echo
+
+    # Build S3 listing cache once per pipeline run.
+    # Export IADS_EXPORTS_LISTING / IADS_ANALYSIS_LISTING so the download script
+    # skips its per-day aws s3 ls calls and uses cp from the cached files instead.
+    # Respects externally-set env vars (e.g. from pipeline_parallel.sh).
+    EXPORTS_CACHE="/tmp/iads_ls_exports_cache.txt"
+    ANALYSIS_CACHE="/tmp/iads_ls_analysis_cache.txt"
+    CACHE_MAX_AGE=14400  # 4 hours
+
+    _cache_fresh() {
+        local f=$1
+        [[ -f "$f" ]] || return 1
+        local now mtime
+        now=$(date +%s)
+        mtime=$(stat -c %Y "$f" 2>/dev/null || echo 0)
+        (( now - mtime < CACHE_MAX_AGE ))
+    }
+
+    if [[ -n "${IADS_EXPORTS_LISTING:-}" && -f "${IADS_EXPORTS_LISTING}" ]]; then
+        echo "  S3 exports listing : using provided cache"
+    elif _cache_fresh "$EXPORTS_CACHE"; then
+        echo "  S3 exports listing : reusing cache  ($(wc -l < "$EXPORTS_CACHE") entries)"
+        export IADS_EXPORTS_LISTING="$EXPORTS_CACHE"
+    else
+        echo "  S3 exports listing : fetching..."
+        aws s3 ls s3://merlin-pilot-iads-data-exports --recursive > "$EXPORTS_CACHE"
+        echo "  S3 exports listing : $(wc -l < "$EXPORTS_CACHE") entries cached"
+        export IADS_EXPORTS_LISTING="$EXPORTS_CACHE"
+    fi
+
+    if [[ -n "${IADS_ANALYSIS_LISTING:-}" && -f "${IADS_ANALYSIS_LISTING}" ]]; then
+        echo "  S3 analysis listing: using provided cache"
+    elif _cache_fresh "$ANALYSIS_CACHE"; then
+        echo "  S3 analysis listing: reusing cache  ($(wc -l < "$ANALYSIS_CACHE") entries)"
+        export IADS_ANALYSIS_LISTING="$ANALYSIS_CACHE"
+    else
+        echo "  S3 analysis listing: fetching..."
+        aws s3 ls s3://merlin-pilot-iads-analysis --recursive > "$ANALYSIS_CACHE"
+        echo "  S3 analysis listing: $(wc -l < "$ANALYSIS_CACHE") entries cached"
+        export IADS_ANALYSIS_LISTING="$ANALYSIS_CACHE"
+    fi
+    echo
 fi
 
 mkdir -p "$DATA_ROOT"
@@ -247,6 +297,28 @@ for DAY in $DAYS; do
     elif [[ $DRY_RUN -eq 1 ]]; then
         echo "  [1/2] Downloading $DAY... [dry-run]"
         echo "  [dry-run] would download: $DAY (pattern '$PATTERN') -> $DATA_ROOT"
+    elif [[ $SCAN_ONLY -eq 1 ]]; then
+        echo "  [1/2] Scanning $DAY... [scan-only]"
+        TMPSCRIPT="$(mktemp /tmp/iads_dl_XXXX.sh)"
+        trap 'rm -f "$TMPSCRIPT"' EXIT
+        sed \
+            -e "s#^START_DATE=.*#START_DATE=\"$DAY\"#" \
+            -e "s#^END_DATE=.*#END_DATE=\"$DAY\"#" \
+            -e "s#^FILENAME_PATTERN=.*#FILENAME_PATTERN=\"$PATTERN\"#" \
+            "$DOWNLOAD_SCRIPT" > "$TMPSCRIPT"
+        chmod +x "$TMPSCRIPT"
+        SCAN_OUT=$(bash "$TMPSCRIPT" <<< "N" 2>&1)
+        if echo "$SCAN_OUT" | grep -q "No files to download\|Files matching criteria: 0"; then
+            mkdir -p "$DATA_ROOT/.pipeline_done"
+            touch "$DONE_MARKER"
+            echo "  Scan: empty — marked"
+        else
+            SCAN_COUNT=$(echo "$SCAN_OUT" | grep -oP 'Files matching criteria: \K[0-9]+' || echo "?")
+            echo "  Scan: $SCAN_COUNT file(s) found — will download on full run"
+        fi
+        DL_ELAPSED=$(( SECONDS - DL_START ))
+        TOTAL_DL_S=$(( TOTAL_DL_S + DL_ELAPSED ))
+        continue
     else
         echo "  [1/2] Downloading $DAY..."
         check_disk_space "$MIN_FREE_GB" "$DATA_ROOT"
@@ -263,9 +335,6 @@ for DAY in $DAYS; do
         chmod +x "$TMPSCRIPT"
         bash "$TMPSCRIPT" <<< "Y"
         popd > /dev/null
-        # Marker is written below only if files actually landed — empty-download
-        # days should remain unmarked so future re-runs re-attempt them in case
-        # data lands on S3 later.
     fi
 
     DL_ELAPSED=$(( SECONDS - DL_START ))
@@ -303,6 +372,11 @@ for DAY in $DAYS; do
             mkdir -p "$DATA_ROOT/.pipeline_done"
             touch "$DONE_MARKER"
             TOTAL_TRULY_DONE=$(( TOTAL_TRULY_DONE + 1 ))
+        elif (( HAD_ZIPS == 0 && POST_DL_FLAT == 0 )); then
+            # Nothing was downloaded and nothing was on disk — S3 had no data
+            # for this day. Mark it so subsequent runs skip the S3 listing.
+            mkdir -p "$DATA_ROOT/.pipeline_done"
+            touch "$DONE_MARKER"
         else
             # Not truly done. If a marker was carried over from a prior
             # (presumably bogus) run, remove it so this day stays eligible

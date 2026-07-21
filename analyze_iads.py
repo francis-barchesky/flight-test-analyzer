@@ -26,7 +26,10 @@ import os
 import glob
 import re
 import shutil
-import zipfile
+try:
+    import zipfile_deflate64 as zipfile
+except ImportError:
+    import zipfile
 import math
 import argparse
 import tempfile
@@ -1192,8 +1195,27 @@ def process_file(input_path, out_path, n_workers, trigger=None, trigger_from=1.0
                 if not quiet:
                     print(f"  extracting {csv_name}  ({uncomp_gb:.2f} GB)...")
                 tmp_fd, tmp_file = tempfile.mkstemp(suffix=".csv")
-                with os.fdopen(tmp_fd, "wb") as dst, z.open(csv_name) as src:
-                    shutil.copyfileobj(src, dst)
+                try:
+                    with os.fdopen(tmp_fd, "wb") as dst, z.open(csv_name) as src:
+                        shutil.copyfileobj(src, dst)
+                except NotImplementedError:
+                    # os.fdopen already closed tmp_fd when the with-block exited
+                    os.unlink(tmp_file)
+                    tmp_file = None
+                    # Fallback: extract via 7-Zip (handles deflate64 used by old IadsDataExport ZIPs)
+                    _7z = r"C:\Program Files\7-Zip\7z.exe"
+                    if not os.path.exists(_7z):
+                        raise RuntimeError("Unsupported ZIP compression and 7-Zip not found at C:\\Program Files\\7-Zip\\7z.exe")
+                    tmp_dir = tempfile.mkdtemp()
+                    try:
+                        subprocess.run([_7z, "e", input_path, csv_name, f"-o{tmp_dir}", "-y"],
+                                       check=True, capture_output=True)
+                        extracted = os.path.join(tmp_dir, os.path.basename(csv_name))
+                        tmp_fd2, tmp_file = tempfile.mkstemp(suffix=".csv")
+                        with os.fdopen(tmp_fd2, "wb") as dst, open(extracted, "rb") as src:
+                            shutil.copyfileobj(src, dst)
+                    finally:
+                        shutil.rmtree(tmp_dir, ignore_errors=True)
                 csv_path = tmp_file
                 filename = csv_name
         else:

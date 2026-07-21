@@ -21,6 +21,8 @@ pipeline.sh
 | `analyze_iads.py` | Parallel CSV/ZIP processor — produces one `analysis_SXXX.json` per sortie |
 | `run_batch.py` | Batch runner — organizes ZIPs into sortie dirs, runs analyze, deletes ZIPs |
 | `pipeline.sh` | Day-by-day download → organize → analyze loop |
+| `pipeline_parallel.sh` | Parallel pipeline — splits date range into N chunks, runs workers concurrently, merges results |
+| `scan_parallel.sh` | Pre-scan — marks empty days in parallel chunks; eliminates per-day S3 lookups on subsequent runs |
 | `batch_config.json` | Shared config for all three scripts |
 | `flight_test_analyzer.html` | Standalone browser tool for fault analysis |
 | `correlate_faults.py` | Fleet-wide correlation — ranks signals by how consistently they transition before fault episodes; writes `fault_correlations.json` |
@@ -126,6 +128,64 @@ A live progress bar with ETA is also printed after each sortie completes during 
 bash pipeline.sh --dry-run
 python run_batch.py --dry-run
 ```
+
+---
+
+## Parallel pipeline
+
+For large date ranges (hundreds of days), use the parallel pipeline to run multiple workers concurrently instead of processing one day at a time.
+
+### Step 1 — Pre-scan (recommended, run once)
+
+Marks all empty days in the configured date range so subsequent runs skip them instantly without hitting S3:
+
+```bash
+bash scan_parallel.sh              # 16 chunks (default)
+bash scan_parallel.sh --chunks=8   # fewer chunks
+```
+
+Splits the full date range into N chunks and runs them in parallel. Each empty day gets a marker in `.pipeline_done/`. On a ~500-day range this takes ~5–10 minutes. Only needs to be run once; markers persist across pipeline runs.
+
+### Step 2 — Run the parallel pipeline
+
+```bash
+bash pipeline_parallel.sh              # 8 parallel workers (default)
+bash pipeline_parallel.sh --chunks=4   # fewer workers, lower disk/network pressure
+```
+
+What it does:
+
+1. **S3 listing cache** — fetches the full S3 bucket listings once at startup (instead of once per day), saves them to `/tmp/iads_ls_*_cache.txt`, and exports them to all workers. Cache is reused for 4 hours; subsequent runs within that window skip the fetch entirely.
+2. **Splits date range** into N equal chunks.
+3. **Launches N workers**, each with an isolated staging directory under `data_root/.stage/chunk_N/`. Workers download and analyze their chunk's days independently with no shared state.
+4. **Merges** sortie dirs, `.pipeline_done` markers, and `batch_manifest.json` into the real `data_root` when all workers finish.
+5. **Cleans up** staging directories.
+
+### Monitoring
+
+While running, tail any chunk's log:
+
+```bash
+tail -f /tmp/pipeline_chunk_1.log
+```
+
+Check all chunks at once:
+
+```bash
+for i in $(seq 1 8); do echo "=== Chunk $i ==="; tail -5 /tmp/pipeline_chunk_${i}.log 2>/dev/null; done
+```
+
+### S3 listing cache
+
+`pipeline.sh` also builds the cache when run standalone (not just from `pipeline_parallel.sh`). The cache is shared across all invocations for 4 hours:
+
+- `IADS_EXPORTS_LISTING` / `IADS_ANALYSIS_LISTING` env vars point to the cached files
+- The download script detects these vars and copies from cache instead of running `aws s3 ls`
+- If the vars are not set and no fresh cache exists, `pipeline.sh` fetches and caches automatically
+
+### Disk space
+
+With 8 parallel workers, peak disk usage is up to 8× a single day's ZIP download. ZIPs are deleted after each sortie is analyzed (`delete_zips_after: true`). Use `--chunks=4` if disk space is limited. `pipeline.sh` checks free space before each download and stops if it drops below `min_free_gb` (default: 10 GB).
 
 ---
 
