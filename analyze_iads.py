@@ -1471,6 +1471,9 @@ if __name__ == "__main__":
     parser.add_argument("--plot-signals", default="radAltVoted,gndSpdVoted",
                         help="Comma-separated signal names to collect for episode AGL plots "
                              "(suffix-matched, default: radAltVoted,gndSpdVoted)")
+    parser.add_argument("--sortie-id", default=None,
+                        help="Sortie label used as filename suffix fallback when the ZIP names "
+                             "don't embed a standard sortie tag (e.g. G026 for flat ZKMLN ZIPs).")
     parser.add_argument("--trace-graph", default=None,
                         help="Trace graph version expected for this sortie (embedded in output JSON)")
     parser.add_argument("--trace-config", default=None,
@@ -1544,7 +1547,7 @@ if __name__ == "__main__":
         if not os.path.isabs(out_path):
             out_path = os.path.join(os.path.abspath(args.input), out_path)
 
-        sortie = _extract_sortie(zip_files)
+        sortie = _extract_sortie(zip_files) or args.sortie_id
         out_path = _add_sortie_suffix(out_path, sortie)
 
         # Pass 1: process every ZIP flat in parallel using a ThreadPool.
@@ -1649,7 +1652,7 @@ if __name__ == "__main__":
         if not os.path.isabs(out_path):
             out_path = os.path.join(os.path.dirname(os.path.abspath(args.input)), out_path)
 
-        sortie = _extract_sortie([args.input])
+        sortie = _extract_sortie([args.input]) or args.sortie_id
         out_path = _add_sortie_suffix(out_path, sortie)
         if sortie:
             print(f"Sortie: {sortie}")

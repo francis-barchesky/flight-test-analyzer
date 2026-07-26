@@ -546,6 +546,8 @@ def main():
 
         out_dir  = output_dir or sortie_dir
         out_path = os.path.join(out_dir, "analysis.json.gz")
+        _m = re.match(r'^(.+?)_(N208B|ZKMLN)$', name)
+        sortie_id = _m.group(1) if _m else name
 
         # ── Skip check ────────────────────────────────────────────────────────
         # --from-date: determine whether this sortie is in-window.
@@ -607,6 +609,7 @@ def main():
         ]
         if exclude_zips:
             cmd += ["--exclude-zips", ",".join(exclude_zips)]
+        cmd += ["--sortie-id", sortie_id]
         if tg_version:
             cmd += ["--trace-graph", tg_version]
         if args.dry_run:
