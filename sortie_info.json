@@ -92,11 +92,11 @@
     "jira_key": "FFT-1777",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1777",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G006_ZKMLN": {
     "sortie": "G006_ZKMLN",
@@ -268,22 +268,22 @@
     "jira_key": "FFT-2035",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2035",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G015_2_N208B": {
     "sortie": "G015_2_N208B",
     "jira_key": "FFT-2035",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2035",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G015_N208B": {
     "sortie": "G015_N208B",
@@ -323,11 +323,11 @@
     "jira_key": "FFT-2049",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2049",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G017_N208B": {
     "sortie": "G017_N208B",
@@ -367,22 +367,22 @@
     "jira_key": "FFT-2678",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2678",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G019_N208B": {
     "sortie": "G019_N208B",
     "jira_key": "FFT-2177",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2177",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G019_ZKMLN": {
     "sortie": "G019_ZKMLN",
@@ -448,7 +448,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G021_3_N208B": {
     "sortie": "G021_3_N208B",
@@ -459,7 +459,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G021_4_N208B": {
     "sortie": "G021_4_N208B",
@@ -470,7 +470,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G021_N208B": {
     "sortie": "G021_N208B",
@@ -481,7 +481,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G021_ZKMLN": {
     "sortie": "G021_ZKMLN",
@@ -499,77 +499,77 @@
     "jira_key": "FFT-2297",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2297",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G022_3_N208B": {
     "sortie": "G022_3_N208B",
     "jira_key": "FFT-2297",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2297",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G022_4_N208B": {
     "sortie": "G022_4_N208B",
     "jira_key": "FFT-2297",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2297",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G022_N208B": {
     "sortie": "G022_N208B",
     "jira_key": "FFT-2297",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2297",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G023_2_N208B": {
     "sortie": "G023_2_N208B",
     "jira_key": "FFT-2298",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2298",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G023_N208B": {
     "sortie": "G023_N208B",
     "jira_key": "FFT-2298",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2298",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G023_ZKMLN": {
     "sortie": "G023_ZKMLN",
     "jira_key": "FFT-2706",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2706",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G024_N208B": {
     "sortie": "G024_N208B",
@@ -580,29 +580,29 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G025_1_N208B": {
     "sortie": "G025_1_N208B",
     "jira_key": "FFT-2338",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2338",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G025_2_N208B": {
     "sortie": "G025_2_N208B",
     "jira_key": "FFT-2338",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2338",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G025_2_ZKMLN": {
     "sortie": "G025_2_ZKMLN",
@@ -613,18 +613,18 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G025_3_N208B": {
     "sortie": "G025_3_N208B",
     "jira_key": "FFT-2338",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2338",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G025_ZKMLN": {
     "sortie": "G025_ZKMLN",
@@ -635,7 +635,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G026_N208B": {
     "sortie": "G026_N208B",
@@ -646,7 +646,7 @@
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": "jira"
+    "version_source": "trace_graph_map"
   },
   "G026_ZKMLN": {
     "sortie": "G026_ZKMLN",
@@ -675,11 +675,11 @@
     "jira_key": "FFT-2474",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2474",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.04.05",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G028_ZKMLN": {
     "sortie": "G028_ZKMLN",
@@ -862,11 +862,11 @@
     "jira_key": "FFT-2737",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2737",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S0028_2_ZKMLN": {
     "sortie": "S0028_2_ZKMLN",
@@ -895,44 +895,44 @@
     "jira_key": "FFT-1662",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1662",
     "test_card_url": "https://docs.google.com/document/d/1Kq37OpcBucxEQe8C3R-4e3bV0pMqBVhqDurV011xBcQ/edit#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S003_N208B": {
     "sortie": "S003_N208B",
     "jira_key": "FFT-1691",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1691",
     "test_card_url": "https://docs.google.com/document/d/1dFmRSlHCXsd9UiZpaKQqbrnyjCD3u2LKj69ejBZ9ZEU/edit#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S004_N208B": {
     "sortie": "S004_N208B",
     "jira_key": "FFT-1692",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1692",
     "test_card_url": "https://docs.google.com/document/d/1nO148Nk4rGIcJyrOH4PPL_2S_aJM7InQKL0kQRvQwaQ/edit#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S005_N208B": {
     "sortie": "S005_N208B",
     "jira_key": "FFT-1693",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1693",
     "test_card_url": "https://docs.google.com/document/d/1K24MfGMG2gTAmYJ8kwF5b_rAu69yQkOrvel0k8HQFtQ/edit#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S005_ZKMLN": {
     "sortie": "S005_ZKMLN",
@@ -950,11 +950,11 @@
     "jira_key": "FFT-1704",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1704",
     "test_card_url": "https://docs.google.com/document/d/1FsJBBOJnuU1yHh1Wv3USnKiUIlfX8W24q2U7XtbbkmI/edit",
-    "fcc_version": null,
+    "fcc_version": "03.02.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S006_ZKMLN": {
     "sortie": "S006_ZKMLN",
@@ -994,11 +994,11 @@
     "jira_key": "FFT-1705",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1705",
     "test_card_url": "https://docs.google.com/document/d/1mT4Dnv04tATPDfn0P9hhKebO2CQPSnl4uAPBoE5tF_8/edit",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S007_N208B": {
     "sortie": "S007_N208B",
@@ -1192,22 +1192,22 @@
     "jira_key": "FFT-1744",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1744",
     "test_card_url": "https://docs.google.com/document/d/1hMnpwh3EvQEce0_4c80Wl3_vFPSeD6c9-3sL_D_qJ2g/edit",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S019_N208B": {
     "sortie": "S019_N208B",
     "jira_key": "FFT-1745",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1745",
     "test_card_url": "https://docs.google.com/document/d/1LCZAoi1OfTta2PwVUx3fZ7ic5OPAhUQnC5nIPTNu_9Y/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S019_ZKMLN": {
     "sortie": "S019_ZKMLN",
@@ -1236,77 +1236,77 @@
     "jira_key": "FFT-1771",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1771",
     "test_card_url": "https://docs.google.com/document/d/1MVe6A0BoX-90UL4HordDfNRIpktG3s61zQWSsE8z_K4/edit",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S022_ZKMLN": {
     "sortie": "S022_ZKMLN",
     "jira_key": "FFT-2594",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2594",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S024_ZKMLN": {
     "sortie": "S024_ZKMLN",
     "jira_key": "FFT-2616",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2616",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S025_ZKMLN": {
     "sortie": "S025_ZKMLN",
     "jira_key": "FFT-2618",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2618",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S026_ZKMLN": {
     "sortie": "S026_ZKMLN",
     "jira_key": "FFT-2619",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2619",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S027_ZKMLN": {
     "sortie": "S027_ZKMLN",
     "jira_key": "FFT-2601",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2601",
     "test_card_url": "https://docs.google.com/document/d/1-fhecydhxbUnrWzsBem98UG904_bGGq80Sah9Xd9wCc/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S029_1_ZKMLN": {
     "sortie": "S029_1_ZKMLN",
     "jira_key": "FFT-2622",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2622",
     "test_card_url": "https://docs.google.com/document/d/1OWKoq39f_K8zf0_djOfGucz-stLyre7xssgA2xvxr0Q/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S029_N208B": {
     "sortie": "S029_N208B",
@@ -1324,11 +1324,11 @@
     "jira_key": "FFT-2629",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2629",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S030_N208B": {
     "sortie": "S030_N208B",
@@ -1346,319 +1346,319 @@
     "jira_key": "FFT-2629",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2629",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S031_1_ZKMLN": {
     "sortie": "S031_1_ZKMLN",
     "jira_key": "FFT-2636",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2636",
     "test_card_url": "https://docs.google.com/document/d/1xEGzxFsEICphZXfnmYOeSBbfh_7ISq2V1VFw1IrvDn8/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S031_2_N208B": {
     "sortie": "S031_2_N208B",
     "jira_key": "FFT-1880",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1880",
     "test_card_url": "https://docs.google.com/document/d/1KJUeuTvh5klCdZeINV7Frx-oWMVNmNQVpcmGqYKErGY/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
     "pdi_version": "11.00.01",
     "morgana_version": "47929ee",
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S031_2_ZKMLN": {
     "sortie": "S031_2_ZKMLN",
     "jira_key": "FFT-2636",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2636",
     "test_card_url": "https://docs.google.com/document/d/1xEGzxFsEICphZXfnmYOeSBbfh_7ISq2V1VFw1IrvDn8/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S031_N208B": {
     "sortie": "S031_N208B",
     "jira_key": "FFT-1880",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1880",
     "test_card_url": "https://docs.google.com/document/d/1KJUeuTvh5klCdZeINV7Frx-oWMVNmNQVpcmGqYKErGY/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
     "pdi_version": "11.00.01",
     "morgana_version": "47929ee",
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S032_1_ZKMLN": {
     "sortie": "S032_1_ZKMLN",
     "jira_key": "FFT-2646",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2646",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S032_2_ZKMLN": {
     "sortie": "S032_2_ZKMLN",
     "jira_key": "FFT-2646",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2646",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S032_N208B": {
     "sortie": "S032_N208B",
     "jira_key": "FFT-1883",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1883",
     "test_card_url": "https://docs.google.com/document/d/1tS4Lc65LrDbRkEHLwPhePTvDyNgO6kAHvOud8Y4Rcvo/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S033_1_ZKMLN": {
     "sortie": "S033_1_ZKMLN",
     "jira_key": "FFT-2652",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2652",
     "test_card_url": "https://docs.google.com/document/d/1oy4T6lBJqriVLrYs-SAe70mj2B-e4WX_aidNkqINGXg/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S033_2_ZKMLN": {
     "sortie": "S033_2_ZKMLN",
     "jira_key": "FFT-2652",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2652",
     "test_card_url": "https://docs.google.com/document/d/1oy4T6lBJqriVLrYs-SAe70mj2B-e4WX_aidNkqINGXg/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S033_3_ZKMLN": {
     "sortie": "S033_3_ZKMLN",
     "jira_key": "FFT-2652",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2652",
     "test_card_url": "https://docs.google.com/document/d/1oy4T6lBJqriVLrYs-SAe70mj2B-e4WX_aidNkqINGXg/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S033_N208B": {
     "sortie": "S033_N208B",
     "jira_key": "FFT-1886",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1886",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S034_1_ZKMLN": {
     "sortie": "S034_1_ZKMLN",
     "jira_key": "FFT-2653",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2653",
     "test_card_url": "https://docs.google.com/document/d/1NsYD6ikjODlaZiyIo8cybpoQwWFEdD6MGP-x6v8H-PM/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S034_N208B": {
     "sortie": "S034_N208B",
     "jira_key": "FFT-1888",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1888",
     "test_card_url": "https://docs.google.com/document/d/1vfotplSUqgPSIPQmz4wtxludZRx3Aud6o3IB4wd40UE/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
     "pdi_version": "11.00.01",
     "morgana_version": "47929ee",
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S035_3_ZKMLN": {
     "sortie": "S035_3_ZKMLN",
     "jira_key": "FFT-2660",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2660",
     "test_card_url": "https://docs.google.com/document/d/19wogduT-_aa-m5kt8Rrh9W-pO93fVe-libTfs3mRAfE/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S035_4_ZKMLN": {
     "sortie": "S035_4_ZKMLN",
     "jira_key": "FFT-2660",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2660",
     "test_card_url": "https://docs.google.com/document/d/19wogduT-_aa-m5kt8Rrh9W-pO93fVe-libTfs3mRAfE/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S035_5_ZKMLN": {
     "sortie": "S035_5_ZKMLN",
     "jira_key": "FFT-2660",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2660",
     "test_card_url": "https://docs.google.com/document/d/19wogduT-_aa-m5kt8Rrh9W-pO93fVe-libTfs3mRAfE/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S035_N208B": {
     "sortie": "S035_N208B",
     "jira_key": "FFT-1890",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1890",
     "test_card_url": "https://docs.google.com/document/d/1TIwXLoWDT2GjuXhmuTMTe2p-kkH7LPWB9AMbOkaHeFw/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S036_N208B": {
     "sortie": "S036_N208B",
     "jira_key": "FFT-1891",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1891",
     "test_card_url": "https://docs.google.com/document/d/1HqOiJFybJDfDOw-OBAoIhJtyWmF3iJhC0XSWblmeggE/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S036_ZKMLN": {
     "sortie": "S036_ZKMLN",
     "jira_key": "FFT-2672",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2672",
     "test_card_url": "https://docs.google.com/document/d/10z1m0qYjQuVhqXeY0ZgUnNLcKsmX-DSk__oygvXEbBU/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S037_N208B": {
     "sortie": "S037_N208B",
     "jira_key": "FFT-1892",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1892",
     "test_card_url": "https://docs.google.com/document/d/1J7OsRPZJhESfxRD2CYdA5e4V4zOrxBbuLaJmFIwx-aY/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S037_ZKMLN": {
     "sortie": "S037_ZKMLN",
     "jira_key": "FFT-2677",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2677",
     "test_card_url": "https://docs.google.com/document/d/1rcB5RGxcwtFhDAjtu7dG_I5ntNIB1oOzH38xyqYgCGA/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S038_1_ZKMLN": {
     "sortie": "S038_1_ZKMLN",
     "jira_key": "FFT-2686",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2686",
     "test_card_url": "https://docs.google.com/document/d/1DKW6XZPCHrdS1O4IY4vBCIJgpioJwxUVbkQeEN8s77w/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S038_2_N208B": {
     "sortie": "S038_2_N208B",
     "jira_key": "FFT-1902",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1902",
     "test_card_url": "https://docs.google.com/document/d/1yCKIyCk0-yXHDGBIJGUyGW8syPQpSx717eEkPQU_tE8/edit?usp=sharing",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S038_2_ZKMLN": {
     "sortie": "S038_2_ZKMLN",
     "jira_key": "FFT-2686",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2686",
     "test_card_url": "https://docs.google.com/document/d/1DKW6XZPCHrdS1O4IY4vBCIJgpioJwxUVbkQeEN8s77w/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S038_N208B": {
     "sortie": "S038_N208B",
     "jira_key": "FFT-1902",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1902",
     "test_card_url": "https://docs.google.com/document/d/1yCKIyCk0-yXHDGBIJGUyGW8syPQpSx717eEkPQU_tE8/edit?usp=sharing",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S039_2_ZKMLN": {
     "sortie": "S039_2_ZKMLN",
     "jira_key": "FFT-2689",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2689",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S039_N208B": {
     "sortie": "S039_N208B",
     "jira_key": "FFT-1905",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1905",
     "test_card_url": "https://docs.google.com/document/d/1aoPEhPqZo1sIuoy7AsNaszgpkyUM991E95ZPpyxI3fY/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "01.00.03",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "pdi_version": "11.00.01",
+    "morgana_version": "47929ee",
+    "version_source": "gdrive"
   },
   "S039_ZKMLN": {
     "sortie": "S039_ZKMLN",
     "jira_key": "FFT-2689",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2689",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S040_2_N208B": {
     "sortie": "S040_2_N208B",
@@ -1666,7 +1666,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1964",
     "test_card_url": "https://docs.google.com/document/d/1Y82ZzgJTfoU0OVr8yOYboB65lV_BtGFmQcpusODiCTA/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1677,7 +1677,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1964",
     "test_card_url": "https://docs.google.com/document/d/1Y82ZzgJTfoU0OVr8yOYboB65lV_BtGFmQcpusODiCTA/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1687,231 +1687,231 @@
     "jira_key": "FFT-2693",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2693",
     "test_card_url": "https://docs.google.com/document/d/1cc-rxaLDn0vJ8cCYu2hUamchGBv7aG0qbi9PgwRygts/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S041_2_N208B": {
     "sortie": "S041_2_N208B",
     "jira_key": "FFT-1994",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1994",
     "test_card_url": "https://docs.google.com/document/d/1CswIMgE3fgekC7sqyvm1mGoneVjom3t4Ujz2HFzt1TI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S041_2_ZKMLN": {
     "sortie": "S041_2_ZKMLN",
     "jira_key": "FFT-2695",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2695",
     "test_card_url": "https://docs.google.com/document/d/1RXqfnqGgx8OZWtF5DG2xUdquZh-nBygHRfIsSBREK_Q/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S041_N208B": {
     "sortie": "S041_N208B",
     "jira_key": "FFT-1994",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1994",
     "test_card_url": "https://docs.google.com/document/d/1CswIMgE3fgekC7sqyvm1mGoneVjom3t4Ujz2HFzt1TI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S041_ZKMLN": {
     "sortie": "S041_ZKMLN",
     "jira_key": "FFT-2695",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2695",
     "test_card_url": "https://docs.google.com/document/d/1RXqfnqGgx8OZWtF5DG2xUdquZh-nBygHRfIsSBREK_Q/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_1_N208B": {
     "sortie": "S042_1_N208B",
     "jira_key": "FFT-1995",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1995",
     "test_card_url": "https://docs.google.com/document/d/1dnofSsuhdxEc3CnDQhQ0c85-SQ-TL0-kDO-X36TW81U/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_2_N208B": {
     "sortie": "S042_2_N208B",
     "jira_key": "FFT-1995",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1995",
     "test_card_url": "https://docs.google.com/document/d/1dnofSsuhdxEc3CnDQhQ0c85-SQ-TL0-kDO-X36TW81U/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_3_N208B": {
     "sortie": "S042_3_N208B",
     "jira_key": "FFT-1995",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1995",
     "test_card_url": "https://docs.google.com/document/d/1dnofSsuhdxEc3CnDQhQ0c85-SQ-TL0-kDO-X36TW81U/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_4_N208B": {
     "sortie": "S042_4_N208B",
     "jira_key": "FFT-1995",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1995",
     "test_card_url": "https://docs.google.com/document/d/1dnofSsuhdxEc3CnDQhQ0c85-SQ-TL0-kDO-X36TW81U/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_5_N208B": {
     "sortie": "S042_5_N208B",
     "jira_key": "FFT-1995",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1995",
     "test_card_url": "https://docs.google.com/document/d/1dnofSsuhdxEc3CnDQhQ0c85-SQ-TL0-kDO-X36TW81U/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S042_ZKMLN": {
     "sortie": "S042_ZKMLN",
     "jira_key": "FFT-2696",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2696",
     "test_card_url": "https://docs.google.com/document/d/1PoFjh3F8FqSRIJjH12AFzrYZFHv-SPUOyhuY51o123o/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S043_2_N208B": {
     "sortie": "S043_2_N208B",
     "jira_key": "FFT-1996",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1996",
     "test_card_url": "https://docs.google.com/document/d/1jdvcurDPOT2JB5Jxbu5rwcvWsV5wFdh2oNCjIlxukpU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S043_3_N208B": {
     "sortie": "S043_3_N208B",
     "jira_key": "FFT-1996",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1996",
     "test_card_url": "https://docs.google.com/document/d/1jdvcurDPOT2JB5Jxbu5rwcvWsV5wFdh2oNCjIlxukpU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S043_4_N208B": {
     "sortie": "S043_4_N208B",
     "jira_key": "FFT-1996",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1996",
     "test_card_url": "https://docs.google.com/document/d/1jdvcurDPOT2JB5Jxbu5rwcvWsV5wFdh2oNCjIlxukpU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S043_N208B": {
     "sortie": "S043_N208B",
     "jira_key": "FFT-1996",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-1996",
     "test_card_url": "https://docs.google.com/document/d/1jdvcurDPOT2JB5Jxbu5rwcvWsV5wFdh2oNCjIlxukpU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S044_2_N208B": {
     "sortie": "S044_2_N208B",
     "jira_key": "FFT-2005",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2005",
     "test_card_url": "https://docs.google.com/document/d/1Xh8wTB1B-xqC2MxcNIXOtD0bqP8C5CzklrkvHmMgA0w/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S044_3_N208B": {
     "sortie": "S044_3_N208B",
     "jira_key": "FFT-2005",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2005",
     "test_card_url": "https://docs.google.com/document/d/1Xh8wTB1B-xqC2MxcNIXOtD0bqP8C5CzklrkvHmMgA0w/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S044_4_N208B": {
     "sortie": "S044_4_N208B",
     "jira_key": "FFT-2005",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2005",
     "test_card_url": "https://docs.google.com/document/d/1Xh8wTB1B-xqC2MxcNIXOtD0bqP8C5CzklrkvHmMgA0w/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S044_N208B": {
     "sortie": "S044_N208B",
     "jira_key": "FFT-2005",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2005",
     "test_card_url": "https://docs.google.com/document/d/1Xh8wTB1B-xqC2MxcNIXOtD0bqP8C5CzklrkvHmMgA0w/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S045_1_ZKMLN": {
     "sortie": "S045_1_ZKMLN",
     "jira_key": "FFT-2703",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2703",
     "test_card_url": "https://docs.google.com/document/d/1bMwsoAkxnWti5g-O9n9Q7j6mKvKgInNWV3cv014sVRA/edit?usp=sharing",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S045_2_ZKMLN": {
     "sortie": "S045_2_ZKMLN",
     "jira_key": "FFT-2703",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2703",
     "test_card_url": "https://docs.google.com/document/d/1bMwsoAkxnWti5g-O9n9Q7j6mKvKgInNWV3cv014sVRA/edit?usp=sharing",
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S045_N208B": {
     "sortie": "S045_N208B",
@@ -1919,7 +1919,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2006",
     "test_card_url": "https://docs.google.com/document/d/1E2NDcVhLqHlWS-864O3enlkXR2CbJa2P26zG8AR4FUo/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1930,7 +1930,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2010",
     "test_card_url": "https://docs.google.com/document/d/1taFNPVqu2kR30jOfK2mNRbDOTaTKRY7zntAdO24bHnk/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1940,11 +1940,11 @@
     "jira_key": "FFT-2715",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2715",
     "test_card_url": "https://docs.google.com/document/d/17w_BXYANDKTmM2yzudN9GLJsvEY09RipdYB8fiiRcSc/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S046_3_N208B": {
     "sortie": "S046_3_N208B",
@@ -1952,7 +1952,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2010",
     "test_card_url": "https://docs.google.com/document/d/1taFNPVqu2kR30jOfK2mNRbDOTaTKRY7zntAdO24bHnk/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1963,7 +1963,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2010",
     "test_card_url": "https://docs.google.com/document/d/1taFNPVqu2kR30jOfK2mNRbDOTaTKRY7zntAdO24bHnk/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -1973,220 +1973,220 @@
     "jira_key": "FFT-2715",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2715",
     "test_card_url": "https://docs.google.com/document/d/17w_BXYANDKTmM2yzudN9GLJsvEY09RipdYB8fiiRcSc/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S047_2_N208B": {
     "sortie": "S047_2_N208B",
     "jira_key": "FFT-2015",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2015",
     "test_card_url": "https://docs.google.com/document/d/1hdpzZlmK4MAejHrLRKu61i3A44rb0tW3HEG5-_uWsmY/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S047_3_N208B": {
     "sortie": "S047_3_N208B",
     "jira_key": "FFT-2015",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2015",
     "test_card_url": "https://docs.google.com/document/d/1hdpzZlmK4MAejHrLRKu61i3A44rb0tW3HEG5-_uWsmY/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S047_N208B": {
     "sortie": "S047_N208B",
     "jira_key": "FFT-2015",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2015",
     "test_card_url": "https://docs.google.com/document/d/1hdpzZlmK4MAejHrLRKu61i3A44rb0tW3HEG5-_uWsmY/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S047_ZKMLN": {
     "sortie": "S047_ZKMLN",
     "jira_key": "FFT-2718",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2718",
     "test_card_url": "https://docs.google.com/document/d/16AnxetN7kOx7Q50RIhu6OI6_aQXe1YxyM2CeVA7yyRo/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_1_ZKMLN": {
     "sortie": "S048_1_ZKMLN",
     "jira_key": "FFT-2720",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2720",
     "test_card_url": "https://docs.google.com/document/d/186YDnqIrdg-_3IqQPLJPXj6wxQCbxd9HB-pHRVU6X0A/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_2_N208B": {
     "sortie": "S048_2_N208B",
     "jira_key": "FFT-2019",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2019",
     "test_card_url": "https://docs.google.com/document/d/1sYSg450eg64n9iRMDUZ3Udf_L5zInJgATtkRFnqYfco/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_2_ZKMLN": {
     "sortie": "S048_2_ZKMLN",
     "jira_key": "FFT-2720",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2720",
     "test_card_url": "https://docs.google.com/document/d/186YDnqIrdg-_3IqQPLJPXj6wxQCbxd9HB-pHRVU6X0A/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_3_N208B": {
     "sortie": "S048_3_N208B",
     "jira_key": "FFT-2019",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2019",
     "test_card_url": "https://docs.google.com/document/d/1sYSg450eg64n9iRMDUZ3Udf_L5zInJgATtkRFnqYfco/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_4_N208B": {
     "sortie": "S048_4_N208B",
     "jira_key": "FFT-2019",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2019",
     "test_card_url": "https://docs.google.com/document/d/1sYSg450eg64n9iRMDUZ3Udf_L5zInJgATtkRFnqYfco/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S048_N208B": {
     "sortie": "S048_N208B",
     "jira_key": "FFT-2019",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2019",
     "test_card_url": "https://docs.google.com/document/d/1sYSg450eg64n9iRMDUZ3Udf_L5zInJgATtkRFnqYfco/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S049_2_ZKMLN": {
     "sortie": "S049_2_ZKMLN",
     "jira_key": "FFT-2730",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2730",
     "test_card_url": "https://docs.google.com/document/d/170rC3UMiZO92ey37bSX13yw4wDT8D4vGTzVHwGVYgt0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S049_3_ZKMLN": {
     "sortie": "S049_3_ZKMLN",
     "jira_key": "FFT-2730",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2730",
     "test_card_url": "https://docs.google.com/document/d/170rC3UMiZO92ey37bSX13yw4wDT8D4vGTzVHwGVYgt0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S049_N208B": {
     "sortie": "S049_N208B",
     "jira_key": "FFT-2042",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2042",
     "test_card_url": "https://docs.google.com/document/d/1ZzQ2l_qR3zgA9kqxl0Sd0OHIoeVD9mcJReGA9lZoS7k/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S049_ZKMLN": {
     "sortie": "S049_ZKMLN",
     "jira_key": "FFT-2730",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2730",
     "test_card_url": "https://docs.google.com/document/d/170rC3UMiZO92ey37bSX13yw4wDT8D4vGTzVHwGVYgt0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S050_2_N208B": {
     "sortie": "S050_2_N208B",
     "jira_key": "FFT-2048",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2048",
     "test_card_url": "https://docs.google.com/document/d/1Llbe2m4yqMi4q1ZbOMdTW2T0fcqLT8zPBbZ6H5v-JMw/edit?usp=drive_link",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S050_2_ZKMLN": {
     "sortie": "S050_2_ZKMLN",
     "jira_key": "FFT-2732",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2732",
     "test_card_url": "https://docs.google.com/document/d/1LTPoA8bjuAJxWYbmcef-8TKyJV62oB_yUj2o9jJW870/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S050_3_N208B": {
     "sortie": "S050_3_N208B",
     "jira_key": "FFT-2048",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2048",
     "test_card_url": "https://docs.google.com/document/d/1Llbe2m4yqMi4q1ZbOMdTW2T0fcqLT8zPBbZ6H5v-JMw/edit?usp=drive_link",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S050_N208B": {
     "sortie": "S050_N208B",
     "jira_key": "FFT-2048",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2048",
     "test_card_url": "https://docs.google.com/document/d/1Llbe2m4yqMi4q1ZbOMdTW2T0fcqLT8zPBbZ6H5v-JMw/edit?usp=drive_link",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.02",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S050_ZKMLN": {
     "sortie": "S050_ZKMLN",
     "jira_key": "FFT-2732",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2732",
     "test_card_url": "https://docs.google.com/document/d/1LTPoA8bjuAJxWYbmcef-8TKyJV62oB_yUj2o9jJW870/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S051_1_N208B": {
     "sortie": "S051_1_N208B",
@@ -2194,7 +2194,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2052",
     "test_card_url": "https://docs.google.com/document/d/1e6M-fSWCXxRFP76JGdVSCzSQyZDGPV6HWRGs5-hJsWk/edit?usp=sharing",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.02",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2204,11 +2204,11 @@
     "jira_key": "FFT-2054",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2054",
     "test_card_url": "https://docs.google.com/document/d/1n1Y0rC1dh80or8jlxBkXW7kwa7U8dSoopFFg3Buln5U/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S052_2_ZKMLN": {
     "sortie": "S052_2_ZKMLN",
@@ -2226,22 +2226,22 @@
     "jira_key": "FFT-2054",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2054",
     "test_card_url": "https://docs.google.com/document/d/1n1Y0rC1dh80or8jlxBkXW7kwa7U8dSoopFFg3Buln5U/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S052_N208B": {
     "sortie": "S052_N208B",
     "jira_key": "FFT-2054",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2054",
     "test_card_url": "https://docs.google.com/document/d/1n1Y0rC1dh80or8jlxBkXW7kwa7U8dSoopFFg3Buln5U/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S052_ZKMLN": {
     "sortie": "S052_ZKMLN",
@@ -2259,22 +2259,22 @@
     "jira_key": "FFT-2087",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2087",
     "test_card_url": "https://docs.google.com/document/d/1M85hDGLVDkPW9bajG7Zo91CxyRbqM0WkRXOgZwgCprk/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S053_2_N208B": {
     "sortie": "S053_2_N208B",
     "jira_key": "FFT-2087",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2087",
     "test_card_url": "https://docs.google.com/document/d/1M85hDGLVDkPW9bajG7Zo91CxyRbqM0WkRXOgZwgCprk/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S053_ZKMLN": {
     "sortie": "S053_ZKMLN",
@@ -2292,22 +2292,22 @@
     "jira_key": "FFT-2100",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2100",
     "test_card_url": "https://docs.google.com/document/d/1LXIhL8tCkcJt9c02UOPLaZCcHHsxYC64KfOZN4lXWtI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S054_2_N208B": {
     "sortie": "S054_2_N208B",
     "jira_key": "FFT-2100",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2100",
     "test_card_url": "https://docs.google.com/document/d/1LXIhL8tCkcJt9c02UOPLaZCcHHsxYC64KfOZN4lXWtI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S055_1_N208B": {
     "sortie": "S055_1_N208B",
@@ -2315,7 +2315,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2110",
     "test_card_url": "https://docs.google.com/document/d/1IwLeft8KyQvjcGjpIDOh4ImGONtaadmweP8-b3SJziY/edit?usp=drive_link",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.03",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2326,7 +2326,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2110",
     "test_card_url": "https://docs.google.com/document/d/1IwLeft8KyQvjcGjpIDOh4ImGONtaadmweP8-b3SJziY/edit?usp=drive_link",
     "fcc_version": "02.00.11",
-    "fts_version": null,
+    "fts_version": "02.00.11",
     "pdi_version": "21.00.03",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2336,176 +2336,176 @@
     "jira_key": "FFT-2115",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2115",
     "test_card_url": "https://docs.google.com/document/d/1s8L1hqPfAT-nWOMu921YhJe5pxyGA5Sp0ITxn1kl9H4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S056_2_N208B": {
     "sortie": "S056_2_N208B",
     "jira_key": "FFT-2115",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2115",
     "test_card_url": "https://docs.google.com/document/d/1s8L1hqPfAT-nWOMu921YhJe5pxyGA5Sp0ITxn1kl9H4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S056_ZKMLN": {
     "sortie": "S056_ZKMLN",
     "jira_key": "FFT-2753",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2753",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S057_2_N208B": {
     "sortie": "S057_2_N208B",
     "jira_key": "FFT-2117",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2117",
     "test_card_url": "https://docs.google.com/document/d/1CVIaPlE2lSuUD2sZIA-YKc73Pynek1q4kg09oNgnGm4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S057_3_N208B": {
     "sortie": "S057_3_N208B",
     "jira_key": "FFT-2117",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2117",
     "test_card_url": "https://docs.google.com/document/d/1CVIaPlE2lSuUD2sZIA-YKc73Pynek1q4kg09oNgnGm4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S057_4_N208B": {
     "sortie": "S057_4_N208B",
     "jira_key": "FFT-2117",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2117",
     "test_card_url": "https://docs.google.com/document/d/1CVIaPlE2lSuUD2sZIA-YKc73Pynek1q4kg09oNgnGm4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S057_N208B": {
     "sortie": "S057_N208B",
     "jira_key": "FFT-2117",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2117",
     "test_card_url": "https://docs.google.com/document/d/1CVIaPlE2lSuUD2sZIA-YKc73Pynek1q4kg09oNgnGm4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S058_1_N208B": {
     "sortie": "S058_1_N208B",
     "jira_key": "FFT-2124",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2124",
     "test_card_url": "https://docs.google.com/document/d/1hZ9iGIFZF-oHHte6jb3BgJRVtn8wwHWE4qr1xAXxpmI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S058_2_N208B": {
     "sortie": "S058_2_N208B",
     "jira_key": "FFT-2124",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2124",
     "test_card_url": "https://docs.google.com/document/d/1hZ9iGIFZF-oHHte6jb3BgJRVtn8wwHWE4qr1xAXxpmI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S058_3_N208B": {
     "sortie": "S058_3_N208B",
     "jira_key": "FFT-2124",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2124",
     "test_card_url": "https://docs.google.com/document/d/1hZ9iGIFZF-oHHte6jb3BgJRVtn8wwHWE4qr1xAXxpmI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S058_4_N208B": {
     "sortie": "S058_4_N208B",
     "jira_key": "FFT-2124",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2124",
     "test_card_url": "https://docs.google.com/document/d/1hZ9iGIFZF-oHHte6jb3BgJRVtn8wwHWE4qr1xAXxpmI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S059_N208B": {
     "sortie": "S059_N208B",
     "jira_key": "FFT-2130",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2130",
     "test_card_url": "https://docs.google.com/document/d/1ZICeWx9MpZLbv1kBEwF0WjOKUrXxDLifnDcHAUDoRo4/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "02.00.11",
+    "fts_version": "02.00.11",
+    "pdi_version": "21.00.03",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S060_N208B": {
     "sortie": "S060_N208B",
     "jira_key": "FFT-2145",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2145",
     "test_card_url": "https://docs.google.com/document/d/1K1oLiBGyUhWl4NiOe55MxEpyoAFYKhllPsuZ6FN5Rp0/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S061_1_N208B": {
     "sortie": "S061_1_N208B",
     "jira_key": "FFT-2148",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2148",
     "test_card_url": "https://docs.google.com/document/d/1szeSCYuoZ9O0D7YShhqZlqhT5Njr9oC5JnZumDLFm60/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S061_2_N208B": {
     "sortie": "S061_2_N208B",
     "jira_key": "FFT-2148",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2148",
     "test_card_url": "https://docs.google.com/document/d/1szeSCYuoZ9O0D7YShhqZlqhT5Njr9oC5JnZumDLFm60/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S061_N208B": {
     "sortie": "S061_N208B",
     "jira_key": "FFT-2148",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2148",
     "test_card_url": "https://docs.google.com/document/d/1szeSCYuoZ9O0D7YShhqZlqhT5Njr9oC5JnZumDLFm60/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S062_1_N208B": {
     "sortie": "S062_1_N208B",
@@ -2513,7 +2513,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2149",
     "test_card_url": "https://docs.google.com/document/d/1du9raiOMgcGKYPTFUpx00p6wshvJdvBMVjCLqmWLaH4/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2524,7 +2524,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2149",
     "test_card_url": "https://docs.google.com/document/d/1du9raiOMgcGKYPTFUpx00p6wshvJdvBMVjCLqmWLaH4/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2535,7 +2535,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2149",
     "test_card_url": "https://docs.google.com/document/d/1du9raiOMgcGKYPTFUpx00p6wshvJdvBMVjCLqmWLaH4/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2545,110 +2545,110 @@
     "jira_key": "FFT-2150",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2150",
     "test_card_url": "https://docs.google.com/document/d/1jk3UO2T-dxh8j7K9nbC9eZEppobASejqsmKdrFmQJjo/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S063_N208B": {
     "sortie": "S063_N208B",
     "jira_key": "FFT-2150",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2150",
     "test_card_url": "https://docs.google.com/document/d/1jk3UO2T-dxh8j7K9nbC9eZEppobASejqsmKdrFmQJjo/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S064_1_N208B": {
     "sortie": "S064_1_N208B",
     "jira_key": "FFT-2156",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2156",
     "test_card_url": "https://docs.google.com/document/d/1-TPeq_hSM4bymaJzAP1rsln0gi2R_01Nz_9oYKANTfI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S064_2_N208B": {
     "sortie": "S064_2_N208B",
     "jira_key": "FFT-2156",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2156",
     "test_card_url": "https://docs.google.com/document/d/1-TPeq_hSM4bymaJzAP1rsln0gi2R_01Nz_9oYKANTfI/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S065_1_N208B": {
     "sortie": "S065_1_N208B",
     "jira_key": "FFT-2161",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2161",
     "test_card_url": "https://docs.google.com/document/d/1wClBUr1mFVcdawORfumg1s746k-6B4ooWjZhc3kiBTo/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S065_2_N208B": {
     "sortie": "S065_2_N208B",
     "jira_key": "FFT-2161",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2161",
     "test_card_url": "https://docs.google.com/document/d/1wClBUr1mFVcdawORfumg1s746k-6B4ooWjZhc3kiBTo/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S066_1_N208B": {
     "sortie": "S066_1_N208B",
     "jira_key": "FFT-2163",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2163",
     "test_card_url": "https://docs.google.com/document/d/1BxaOM5BKqkhcBurlmV_IuVfDRJNugwqhuxsJ9bHl-qg/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S066_2_N208B": {
     "sortie": "S066_2_N208B",
     "jira_key": "FFT-2163",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2163",
     "test_card_url": "https://docs.google.com/document/d/1BxaOM5BKqkhcBurlmV_IuVfDRJNugwqhuxsJ9bHl-qg/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S067_1_N208B": {
     "sortie": "S067_1_N208B",
     "jira_key": "FFT-2168",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2168",
     "test_card_url": "https://docs.google.com/document/d/1Qch05kaA_3EP1LzXSeNQj7UI1Gn3_pWahF361Y3MqS0/edit?usp=drive_link",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S067_2_N208B": {
     "sortie": "S067_2_N208B",
     "jira_key": "FFT-2168",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2168",
     "test_card_url": "https://docs.google.com/document/d/1Qch05kaA_3EP1LzXSeNQj7UI1Gn3_pWahF361Y3MqS0/edit?usp=drive_link",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S068_2_N208B": {
     "sortie": "S068_2_N208B",
@@ -2656,7 +2656,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2169",
     "test_card_url": "https://docs.google.com/document/d/1xAKEIQWQ2spLTrVzemsyfHsw4Amw2vwQqus_NsZQ6hc/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2667,7 +2667,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2169",
     "test_card_url": "https://docs.google.com/document/d/1xAKEIQWQ2spLTrVzemsyfHsw4Amw2vwQqus_NsZQ6hc/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2677,33 +2677,33 @@
     "jira_key": "FFT-2171",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2171",
     "test_card_url": "https://docs.google.com/document/d/1VJHT56Uxyy8QzmDYwWlqgnwzKzHIb9KApj8D8SWL4eI/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S069_2_N208B": {
     "sortie": "S069_2_N208B",
     "jira_key": "FFT-2171",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2171",
     "test_card_url": "https://docs.google.com/document/d/1VJHT56Uxyy8QzmDYwWlqgnwzKzHIb9KApj8D8SWL4eI/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S069_3_N208B": {
     "sortie": "S069_3_N208B",
     "jira_key": "FFT-2171",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2171",
     "test_card_url": "https://docs.google.com/document/d/1VJHT56Uxyy8QzmDYwWlqgnwzKzHIb9KApj8D8SWL4eI/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "03.01.00",
+    "fts_version": "03.01.00",
+    "pdi_version": "32.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S070_2_N208B": {
     "sortie": "S070_2_N208B",
@@ -2711,7 +2711,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2173",
     "test_card_url": "https://docs.google.com/document/d/16kEYGPiB0If48-vCGZj4gaCeBv9RgbhtlLWji-Rul44/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2722,7 +2722,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2173",
     "test_card_url": "https://docs.google.com/document/d/16kEYGPiB0If48-vCGZj4gaCeBv9RgbhtlLWji-Rul44/edit?usp=sharing",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2733,7 +2733,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2178",
     "test_card_url": "https://docs.google.com/document/d/1cZ74zuGFAKhZPlZQizFMBcEJdNAOj7VwLLcLsF8CJQM/edit?tab=t.0",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2744,7 +2744,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2178",
     "test_card_url": "https://docs.google.com/document/d/1cZ74zuGFAKhZPlZQizFMBcEJdNAOj7VwLLcLsF8CJQM/edit?tab=t.0",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2755,7 +2755,7 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2178",
     "test_card_url": "https://docs.google.com/document/d/1cZ74zuGFAKhZPlZQizFMBcEJdNAOj7VwLLcLsF8CJQM/edit?tab=t.0",
     "fcc_version": "03.01.00",
-    "fts_version": null,
+    "fts_version": "03.01.00",
     "pdi_version": "32.00.01",
     "morgana_version": null,
     "version_source": "gdrive"
@@ -2886,88 +2886,88 @@
     "jira_key": "FFT-2259",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2259",
     "test_card_url": "https://docs.google.com/document/d/1YCe7AxCEnulQbn0ZEYhJcU10x9v5fjRhq3zelapZUN0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S077_1_N208B": {
     "sortie": "S077_1_N208B",
     "jira_key": "FFT-2260",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2260",
     "test_card_url": "https://docs.google.com/document/d/17kUqKhf73XVw9ripFzitbT4iESAirwD6w5olnyVqIzk/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S077_2_N208B": {
     "sortie": "S077_2_N208B",
     "jira_key": "FFT-2260",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2260",
     "test_card_url": "https://docs.google.com/document/d/17kUqKhf73XVw9ripFzitbT4iESAirwD6w5olnyVqIzk/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S077_3_N208B": {
     "sortie": "S077_3_N208B",
     "jira_key": "FFT-2260",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2260",
     "test_card_url": "https://docs.google.com/document/d/17kUqKhf73XVw9ripFzitbT4iESAirwD6w5olnyVqIzk/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S078_2_N208B": {
     "sortie": "S078_2_N208B",
     "jira_key": "FFT-2261",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2261",
     "test_card_url": "https://docs.google.com/document/d/122kqTZhONDUj2q4Vnzkj_YMoY0fnIW_j45oLfwj7XB4/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S079_N208B": {
     "sortie": "S079_N208B",
     "jira_key": "FFT-2263",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2263",
     "test_card_url": "https://docs.google.com/document/d/1HxHsC7B1nHxopq44Zp_1VevRIQUR_5i1nXGReTk5BvM/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S080_1_N208B": {
     "sortie": "S080_1_N208B",
     "jira_key": "FFT-2266",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2266",
     "test_card_url": "https://docs.google.com/document/d/1k3pnEwpvcUCX91E413q_3rXlvZtKZjh6dpS-MAykoqw/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S080_2_N208B": {
     "sortie": "S080_2_N208B",
     "jira_key": "FFT-2266",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2266",
     "test_card_url": "https://docs.google.com/document/d/1k3pnEwpvcUCX91E413q_3rXlvZtKZjh6dpS-MAykoqw/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S081_1_N208B": {
     "sortie": "S081_1_N208B",
@@ -2996,88 +2996,88 @@
     "jira_key": "FFT-2270",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2270",
     "test_card_url": "https://docs.google.com/document/d/1XI82TnPBSXc27Mm8UJd4DV2EIrsTD4VTU_7_7gnuJhs/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S082_2_N208B": {
     "sortie": "S082_2_N208B",
     "jira_key": "FFT-2270",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2270",
     "test_card_url": "https://docs.google.com/document/d/1XI82TnPBSXc27Mm8UJd4DV2EIrsTD4VTU_7_7gnuJhs/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S083_N208B": {
     "sortie": "S083_N208B",
     "jira_key": "FFT-2274",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2274",
     "test_card_url": "https://docs.google.com/document/d/1lX9pM6bXHJ26tDlyw6ZRhHwcFu1pSztBJhMIAkuf2JY/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S084_N208B": {
     "sortie": "S084_N208B",
     "jira_key": "FFT-2300",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2300",
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S085_1_N208B": {
     "sortie": "S085_1_N208B",
     "jira_key": "FFT-2302",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2302",
     "test_card_url": "https://docs.google.com/document/d/1IBWg1t6uT61uFJXdzH2RIe1gpkiISJykvxtVSiVDUg4/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S086_1_N208B": {
     "sortie": "S086_1_N208B",
     "jira_key": "FFT-2303",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2303",
     "test_card_url": "https://docs.google.com/document/d/1zTr3RWqZDZ1Ir-e7ufnNEFPcCxt49P4Hw3KO30vTGbM/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S087_1_N208B": {
     "sortie": "S087_1_N208B",
     "jira_key": "FFT-2306",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2306",
     "test_card_url": "https://docs.google.com/document/d/18SOjf5rhecOwg1KSmgJN6Q-f8_5K65sVkUjIMaz009Y/edit?tab=t.0#heading=h.8hfrrqv8p4vz",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S088_1_N208B": {
     "sortie": "S088_1_N208B",
     "jira_key": "FFT-2308",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2308",
     "test_card_url": "https://docs.google.com/document/d/1Tw-KH1oIHvlFgzU4PkVwuCFv0BTRIAVjxq2Q2OjnJfY/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S089_1_N208B": {
     "sortie": "S089_1_N208B",
@@ -3106,22 +3106,22 @@
     "jira_key": "FFT-2311",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2311",
     "test_card_url": "https://docs.google.com/document/d/1rHSPpzz_DiFGu81sAGCtJDanz735TjUwpSREfn-9QOk/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S090_2_N208B": {
     "sortie": "S090_2_N208B",
     "jira_key": "FFT-2311",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2311",
     "test_card_url": "https://docs.google.com/document/d/1rHSPpzz_DiFGu81sAGCtJDanz735TjUwpSREfn-9QOk/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "42.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S091_1_N208B": {
     "sortie": "S091_1_N208B",
@@ -3161,110 +3161,110 @@
     "jira_key": "FFT-2319",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2319",
     "test_card_url": "https://docs.google.com/document/d/1Q7iZX4fFBEzCNxYWg0iJ5rCoH9ArDBj4wQ31x7Bn9N4/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S092_2_N208B": {
     "sortie": "S092_2_N208B",
     "jira_key": "FFT-2319",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2319",
     "test_card_url": "https://docs.google.com/document/d/1Q7iZX4fFBEzCNxYWg0iJ5rCoH9ArDBj4wQ31x7Bn9N4/edit?usp=drive_link",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S093_1_N208B": {
     "sortie": "S093_1_N208B",
     "jira_key": "FFT-2321",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2321",
     "test_card_url": "https://docs.google.com/document/d/1pSR1ElIANsRkmENdJRT5AdBXpgAkNlD4iWZ4dfMllaQ/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S093_2_N208B": {
     "sortie": "S093_2_N208B",
     "jira_key": "FFT-2321",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2321",
     "test_card_url": "https://docs.google.com/document/d/1pSR1ElIANsRkmENdJRT5AdBXpgAkNlD4iWZ4dfMllaQ/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S093_3_N208B": {
     "sortie": "S093_3_N208B",
     "jira_key": "FFT-2321",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2321",
     "test_card_url": "https://docs.google.com/document/d/1pSR1ElIANsRkmENdJRT5AdBXpgAkNlD4iWZ4dfMllaQ/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S093_4_N208B": {
     "sortie": "S093_4_N208B",
     "jira_key": "FFT-2321",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2321",
     "test_card_url": "https://docs.google.com/document/d/1pSR1ElIANsRkmENdJRT5AdBXpgAkNlD4iWZ4dfMllaQ/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S093_5_N208B": {
     "sortie": "S093_5_N208B",
     "jira_key": "FFT-2321",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2321",
     "test_card_url": "https://docs.google.com/document/d/1pSR1ElIANsRkmENdJRT5AdBXpgAkNlD4iWZ4dfMllaQ/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S094_2_N208B": {
     "sortie": "S094_2_N208B",
     "jira_key": "FFT-2323",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2323",
     "test_card_url": "https://docs.google.com/document/d/17zrH1gt5KJFSdIqDEQZmqXdbTZ_-wuSd-wjyYtS8A-k/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S094_3_N208B": {
     "sortie": "S094_3_N208B",
     "jira_key": "FFT-2323",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2323",
     "test_card_url": "https://docs.google.com/document/d/17zrH1gt5KJFSdIqDEQZmqXdbTZ_-wuSd-wjyYtS8A-k/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S094_N208B": {
     "sortie": "S094_N208B",
     "jira_key": "FFT-2323",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2323",
     "test_card_url": "https://docs.google.com/document/d/17zrH1gt5KJFSdIqDEQZmqXdbTZ_-wuSd-wjyYtS8A-k/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S095_1_N208B": {
     "sortie": "S095_1_N208B",
@@ -3282,33 +3282,33 @@
     "jira_key": "FFT-2341",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2341",
     "test_card_url": "https://docs.google.com/document/d/1pgQxUIhqsC94f9ll2mdX9fJ7giRHNd3KfTXoRjDotlY/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S096_2_N208B": {
     "sortie": "S096_2_N208B",
     "jira_key": "FFT-2341",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2341",
     "test_card_url": "https://docs.google.com/document/d/1pgQxUIhqsC94f9ll2mdX9fJ7giRHNd3KfTXoRjDotlY/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S097_1_N208B": {
     "sortie": "S097_1_N208B",
     "jira_key": "FFT-2351",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2351",
     "test_card_url": "https://docs.google.com/document/d/1CfKW_M471IasOub6i3gSmpz2S7U5ic7RNVv6rJshxfo/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S098_1_N208B": {
     "sortie": "S098_1_N208B",
@@ -3339,9 +3339,9 @@
     "test_card_url": "https://docs.google.com/document/d/1Q7lMixS-j3cuoEi0o4Dqat7wm7W4QG330__Z00Ivaj0/edit?tab=t.0",
     "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S100_2_N208B": {
     "sortie": "S100_2_N208B",
@@ -3350,42 +3350,42 @@
     "test_card_url": "https://docs.google.com/document/d/1Q7lMixS-j3cuoEi0o4Dqat7wm7W4QG330__Z00Ivaj0/edit?tab=t.0",
     "fcc_version": "03.03.10",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "51.00.01",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S101_N208B": {
     "sortie": "S101_N208B",
     "jira_key": "FFT-2390",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2390",
     "test_card_url": "https://docs.google.com/document/d/1aCgrcDH2rAQmLMw5kZeIpX_xxwZhDno3KVOEIweTMYo/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.01",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S102_1_N208B": {
     "sortie": "S102_1_N208B",
     "jira_key": "FFT-2397",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2397",
     "test_card_url": "https://docs.google.com/document/d/1dF8VpTx1jS-7mBZrtBhNWu9hEft4MbZk-biYwe-6APA/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S102_2_N208B": {
     "sortie": "S102_2_N208B",
     "jira_key": "FFT-2397",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2397",
     "test_card_url": "https://docs.google.com/document/d/1dF8VpTx1jS-7mBZrtBhNWu9hEft4MbZk-biYwe-6APA/edit?tab=t.0",
-    "fcc_version": null,
+    "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S103_N208B": {
     "sortie": "S103_N208B",
@@ -3394,9 +3394,9 @@
     "test_card_url": "https://docs.google.com/document/d/1Bb3XfYKKv1Wnwi76RTIELGaGKAOlXX3tYsydWXMDx8Q/edit?tab=t.0#heading=h.jkk9nnfbes47",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S104_N208B": {
     "sortie": "S104_N208B",
@@ -3405,9 +3405,9 @@
     "test_card_url": "https://docs.google.com/document/d/15YLIgFDKiRehob4qmogLEIg8G4uo0UKMWbnbMsDwP4Y/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S105_1_N208B": {
     "sortie": "S105_1_N208B",
@@ -3416,9 +3416,9 @@
     "test_card_url": "https://docs.google.com/document/d/1acz9AQdKPKggrgI9dPVLflEi_131u860LKIaSXfjoU4/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S106_1_N208B": {
     "sortie": "S106_1_N208B",
@@ -3427,9 +3427,9 @@
     "test_card_url": "https://docs.google.com/document/d/1ODwmp4we_y7LxpGQBJNFR4Unya5Bni9-EJjqSLvZscc/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S107_2_N208B": {
     "sortie": "S107_2_N208B",
@@ -3438,9 +3438,9 @@
     "test_card_url": "https://docs.google.com/document/d/1b_AFM7unp42DexQ3TTFJg1s2z443DDNxl0QiuW4igFE/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S107_3_N208B": {
     "sortie": "S107_3_N208B",
@@ -3449,9 +3449,9 @@
     "test_card_url": "https://docs.google.com/document/d/1b_AFM7unp42DexQ3TTFJg1s2z443DDNxl0QiuW4igFE/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S107_N208B": {
     "sortie": "S107_N208B",
@@ -3460,9 +3460,9 @@
     "test_card_url": "https://docs.google.com/document/d/1b_AFM7unp42DexQ3TTFJg1s2z443DDNxl0QiuW4igFE/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S108_1_N208B": {
     "sortie": "S108_1_N208B",
@@ -3471,9 +3471,9 @@
     "test_card_url": "https://docs.google.com/document/d/12CxA1rgMOzQQ3CKBxMiGVA3zOhFnb05cI63MLR-vIwo/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S108_2_N208B": {
     "sortie": "S108_2_N208B",
@@ -3482,9 +3482,9 @@
     "test_card_url": "https://docs.google.com/document/d/12CxA1rgMOzQQ3CKBxMiGVA3zOhFnb05cI63MLR-vIwo/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S109_1_N208B": {
     "sortie": "S109_1_N208B",
@@ -3493,9 +3493,9 @@
     "test_card_url": "https://docs.google.com/document/d/1AIVW78ySZx2VO0PrDjJIkzAR4UVpluYrOxGasB9_CaA/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S109_2_N208B": {
     "sortie": "S109_2_N208B",
@@ -3504,9 +3504,9 @@
     "test_card_url": "https://docs.google.com/document/d/1AIVW78ySZx2VO0PrDjJIkzAR4UVpluYrOxGasB9_CaA/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S110_2_N208B": {
     "sortie": "S110_2_N208B",
@@ -3548,9 +3548,9 @@
     "test_card_url": "https://docs.google.com/document/d/1AlksOmOIIWpzmH7BZYjAcEa6nEbwUl9Xu5BRgKesD4c/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S112_2_N208B": {
     "sortie": "S112_2_N208B",
@@ -3559,9 +3559,9 @@
     "test_card_url": "https://docs.google.com/document/d/124wuxkI8VrktLZmMiQfrAoqtHyIGzLi2_xzeiQWKHcI/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S112_N208B": {
     "sortie": "S112_N208B",
@@ -3570,9 +3570,9 @@
     "test_card_url": "https://docs.google.com/document/d/124wuxkI8VrktLZmMiQfrAoqtHyIGzLi2_xzeiQWKHcI/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
+    "pdi_version": "56.00.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S113_2_N208B": {
     "sortie": "S113_2_N208B",
@@ -3581,9 +3581,9 @@
     "test_card_url": "https://docs.google.com/document/d/1kD0XwQXq8RnYNvxtZuo52DsSAjo4G3SF4f1g-l_CkWQ/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "56.00.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S113_N208B": {
     "sortie": "S113_N208B",
@@ -3592,9 +3592,9 @@
     "test_card_url": "https://docs.google.com/document/d/1kD0XwQXq8RnYNvxtZuo52DsSAjo4G3SF4f1g-l_CkWQ/edit?tab=t.0",
     "fcc_version": "03.04.05",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "56.00.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S114_1_N208B": {
     "sortie": "S114_1_N208B",
@@ -3645,44 +3645,44 @@
     "jira_key": "FFT-2558",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2558",
     "test_card_url": "https://docs.google.com/document/d/1nSinJLir4ODggfKWKyPnxUmPPJ76K5ZLJuKVCJg5b7w/edit?tab=t.0",
-    "fcc_version": "05.01.02",
+    "fcc_version": "05.01.01",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "05.02.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S116_N208B": {
     "sortie": "S116_N208B",
     "jira_key": "FFT-2558",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2558",
     "test_card_url": "https://docs.google.com/document/d/1nSinJLir4ODggfKWKyPnxUmPPJ76K5ZLJuKVCJg5b7w/edit?tab=t.0",
-    "fcc_version": "05.01.02",
+    "fcc_version": "05.01.01",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "05.02.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S117_2_N208B": {
     "sortie": "S117_2_N208B",
     "jira_key": "FFT-2566",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2566",
     "test_card_url": "https://docs.google.com/document/d/1faDAc-lH5LRjwjGZRIyVdY4IOOQKel7kjAF8cXmNALU/edit?tab=t.0",
-    "fcc_version": "05.01.02",
+    "fcc_version": "05.01.01",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "05.02.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S117_N208B": {
     "sortie": "S117_N208B",
     "jira_key": "FFT-2566",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2566",
     "test_card_url": "https://docs.google.com/document/d/1faDAc-lH5LRjwjGZRIyVdY4IOOQKel7kjAF8cXmNALU/edit?tab=t.0",
-    "fcc_version": "05.01.02",
+    "fcc_version": "05.01.01",
     "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "pdi_version": "05.02.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S118_1_N208B": {
     "sortie": "S118_1_N208B",
@@ -3690,10 +3690,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2569",
     "test_card_url": "https://docs.google.com/document/d/1sNXjks7bzmnzQahL8kuSFebqJtL50J-WL-Ujit8dMXE/edit?usp=drive_link",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S118_2_N208B": {
     "sortie": "S118_2_N208B",
@@ -3701,10 +3701,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2569",
     "test_card_url": "https://docs.google.com/document/d/1sNXjks7bzmnzQahL8kuSFebqJtL50J-WL-Ujit8dMXE/edit?usp=drive_link",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S118_3_N208B": {
     "sortie": "S118_3_N208B",
@@ -3712,10 +3712,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2569",
     "test_card_url": "https://docs.google.com/document/d/1sNXjks7bzmnzQahL8kuSFebqJtL50J-WL-Ujit8dMXE/edit?usp=drive_link",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S119_1_N208B": {
     "sortie": "S119_1_N208B",
@@ -3723,10 +3723,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2575",
     "test_card_url": "https://docs.google.com/document/d/1uXJ5tcFfaGAdy8NPu7jaV22a75ol163lM5QqGxwTHPc/edit?tab=t.0",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S119_2_N208B": {
     "sortie": "S119_2_N208B",
@@ -3734,10 +3734,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2575",
     "test_card_url": "https://docs.google.com/document/d/1uXJ5tcFfaGAdy8NPu7jaV22a75ol163lM5QqGxwTHPc/edit?tab=t.0",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S120_1_N208B": {
     "sortie": "S120_1_N208B",
@@ -3745,10 +3745,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2576",
     "test_card_url": "https://docs.google.com/document/d/1jGdXd85JFJ59tgJ262WYu4qC0uLxvr6oqiPSi1GYgYI/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S120_2_N208B": {
     "sortie": "S120_2_N208B",
@@ -3756,10 +3756,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2576",
     "test_card_url": "https://docs.google.com/document/d/1jGdXd85JFJ59tgJ262WYu4qC0uLxvr6oqiPSi1GYgYI/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S121_2_N208B": {
     "sortie": "S121_2_N208B",
@@ -3767,10 +3767,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2585",
     "test_card_url": "https://docs.google.com/document/d/15HKQ2HO75FP2YiimSlkt5vQp6kpEUtw-1WlVRFVaqwA/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S121_3_N208B": {
     "sortie": "S121_3_N208B",
@@ -3778,10 +3778,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2585",
     "test_card_url": "https://docs.google.com/document/d/15HKQ2HO75FP2YiimSlkt5vQp6kpEUtw-1WlVRFVaqwA/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S121_4_N208B": {
     "sortie": "S121_4_N208B",
@@ -3789,10 +3789,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2585",
     "test_card_url": "https://docs.google.com/document/d/15HKQ2HO75FP2YiimSlkt5vQp6kpEUtw-1WlVRFVaqwA/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S121_N208B": {
     "sortie": "S121_N208B",
@@ -3800,10 +3800,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2585",
     "test_card_url": "https://docs.google.com/document/d/15HKQ2HO75FP2YiimSlkt5vQp6kpEUtw-1WlVRFVaqwA/edit?usp=sharing",
     "fcc_version": "05.01.02",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S122_1_N208B": {
     "sortie": "S122_1_N208B",
@@ -3843,33 +3843,33 @@
     "jira_key": "FFT-2612",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2612",
     "test_card_url": "https://docs.google.com/document/d/1r6t90I4bQJsfqDClSaetJGA_aOVfdJd0_w5Yul4NkXM/edit?usp=sharing",
-    "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fcc_version": "05.01.02",
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S123_2_N208B": {
     "sortie": "S123_2_N208B",
     "jira_key": "FFT-2612",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2612",
     "test_card_url": "https://docs.google.com/document/d/1r6t90I4bQJsfqDClSaetJGA_aOVfdJd0_w5Yul4NkXM/edit?usp=sharing",
-    "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fcc_version": "05.01.02",
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S124_1_N208B": {
     "sortie": "S124_1_N208B",
     "jira_key": "FFT-2613",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2613",
     "test_card_url": "https://docs.google.com/document/d/1pJvy__jZbvNRybK6TTnFXqJ4AF9pB6dLKiCv_WlmenI/edit?usp=sharing",
-    "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fcc_version": "05.01.02",
+    "fts_version": "05.01.02",
+    "pdi_version": "05.04.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S125_2_N208B": {
     "sortie": "S125_2_N208B",
@@ -3877,10 +3877,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2631",
     "test_card_url": "https://docs.google.com/document/d/1DR36eVE-aB7RLXPz4XRDtQ1SQri6b11lU6ZVx7ehRwM/edit?usp=sharing",
     "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.03",
+    "pdi_version": "05.07.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S125_3_N208B": {
     "sortie": "S125_3_N208B",
@@ -3888,10 +3888,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2631",
     "test_card_url": "https://docs.google.com/document/d/1DR36eVE-aB7RLXPz4XRDtQ1SQri6b11lU6ZVx7ehRwM/edit?usp=sharing",
     "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.03",
+    "pdi_version": "05.07.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S125_4_N208B": {
     "sortie": "S125_4_N208B",
@@ -3899,10 +3899,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2631",
     "test_card_url": "https://docs.google.com/document/d/1DR36eVE-aB7RLXPz4XRDtQ1SQri6b11lU6ZVx7ehRwM/edit?usp=sharing",
     "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.03",
+    "pdi_version": "05.07.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S125_N208B": {
     "sortie": "S125_N208B",
@@ -3910,10 +3910,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2631",
     "test_card_url": "https://docs.google.com/document/d/1DR36eVE-aB7RLXPz4XRDtQ1SQri6b11lU6ZVx7ehRwM/edit?usp=sharing",
     "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.03",
+    "pdi_version": "05.07.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S126_1_N208B": {
     "sortie": "S126_1_N208B",
@@ -3921,10 +3921,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2657",
     "test_card_url": "https://docs.google.com/document/d/1boby70ND58KgJiquQZLp_JYvF4yDrwKF_qQ2SAJpWTg/edit?usp=sharing",
     "fcc_version": "05.01.03",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.01.03",
+    "pdi_version": "05.07.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S127_1_N208B": {
     "sortie": "S127_1_N208B",
@@ -4042,10 +4042,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2682",
     "test_card_url": "https://docs.google.com/document/d/14XHQGKE5Wa54MUOPPttGoIUN0ZszrszkVBnNE1PGrP0/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S131_1_N208B": {
     "sortie": "S131_1_N208B",
@@ -4053,10 +4053,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2682",
     "test_card_url": "https://docs.google.com/document/d/14XHQGKE5Wa54MUOPPttGoIUN0ZszrszkVBnNE1PGrP0/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
+    "morgana_version": "c41fadc",
+    "version_source": "gdrive"
   },
   "S133_1_N208B": {
     "sortie": "S133_1_N208B",
@@ -4064,10 +4064,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2691",
     "test_card_url": "https://docs.google.com/document/d/19d6hrhlRI2_4UpjkxdAXQdx4hJuGuB1QaNu8_0q3oqo/edit?usp=sharing",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S134_1_N208B": {
     "sortie": "S134_1_N208B",
@@ -4075,10 +4075,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2694",
     "test_card_url": "https://docs.google.com/document/d/1_3MhL12W09vbq6kwYFMu8w7XHLz1RGM3hUsiZoWzFmU/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S134_2_N208B": {
     "sortie": "S134_2_N208B",
@@ -4086,10 +4086,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2694",
     "test_card_url": "https://docs.google.com/document/d/1_3MhL12W09vbq6kwYFMu8w7XHLz1RGM3hUsiZoWzFmU/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S134_3_N208B": {
     "sortie": "S134_3_N208B",
@@ -4097,10 +4097,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2694",
     "test_card_url": "https://docs.google.com/document/d/1_3MhL12W09vbq6kwYFMu8w7XHLz1RGM3hUsiZoWzFmU/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S135_1_N208B": {
     "sortie": "S135_1_N208B",
@@ -4108,10 +4108,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2697",
     "test_card_url": "https://docs.google.com/document/d/1PbEwT3eHYNmHXv0dzBBRgcJjBhK_sQKY_rXgA-uMqxo/edit?usp=sharing",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S135_2_N208B": {
     "sortie": "S135_2_N208B",
@@ -4119,10 +4119,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2697",
     "test_card_url": "https://docs.google.com/document/d/1PbEwT3eHYNmHXv0dzBBRgcJjBhK_sQKY_rXgA-uMqxo/edit?usp=sharing",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S137_1_N208B": {
     "sortie": "S137_1_N208B",
@@ -4130,10 +4130,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2704",
     "test_card_url": "https://docs.google.com/document/d/10ED_Qmis4VbT2sKBSEgu_YbtEWDn_RzGPc7EZfAbWn0/edit?usp=sharing",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S137_2_N208B": {
     "sortie": "S137_2_N208B",
@@ -4141,10 +4141,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2704",
     "test_card_url": "https://docs.google.com/document/d/10ED_Qmis4VbT2sKBSEgu_YbtEWDn_RzGPc7EZfAbWn0/edit?usp=sharing",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S138_1_N208B": {
     "sortie": "S138_1_N208B",
@@ -4152,10 +4152,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2705",
     "test_card_url": "https://docs.google.com/document/d/1ypeYDl-YoBaSAU3aSQeURI1eKlMWAs7ISOeb5og-fjA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S138_2_N208B": {
     "sortie": "S138_2_N208B",
@@ -4163,10 +4163,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2705",
     "test_card_url": "https://docs.google.com/document/d/1ypeYDl-YoBaSAU3aSQeURI1eKlMWAs7ISOeb5og-fjA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S138_3_N208B": {
     "sortie": "S138_3_N208B",
@@ -4174,10 +4174,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2705",
     "test_card_url": "https://docs.google.com/document/d/1ypeYDl-YoBaSAU3aSQeURI1eKlMWAs7ISOeb5og-fjA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S139_1_N208B": {
     "sortie": "S139_1_N208B",
@@ -4185,10 +4185,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2707",
     "test_card_url": "https://docs.google.com/document/d/1No2AsQZF0zLnkZy1gbhVO0mhJSdBlcumGYO8zt7ZK9c/edit?tab=t.0#heading=h.jkk9nnfbes47",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S140_1_N208B": {
     "sortie": "S140_1_N208B",
@@ -4196,10 +4196,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2708",
     "test_card_url": "https://docs.google.com/document/d/1Ns9-pyMeQCznTQc41gI-DNeMhVB8gJsYbgCYxQ0GnLA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S140_2_N208B": {
     "sortie": "S140_2_N208B",
@@ -4207,10 +4207,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2708",
     "test_card_url": "https://docs.google.com/document/d/1Ns9-pyMeQCznTQc41gI-DNeMhVB8gJsYbgCYxQ0GnLA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S140_3_N208B": {
     "sortie": "S140_3_N208B",
@@ -4218,10 +4218,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2708",
     "test_card_url": "https://docs.google.com/document/d/1Ns9-pyMeQCznTQc41gI-DNeMhVB8gJsYbgCYxQ0GnLA/edit?tab=t.0",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S141_N208B": {
     "sortie": "S141_N208B",
@@ -4229,10 +4229,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2709",
     "test_card_url": "https://docs.google.com/document/d/1tZH5uxUMKo7VaLMJpQgKveo7J4fWCgB56I8bU8Vr8L0/edit?tab=t.0#heading=h.ccq1zggve87o",
     "fcc_version": "05.01.04",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.09.00",
+    "pdi_version": "05.09.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S142_1_N208B": {
     "sortie": "S142_1_N208B",
@@ -4240,10 +4240,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2721",
     "test_card_url": "https://docs.google.com/document/d/1Ob6Dh7SOwFPbCTTz3IArxJh8f6qtzMBHE2PIe7OuWlU/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S142_2_N208B": {
     "sortie": "S142_2_N208B",
@@ -4251,10 +4251,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2721",
     "test_card_url": "https://docs.google.com/document/d/1Ob6Dh7SOwFPbCTTz3IArxJh8f6qtzMBHE2PIe7OuWlU/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S142_3_N208B": {
     "sortie": "S142_3_N208B",
@@ -4262,10 +4262,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2721",
     "test_card_url": "https://docs.google.com/document/d/1Ob6Dh7SOwFPbCTTz3IArxJh8f6qtzMBHE2PIe7OuWlU/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S143_1_N208B": {
     "sortie": "S143_1_N208B",
@@ -4273,10 +4273,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2723",
     "test_card_url": "https://docs.google.com/document/d/1QTWYO7SXP9wWu7yB5c8M24Sa4kI63VpfeRrj4piDmBc/edit?tab=t.0",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S143_2_N208B": {
     "sortie": "S143_2_N208B",
@@ -4284,10 +4284,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2723",
     "test_card_url": "https://docs.google.com/document/d/1QTWYO7SXP9wWu7yB5c8M24Sa4kI63VpfeRrj4piDmBc/edit?tab=t.0",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S144_1_N208B": {
     "sortie": "S144_1_N208B",
@@ -4295,10 +4295,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2722",
     "test_card_url": "https://docs.google.com/document/d/1PYj_ufEVSJtdEv3iKvuOhYYWMGjz_hHqHqxYXl-D2Yk/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S144_2_N208B": {
     "sortie": "S144_2_N208B",
@@ -4306,10 +4306,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2722",
     "test_card_url": "https://docs.google.com/document/d/1PYj_ufEVSJtdEv3iKvuOhYYWMGjz_hHqHqxYXl-D2Yk/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S145_1_N208B": {
     "sortie": "S145_1_N208B",
@@ -4317,120 +4317,120 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2724",
     "test_card_url": "https://docs.google.com/document/d/1ayqi48rocssaPEV1fr3GnJokxNz_ngroIGp_J0-JDvM/edit?usp=sharing",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "version_source": "gdrive"
   },
   "S146_1_N208B": {
     "sortie": "S146_1_N208B",
     "jira_key": "FFT-2733",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2733",
     "test_card_url": "https://docs.google.com/document/d/1SopcF-nAcihzLYeWdoVqTQgSLKf_WNFaEDz5mP4ok8o/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S146_2_N208B": {
     "sortie": "S146_2_N208B",
     "jira_key": "FFT-2733",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2733",
     "test_card_url": "https://docs.google.com/document/d/1SopcF-nAcihzLYeWdoVqTQgSLKf_WNFaEDz5mP4ok8o/edit?tab=t.0",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S147_1_N208B": {
     "sortie": "S147_1_N208B",
     "jira_key": "FFT-2734",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2734",
     "test_card_url": "https://docs.google.com/document/d/1SahQhyGUkkxdQFSoOIgqRILf34tlCKcErZeX3v-9fPI/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S147_2_N208B": {
     "sortie": "S147_2_N208B",
     "jira_key": "FFT-2734",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2734",
     "test_card_url": "https://docs.google.com/document/d/1SahQhyGUkkxdQFSoOIgqRILf34tlCKcErZeX3v-9fPI/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S148_1_N208B": {
     "sortie": "S148_1_N208B",
     "jira_key": "FFT-2736",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2736",
     "test_card_url": "https://docs.google.com/document/d/1ysIFqrn6kRtRo6GnRxoqiox3cSDzjQ6921-6FGLf4p0/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S148_2_N208B": {
     "sortie": "S148_2_N208B",
     "jira_key": "FFT-2736",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2736",
     "test_card_url": "https://docs.google.com/document/d/1ysIFqrn6kRtRo6GnRxoqiox3cSDzjQ6921-6FGLf4p0/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
     "morgana_version": null,
-    "version_source": null
+    "version_source": "gdrive"
   },
   "S149_1_N208B": {
     "sortie": "S149_1_N208B",
     "jira_key": "FFT-2738",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2738",
     "test_card_url": "https://docs.google.com/document/d/1eqijaTRd25EPKBFRZeZgFONpJ_kap3aSvu4h3FVM3b0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S149_2_N208B": {
     "sortie": "S149_2_N208B",
     "jira_key": "FFT-2738",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2738",
     "test_card_url": "https://docs.google.com/document/d/1eqijaTRd25EPKBFRZeZgFONpJ_kap3aSvu4h3FVM3b0/edit?tab=t.0#heading=h.jkk9nnfbes47",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S150_2_N208B": {
     "sortie": "S150_2_N208B",
     "jira_key": "FFT-2740",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2740",
     "test_card_url": "https://docs.google.com/document/d/10v7ANitOtCHljRibeu77_1YGLk6OB6GbfkeGio9nIhU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S150_N208B": {
     "sortie": "S150_N208B",
     "jira_key": "FFT-2740",
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2740",
     "test_card_url": "https://docs.google.com/document/d/10v7ANitOtCHljRibeu77_1YGLk6OB6GbfkeGio9nIhU/edit?usp=sharing",
-    "fcc_version": null,
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": null
+    "fcc_version": "05.00.07",
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S151_1_N208B": {
     "sortie": "S151_1_N208B",
@@ -4438,10 +4438,10 @@
     "jira_url": "https://merlinlabs.atlassian.net/browse/FFT-2742",
     "test_card_url": "https://docs.google.com/document/d/1BeXFcpIs9bju8J-U0w946tTwmJgT_B3jqVw6MkItekg/edit?tab=t.0#heading=h.qeigrpmz11b",
     "fcc_version": "05.00.07",
-    "fts_version": null,
-    "pdi_version": null,
-    "morgana_version": null,
-    "version_source": "trace_graph_map"
+    "fts_version": "05.00.07",
+    "pdi_version": "05.11.00",
+    "morgana_version": "dea54d5",
+    "version_source": "gdrive"
   },
   "S152_N208B": {
     "sortie": "S152_N208B",

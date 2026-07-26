@@ -167,42 +167,57 @@ def _gdrive_lookup(sortie_name, token):
                 f'https://www.googleapis.com/drive/v3/files/{f["id"]}/export'
                 '?mimeType=text/plain'
             )
-            req = urllib.request.Request(export_url, headers={
-                'Authorization': f'Bearer {token}',
-            })
-            with urllib.request.urlopen(req, timeout=15) as resp:
-                content = resp.read().decode('utf-8', errors='replace')
-
-            # FCC version: "FCC - 05.01.04" or "FCC LOAD: 5.00.07"
-            fcc = None
-            m = re.search(r'\bFCC\b[^\n]{0,25}?(\d{1,2}\.\d{2}\.\d{2})\b', content)
-            if m:
-                fcc = m.group(1)
-
-            # FTS version: "FTS - 05.01.02"
-            fts = None
-            m = re.search(r'\bFTS\b[^\n]{0,25}?(\d{1,2}\.\d{2}\.\d{2})\b', content)
-            if m:
-                fts = m.group(1)
-
-            # PDI version: "PDI - 5.04.00"
-            pdi = None
-            m = re.search(r'\bPDI\b[^\n]{0,25}?(\d{1,2}\.\d{2}\.\d{2})\b', content)
-            if m:
-                pdi = m.group(1)
-
-            # Morgana version: "Morgana - c41fadc" (git short hash, 7–40 hex chars)
-            morgana = None
-            m = re.search(r'\bMorgana\b[^\n]{0,25}?([0-9a-fA-F]{7,40})\b', content)
-            if m:
-                morgana = m.group(1).lower()
-
-            if fcc or fts or pdi or morgana:
-                return fcc, fts, pdi, morgana
+            result = _parse_versions_from_gdoc(export_url, token)
+            if any(result):
+                return result
         except Exception:
             continue
 
     return None, None, None, None
+
+
+def _parse_versions_from_gdoc(export_url, token):
+    """Fetch a GDoc export URL and extract FCC/FTS/PDI/Morgana versions."""
+    try:
+        req = urllib.request.Request(export_url, headers={'Authorization': f'Bearer {token}'})
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            content = resp.read().decode('utf-8', errors='replace')
+    except Exception:
+        return None, None, None, None
+
+    # Version pattern: 1–2 digit groups, e.g. "5.1.4" or "05.01.04"
+    _ver = r'(\d{1,2}\.\d{1,2}\.\d{1,2})'
+
+    fcc = None
+    m = re.search(r'\bFCC\b[^\n]{0,25}?' + _ver, content)
+    if m:
+        fcc = m.group(1)
+
+    fts = None
+    m = re.search(r'\bFTS\b[^\n]{0,25}?' + _ver, content)
+    if m:
+        fts = m.group(1)
+
+    pdi = None
+    m = re.search(r'\bPDI\b[^\n]{0,25}?' + _ver, content)
+    if m:
+        pdi = m.group(1)
+
+    morgana = None
+    m = re.search(r'\bMorgana\b[^\n]{0,25}?([0-9a-fA-F]{7,40})\b', content)
+    if m:
+        morgana = m.group(1).lower()
+
+    return fcc, fts, pdi, morgana
+
+
+def _gdrive_fetch_by_id(file_id, token):
+    """Fetch a GDoc by Drive file ID and extract versions."""
+    export_url = (
+        f'https://www.googleapis.com/drive/v3/files/{file_id}/export'
+        '?mimeType=text/plain'
+    )
+    return _parse_versions_from_gdoc(export_url, token)
 
 
 # ── Jira lookup ───────────────────────────────────────────────────────────────
@@ -274,7 +289,7 @@ def _jira_lookup(sortie_name, creds, cache=None):
         pfr = fields.get('customfield_10042')
         if pfr:
             pfr_text = json.dumps(pfr)
-            m = re.search(r'\bFCC\b[^"]{0,40}?(\d{1,2}\.\d{2}\.\d{2})\b', pfr_text)
+            m = re.search(r'\bFCC\b[^"]{0,40}?(\d{1,2}\.\d{1,2}\.\d{1,2})\b', pfr_text)
             if m:
                 fcc_ver = m.group(1)
 
@@ -363,6 +378,21 @@ def main():
         if not fcc_ver and jira_fcc:
             fcc_ver = jira_fcc
             src = 'jira'
+
+        # Fallback: fetch test card directly by URL if GDrive name search missed it
+        if not fcc_ver and test_card_url and google_token:
+            m = re.search(r'/d/([A-Za-z0-9_-]+)', test_card_url)
+            if m:
+                tc_fcc, tc_fts, tc_pdi, tc_morgana = _gdrive_fetch_by_id(m.group(1), google_token)
+                if tc_fcc:
+                    fcc_ver = tc_fcc
+                    src = 'gdrive'
+                if not fts_ver and tc_fts:
+                    fts_ver = tc_fts
+                if not pdi_ver and tc_pdi:
+                    pdi_ver = tc_pdi
+                if not morgana_ver and tc_morgana:
+                    morgana_ver = tc_morgana
 
         entry = {
             'sortie': name,
