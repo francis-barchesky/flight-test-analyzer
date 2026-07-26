@@ -4,88 +4,88 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G001_N208B": {
     "sortie": "G001_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.01.00",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G001_ZKMLN": {
     "sortie": "G001_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G002_ZKMLN": {
     "sortie": "G002_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G003_N208B": {
     "sortie": "G003_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G003_ZKMLN": {
     "sortie": "G003_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G004_ZKMLN": {
     "sortie": "G004_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G005_ZKMLN": {
     "sortie": "G005_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G006_N208B": {
     "sortie": "G006_N208B",
@@ -103,55 +103,55 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G007_N208B": {
     "sortie": "G007_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "03.02.06",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G007_ZKMLN": {
     "sortie": "G007_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G008_ZKMLN": {
     "sortie": "G008_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G009_ZKMLN": {
     "sortie": "G009_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G010_N208B": {
     "sortie": "G010_N208B",
@@ -169,99 +169,99 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G011_ZKMLN": {
     "sortie": "G011_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G012_ZKMLN": {
     "sortie": "G012_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G013_ZKMLN": {
     "sortie": "G013_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G014_1_N208B": {
     "sortie": "G014_1_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G014_2_N208B": {
     "sortie": "G014_2_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G014_3_N208B": {
     "sortie": "G014_3_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G014_4_N208B": {
     "sortie": "G014_4_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.02",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G014_ZKMLN": {
     "sortie": "G014_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G015_1_N208B": {
     "sortie": "G015_1_N208B",
@@ -312,11 +312,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G017_2_N208B": {
     "sortie": "G017_2_N208B",
@@ -345,11 +345,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G018_N208B": {
     "sortie": "G018_N208B",
@@ -389,11 +389,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G020_2_N208B": {
     "sortie": "G020_2_N208B",
@@ -433,11 +433,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G021_2_N208B": {
     "sortie": "G021_2_N208B",
@@ -653,22 +653,22 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G027_ZKMLN": {
     "sortie": "G027_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G028_N208B": {
     "sortie": "G028_N208B",
@@ -686,11 +686,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "G029_N208B": {
     "sortie": "G029_N208B",
@@ -873,22 +873,22 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S0028_ZKMLN": {
     "sortie": "S0028_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "jira"
   },
   "S002_N208B": {
     "sortie": "S002_N208B",
@@ -939,11 +939,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S006_N208B": {
     "sortie": "S006_N208B",
@@ -961,11 +961,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S007_20260623165549_N208B": {
     "sortie": "S007_20260623165549_N208B",
@@ -1016,11 +1016,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S008_N208B": {
     "sortie": "S008_N208B",
@@ -1049,11 +1049,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S010_N208B": {
     "sortie": "S010_N208B",
@@ -1071,11 +1071,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S011_N208B": {
     "sortie": "S011_N208B",
@@ -1093,11 +1093,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.00.07",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S012_N208B": {
     "sortie": "S012_N208B",
@@ -1115,11 +1115,11 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S013_N208B": {
     "sortie": "S013_N208B",
@@ -1148,22 +1148,22 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S015_ZKMLN": {
     "sortie": "S015_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S016_N208B": {
     "sortie": "S016_N208B",
@@ -1214,22 +1214,22 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S020_ZKMLN": {
     "sortie": "S020_ZKMLN",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "05.01.04",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S021_N208B": {
     "sortie": "S021_N208B",
@@ -3931,110 +3931,110 @@
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S128_1_N208B": {
     "sortie": "S128_1_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S128_2_N208B": {
     "sortie": "S128_2_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S129_1_N208B": {
     "sortie": "S129_1_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_1_N208B": {
     "sortie": "S130_1_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_2_N208B": {
     "sortie": "S130_2_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_3_N208B": {
     "sortie": "S130_3_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_4_N208B": {
     "sortie": "S130_4_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_5_N208B": {
     "sortie": "S130_5_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S130_6_N208B": {
     "sortie": "S130_6_N208B",
     "jira_key": null,
     "jira_url": null,
     "test_card_url": null,
-    "fcc_version": null,
+    "fcc_version": "02.00.11",
     "fts_version": null,
     "pdi_version": null,
     "morgana_version": null,
-    "version_source": null
+    "version_source": "assumed"
   },
   "S131_0_N208B": {
     "sortie": "S131_0_N208B",

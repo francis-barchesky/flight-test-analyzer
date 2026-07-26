@@ -351,11 +351,12 @@ def main():
         sortie_dir = e['sortie_dir']
         per_sortie_path = sortie_dir / f'{name}_info.json'
 
-        # Incremental: skip if per-sortie file already has a jira_key, unless --all
+        # Incremental: skip if per-sortie file already has a jira_key or an
+        # assumed version (written by assume_fcc_versions.py), unless --all.
         if not args.all and per_sortie_path.exists():
             try:
                 existing = json.loads(per_sortie_path.read_text())
-                if existing.get('jira_key'):
+                if existing.get('jira_key') or existing.get('version_source') == 'assumed':
                     consolidated[name] = existing
                     skipped += 1
                     # Seed the cache so sibling legs can reuse this result
