@@ -103,14 +103,15 @@ if [[ $MERGE_ONLY -eq 1 ]]; then
 
     if (( ${#MANIFEST_WIN_LIST[@]} > 0 )); then
         MANIFEST_OUT_WIN="$(to_win_path "$DATA_ROOT/batch_manifest.json")"
-        MANIFEST_ARG=$(printf '%s\n' "${MANIFEST_WIN_LIST[@]}")
+        MANIFEST_LIST_TMP=$(mktemp)
+        printf '%s\n' "${MANIFEST_WIN_LIST[@]}" > "$MANIFEST_LIST_TMP"
+        MANIFEST_LIST_TMP_WIN="$(to_win_path "$MANIFEST_LIST_TMP")"
         "$PYTHON" -c "
 import json, sys
-files = '''$MANIFEST_ARG'''.strip().splitlines()
+with open(r'$MANIFEST_LIST_TMP_WIN') as flist:
+    files = [l.strip() for l in flist if l.strip()]
 all_sorties, base = [], None
 for path in files:
-    path = path.strip()
-    if not path: continue
     try:
         with open(path) as f: m = json.load(f)
         if base is None: base = dict(m)
@@ -122,6 +123,7 @@ if base:
     with open(r'$MANIFEST_OUT_WIN', 'w') as f: json.dump(base, f, indent=2)
     print(f'  Merged {len(all_sorties)} sortie entries -> batch_manifest.json')
 " || true
+        rm -f "$MANIFEST_LIST_TMP"
     fi
 
     MARKER_COUNT=$(find "$DATA_ROOT/.pipeline_done" -type f 2>/dev/null | wc -l)
@@ -176,88 +178,227 @@ else
 fi
 export IADS_EXPORTS_LISTING="$EXPORTS_CACHE"
 export IADS_ANALYSIS_LISTING="$ANALYSIS_CACHE"
+EXPORTS_CACHE_WIN="$(to_win_path "$EXPORTS_CACHE")"
 echo
 
-# ── Split date range into N_CHUNKS (marker-aware) ─────────────────────────────
-# Split by unmarked (data) days so each worker gets equal work, not equal
-# calendar days. Falls back to calendar-day split if no markers exist yet.
-MARKER_DIR_WIN="$(to_win_path "$DATA_ROOT/.pipeline_done")"
-CHUNKS=$("$PYTHON" -c "
-import json, datetime, os
+# ── Split by sortie name (round-robin across chunks) ──────────────────────────
+# Extract unique sortie names from the S3 listing, assign each sortie to exactly
+# one chunk via round-robin. Each chunk gets a filtered listing so it only
+# downloads/analyzes its own sorties, eliminating the race where multiple chunks
+# pick up the same sortie from overlapping date ranges.
+# --no-empty-markers is passed so chunks don't falsely mark days empty when
+# another chunk's sorties are the only ones with S3 data on that day.
+DATA_ROOT_WIN="$(to_win_path "$DATA_ROOT")"
+SCRIPT_DIR_WIN="$(to_win_path "$SCRIPT_DIR")"
+
+SORTIE_SPLIT_FILE="/tmp/pipeline_sortie_split_$$.txt"
+"$PYTHON" -c "
+import json, os, re, glob, sys
+from collections import defaultdict
+
+def sortie_from_line(line):
+    parts = line.strip().split()
+    if len(parts) < 4: return None
+    name = os.path.splitext(os.path.basename(parts[-1]))[0]
+    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)_(\d{1,3})(?!\d)', name, re.IGNORECASE)
+    if m: return f'{m.group(1).upper()}_{m.group(3)}_{m.group(2).upper()}'
+    m = re.search(r'(?<![A-Za-z])([SG]\d{2,5})([A-Z][A-Z0-9]+)', name, re.IGNORECASE)
+    if m: return f'{m.group(1).upper()}_{m.group(2).upper()}'
+    return None
 
 c = json.load(open(r'$CONFIG_WIN'))
-start = datetime.date.fromisoformat(c['download_start_date'])
-end_raw = c['download_end_date']
-end = datetime.date.today() if str(end_raw).lower() == 'today' else datetime.date.fromisoformat(end_raw)
+listing_path = r'$EXPORTS_CACHE_WIN'
+script_dir = r'$SCRIPT_DIR_WIN'
 n = $N_CHUNKS
-marker_dir = r'$MARKER_DIR_WIN'
+exclude = c.get('exclude_zip_patterns', [])
+skip_existing = c.get('skip_existing', False)
+tail_normalize = c.get('tail_normalize_map', {})
 
-all_days = []
-d = start
-while d <= end:
-    all_days.append(d)
-    d += datetime.timedelta(days=1)
+# Resolve data_root_map: tail -> absolute path
+def resolve_dr(path):
+    if os.path.isabs(path): return path
+    return os.path.normpath(os.path.join(script_dir, path))
 
-# Days without a done marker are the ones that need work
-data_days = [d for d in all_days
-             if not os.path.exists(os.path.join(marker_dir, d.isoformat()))]
+raw_map = c.get('data_root_map', {})
+data_root_map = {tail: resolve_dr(dr) for tail, dr in raw_map.items()}
+default_data_root = r'$DATA_ROOT_WIN'
 
-if len(data_days) >= n:
-    # Distribute data days evenly; chunk boundaries are the first/last data day
-    chunk = len(data_days) // n
-    for i in range(n):
-        s_idx = i * chunk
-        e_idx = (i + 1) * chunk - 1 if i < n - 1 else len(data_days) - 1
-        print(data_days[s_idx].isoformat(), data_days[e_idx].isoformat())
-else:
-    # Fewer data days than chunks — fall back to equal calendar-day split
-    total = len(all_days)
-    chunk = max(1, total // n)
-    for i in range(n):
-        s = start + datetime.timedelta(days=i * chunk)
-        e = start + datetime.timedelta(days=(i + 1) * chunk - 1) if i < n - 1 else end
-        print(s.isoformat(), e.isoformat())
-" | tr -d '\r')
+def normalize_sortie(s):
+    parts = s.rsplit('_', 1)
+    if len(parts) == 2 and parts[1] in tail_normalize:
+        return parts[0] + '_' + tail_normalize[parts[1]]
+    return s
+
+def sortie_tail(s):
+    return s.rsplit('_', 1)[-1]
+
+def sortie_data_root(s):
+    return data_root_map.get(sortie_tail(s), default_data_root)
+
+zip_count = {}  # sortie -> number of matching listing lines
+with open(listing_path) as f:
+    for line in f:
+        s = sortie_from_line(line)
+        if s:
+            s = normalize_sortie(s)
+            zip_count[s] = zip_count.get(s, 0) + 1
+
+sorties = sorted(s for s in zip_count
+                 if not any(re.search(p, s, re.IGNORECASE) for p in exclude))
+
+if skip_existing:
+    sorties = [s for s in sorties
+               if not (glob.glob(os.path.join(sortie_data_root(s), s, 'analysis*.json')) or
+                       glob.glob(os.path.join(sortie_data_root(s), s, 'analysis*.json.gz')))]
+
+# Group by tail, allocate chunks proportionally (min 1 per tail)
+tail_groups = defaultdict(list)
+for s in sorties:
+    tail_groups[sortie_tail(s)].append(s)
+
+total = len(sorties)
+chunk_lists = []
+chunk_tails = []
+
+for tail in sorted(tail_groups.keys()):
+    tail_sorties = tail_groups[tail]
+    n_for_tail = max(1, round(n * len(tail_sorties) / total)) if total > 0 else 1
+
+    tc_lists = [[] for _ in range(n_for_tail)]
+    tc_weights = [0] * n_for_tail
+    for s in sorted(tail_sorties, key=lambda s: zip_count.get(s, 1), reverse=True):
+        lightest = min(range(n_for_tail), key=lambda i: tc_weights[i])
+        tc_lists[lightest].append(s)
+        tc_weights[lightest] += zip_count.get(s, 1)
+
+    for cl, w in zip(tc_lists, tc_weights):
+        chunk_lists.append(cl)
+        chunk_tails.append(tail)
+        print(f'  {tail} chunk {len([x for x in chunk_tails if x == tail])}: '
+              f'{len(cl)} sortie(s), {w} ZIP(s)', file=sys.stderr)
+
+total_zips = sum(zip_count.get(s, 1) for s in sorties)
+n_active = sum(1 for cl in chunk_lists if cl)
+print(f'  {total} sortie(s) -> {n_active} active chunk(s)  '
+      f'(skip_existing={skip_existing}, total_zips={total_zips})')
+
+# Output: CHUNK:TAIL:sortie1,sortie2,...
+for tail, chunk in zip(chunk_tails, chunk_lists):
+    print(f'CHUNK:{tail}:' + ','.join(chunk))
+" | tr -d '\r' | tee "$SORTIE_SPLIT_FILE"
+readarray -t CHUNK_SORTIES < <(grep '^CHUNK:' "$SORTIE_SPLIT_FILE" | sed 's/^CHUNK:[^:]*://' | tr -d '\r')
+readarray -t CHUNK_TAILS   < <(grep '^CHUNK:' "$SORTIE_SPLIT_FILE" | sed 's/^CHUNK:\([^:]*\):.*/\1/' | tr -d '\r')
 
 # ── Launch workers ─────────────────────────────────────────────────────────────
 TMPCONFIGS=()
+TMPLISTINGS=()
 STAGE_DIRS=()
+CHUNK_DATA_ROOTS=()
 PIDS=()
 i=1
-while IFS=' ' read -r chunk_start chunk_end; do
-    STAGE_DIR="$DATA_ROOT/.stage/chunk_$i"
+for CHUNK_SORTIES_STR in "${CHUNK_SORTIES[@]}"; do
+    [[ -z "$CHUNK_SORTIES_STR" ]] && { i=$(( i + 1 )); continue; }
+
+    CHUNK_TAIL="${CHUNK_TAILS[$((i-1))]:-}"
+    CHUNK_DATA_ROOT=$("$PYTHON" -c "
+import json, os
+c = json.load(open(r'$CONFIG_WIN'))
+m = c.get('data_root_map', {})
+tail = '$CHUNK_TAIL'
+dr = m.get(tail, c.get('data_root', '.'))
+script_dir = r'$SCRIPT_DIR_WIN'
+if not os.path.isabs(dr): dr = os.path.normpath(os.path.join(script_dir, dr))
+print(dr)
+" | tr -d '\r')
+    mkdir -p "$CHUNK_DATA_ROOT"
+    CHUNK_DATA_ROOT="$(cd "$CHUNK_DATA_ROOT" && pwd)"
+    CHUNK_DATA_ROOTS+=("$CHUNK_DATA_ROOT")
+
+    STAGE_DIR="$CHUNK_DATA_ROOT/.stage/chunk_$i"
     mkdir -p "$STAGE_DIR"
     STAGE_DIRS+=("$STAGE_DIR")
     STAGE_WIN="$(to_win_path "$STAGE_DIR")"
 
     # Pre-populate staging with existing done markers so workers skip already-scanned days
-    if [[ -d "$DATA_ROOT/.pipeline_done" ]]; then
+    if [[ -d "$CHUNK_DATA_ROOT/.pipeline_done" ]]; then
         mkdir -p "$STAGE_DIR/.pipeline_done"
-        cp "$DATA_ROOT/.pipeline_done/"* "$STAGE_DIR/.pipeline_done/" 2>/dev/null || true
+        cp "$CHUNK_DATA_ROOT/.pipeline_done/"* "$STAGE_DIR/.pipeline_done/" 2>/dev/null || true
     fi
 
+    # Build per-chunk filtered S3 listings (exports + analysis, only this chunk's sorties)
+    FILTERED_LISTING="/tmp/pipeline_chunk_${i}_listing.txt"
+    FILTERED_ANALYSIS_LISTING="/tmp/pipeline_chunk_${i}_analysis_listing.txt"
+    TMPLISTINGS+=("$FILTERED_LISTING" "$FILTERED_ANALYSIS_LISTING")
+    FILTERED_WIN="$(to_win_path "$FILTERED_LISTING")"
+    FILTERED_ANALYSIS_WIN="$(to_win_path "$FILTERED_ANALYSIS_LISTING")"
+    ANALYSIS_CACHE_WIN="$(to_win_path "$ANALYSIS_CACHE")"
+    CHUNK_SORTIE_COUNT=$(echo "$CHUNK_SORTIES_STR" | tr ',' '\n' | grep -c . || true)
+    "$PYTHON" -c "
+import os, re, sys, json
+
+def sortie_to_pattern(sortie):
+    parts = sortie.split('_')
+    if len(parts) == 3:
+        prefix, leg, tail = parts
+        return rf'{prefix}{tail}_{leg}(?!\d)'
+    elif len(parts) == 2:
+        prefix, tail = parts
+        return rf'{prefix}{tail}(?!_\d)'
+    return re.escape(sortie)
+
+c = json.load(open(r'$CONFIG_WIN'))
+tail_normalize = c.get('tail_normalize_map', {})
+# Build reverse map: canonical tail -> list of alias tails
+tail_aliases = {}
+for alias, canonical in tail_normalize.items():
+    tail_aliases.setdefault(canonical, []).append(alias)
+
+def sortie_alias_patterns(sortie):
+    parts = sortie.split('_')
+    tail = parts[-1] if len(parts) >= 2 else None
+    aliases = tail_aliases.get(tail, []) if tail else []
+    pats = [sortie_to_pattern(sortie)]
+    for alias_tail in aliases:
+        alias_sortie = '_'.join(parts[:-1] + [alias_tail])
+        pats.append(sortie_to_pattern(alias_sortie))
+    return pats
+
+sorties = [s.strip() for s in '${CHUNK_SORTIES_STR}'.split(',') if s.strip()]
+patterns = [re.compile(p, re.IGNORECASE)
+            for s in sorties for p in sortie_alias_patterns(s)]
+
+for src, dst in [(r'$EXPORTS_CACHE_WIN', r'$FILTERED_WIN'),
+                 (r'$ANALYSIS_CACHE_WIN', r'$FILTERED_ANALYSIS_WIN')]:
+    with open(src) as fin, open(dst, 'w') as fout:
+        for line in fin:
+            if any(p.search(line) for p in patterns):
+                fout.write(line)
+"
+
+    # Config with full date range, pointing to this chunk's staging dir
     TMPCFG=$(mktemp /tmp/batch_config_chunk_XXXX.json)
     TMPCONFIGS+=("$TMPCFG")
     TMPCFG_WIN="$(to_win_path "$TMPCFG")"
-
     "$PYTHON" -c "
 import json
 c = json.load(open(r'$CONFIG_WIN'))
-c['download_start_date'] = '$chunk_start'
-c['download_end_date'] = '$chunk_end'
 c['data_root'] = r'$STAGE_WIN'
 with open(r'$TMPCFG_WIN', 'w') as f:
     json.dump(c, f, indent=2)
 "
+
     LOG="/tmp/pipeline_chunk_${i}.log"
-    echo "  Chunk $i: $chunk_start → $chunk_end  (log: $LOG)"
-    bash "$SCRIPT_DIR/pipeline.sh" "$TMPCFG" > "$LOG" 2>&1 &
+    echo "  Chunk $i: $CHUNK_SORTIE_COUNT sortie(s)  (log: $LOG)"
+    { echo "# chunk_sorties: $CHUNK_SORTIE_COUNT"; echo "# chunk_stage_dir: $STAGE_WIN"; } > "$LOG"
+    IADS_EXPORTS_LISTING="$FILTERED_LISTING" \
+    IADS_ANALYSIS_LISTING="$FILTERED_ANALYSIS_LISTING" \
+        bash "$SCRIPT_DIR/pipeline.sh" "$TMPCFG" --no-empty-markers >> "$LOG" 2>&1 &
     PIDS+=($!)
     i=$(( i + 1 ))
-done <<< "$CHUNKS"
+done
 
 echo
-echo "  All $N_CHUNKS chunks running  (PIDs: ${PIDS[*]})"
+echo "  ${#PIDS[@]} chunk(s) running  (PIDs: ${PIDS[*]})"
 echo "  Waiting for completion..."
 echo
 
@@ -269,21 +410,25 @@ echo "  All chunks finished. Merging into $DATA_ROOT ..."
 echo
 
 # ── Merge: .pipeline_done markers ─────────────────────────────────────────────
-mkdir -p "$DATA_ROOT/.pipeline_done"
-for stage in "${STAGE_DIRS[@]}"; do
+for j in "${!STAGE_DIRS[@]}"; do
+    stage="${STAGE_DIRS[$j]}"
+    cdr="${CHUNK_DATA_ROOTS[$j]}"
     [[ -d "$stage/.pipeline_done" ]] || continue
-    find "$stage/.pipeline_done" -maxdepth 1 -type f | while IFS= read -r marker; do
-        dest="$DATA_ROOT/.pipeline_done/$(basename "$marker")"
-        [[ ! -f "$dest" ]] && cp "$marker" "$dest"
-    done
+    mkdir -p "$cdr/.pipeline_done"
+    while IFS= read -r marker; do
+        dest="$cdr/.pipeline_done/$(basename "$marker")"
+        if [[ ! -f "$dest" ]]; then cp "$marker" "$dest"; fi
+    done < <(find "$stage/.pipeline_done" -maxdepth 1 -type f 2>/dev/null)
 done
 
 # ── Merge: sortie dirs ─────────────────────────────────────────────────────────
-for stage in "${STAGE_DIRS[@]}"; do
+for j in "${!STAGE_DIRS[@]}"; do
+    stage="${STAGE_DIRS[$j]}"
+    cdr="${CHUNK_DATA_ROOTS[$j]}"
     [[ -d "$stage" ]] || continue
     while IFS= read -r entry; do
         name=$(basename "$entry")
-        dest="$DATA_ROOT/$name"
+        dest="$cdr/$name"
         if [[ -d "$dest" ]]; then
             find "$entry" -maxdepth 1 -type f -exec mv -f {} "$dest/" \;
             rmdir "$entry" 2>/dev/null || true
@@ -294,54 +439,67 @@ for stage in "${STAGE_DIRS[@]}"; do
 done
 
 # ── Merge: batch_manifest.json ─────────────────────────────────────────────────
-MANIFEST_WIN_LIST=()
-for stage in "${STAGE_DIRS[@]}"; do
+declare -A MANIFEST_BY_DR
+for j in "${!STAGE_DIRS[@]}"; do
+    stage="${STAGE_DIRS[$j]}"
+    cdr="${CHUNK_DATA_ROOTS[$j]}"
     mf="$stage/batch_manifest.json"
-    [[ -f "$mf" ]] && MANIFEST_WIN_LIST+=("$(to_win_path "$mf")")
+    [[ -f "$mf" ]] && MANIFEST_BY_DR["$cdr"]+="$(to_win_path "$mf")"$'\n'
 done
 
-if (( ${#MANIFEST_WIN_LIST[@]} > 0 )); then
-    MANIFEST_OUT_WIN="$(to_win_path "$DATA_ROOT/batch_manifest.json")"
-    # Build a null-delimited list safe for Python
-    MANIFEST_ARG=$(printf '%s\n' "${MANIFEST_WIN_LIST[@]}")
+for cdr in "${!MANIFEST_BY_DR[@]}"; do
+    MANIFEST_ARG="${MANIFEST_BY_DR[$cdr]}"
+    MANIFEST_OUT_WIN="$(to_win_path "$cdr/batch_manifest.json")"
+    MANIFEST_LIST_TMP=$(mktemp)
+    printf '%s' "$MANIFEST_ARG" > "$MANIFEST_LIST_TMP"
+    MANIFEST_LIST_TMP_WIN="$(to_win_path "$MANIFEST_LIST_TMP")"
     "$PYTHON" -c "
 import json, sys
-files = '''$MANIFEST_ARG'''.strip().splitlines()
+with open(r'$MANIFEST_LIST_TMP_WIN') as flist:
+    files = [l.strip() for l in flist if l.strip()]
 all_sorties, base = [], None
 for path in files:
-    path = path.strip()
-    if not path:
-        continue
     try:
-        with open(path) as f:
-            m = json.load(f)
-        if base is None:
-            base = dict(m)
+        with open(path) as f: m = json.load(f)
+        if base is None: base = dict(m)
         all_sorties.extend(m.get('sorties', []))
     except Exception as e:
         print(f'  warning: {path}: {e}', file=sys.stderr)
 if base:
     base['sorties'] = all_sorties
-    with open(r'$MANIFEST_OUT_WIN', 'w') as f:
-        json.dump(base, f, indent=2)
+    with open(r'$MANIFEST_OUT_WIN', 'w') as f: json.dump(base, f, indent=2)
     print(f'  Merged {len(all_sorties)} sortie entries -> batch_manifest.json')
 " || true
-fi
+    rm -f "$MANIFEST_LIST_TMP"
+done
 
 # ── Cleanup ────────────────────────────────────────────────────────────────────
 for f in "${TMPCONFIGS[@]}"; do rm -f "$f"; done
+for f in "${TMPLISTINGS[@]}"; do rm -f "$f"; done
+rm -f "/tmp/pipeline_sortie_split_$$.txt"
 for stage in "${STAGE_DIRS[@]}"; do
     [[ -d "$stage" ]] && rm -rf "$stage" 2>/dev/null || true
 done
-rmdir "$DATA_ROOT/.stage" 2>/dev/null || true
+# Remove .stage dirs per unique data root
+declare -A SEEN_CDR
+for cdr in "${CHUNK_DATA_ROOTS[@]}"; do
+    [[ -n "${SEEN_CDR[$cdr]:-}" ]] && continue
+    SEEN_CDR["$cdr"]=1
+    rmdir "$cdr/.stage" 2>/dev/null || true
+done
 
-MARKER_COUNT=$(find "$DATA_ROOT/.pipeline_done" -type f 2>/dev/null | wc -l)
-SORTIE_COUNT=$(find "$DATA_ROOT" -maxdepth 1 -mindepth 1 -type d ! -name '.*' 2>/dev/null | wc -l)
+# Per-tail summary
+declare -A TAIL_MARKERS TAIL_SORTIES
+for cdr in "${!SEEN_CDR[@]}"; do
+    tail=$(basename "$cdr")
+    TAIL_MARKERS[$tail]=$(find "$cdr/.pipeline_done" -type f 2>/dev/null | wc -l)
+    TAIL_SORTIES[$tail]=$(find "$cdr" -maxdepth 1 -mindepth 1 -type d ! -name '.*' 2>/dev/null | wc -l)
+done
 
 echo "========================================================"
 echo "  Parallel pipeline complete"
-echo "  Sortie dirs  : $SORTIE_COUNT"
-echo "  Done markers : $MARKER_COUNT"
+for tail in "${!TAIL_MARKERS[@]}"; do
+    echo "  $tail — sortie dirs: ${TAIL_SORTIES[$tail]}  markers: ${TAIL_MARKERS[$tail]}"
+done
 echo "  Finished     : $(date '+%Y-%m-%d %H:%M:%S')"
-echo "  Run 'python run_batch.py --status' to check analysis status."
 echo "========================================================"

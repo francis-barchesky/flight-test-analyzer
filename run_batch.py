@@ -30,28 +30,40 @@ from datetime import datetime, timedelta
 
 
 def _jira_sw_version(sortie_name):
-    """Query FFT Jira for the SW version embedded in the matching Flight Test issue summary.
+    """Query FFT Jira for the FCC SW version for the matching Flight Test issue.
 
     Reads credentials from ~/.cia_config.json (same file as CIA generator).
     Returns a version string like '5.01.04', or None if not found / auth missing.
+
+    Checks in order:
+      1. Issue summary (e.g. "G036N208B - 05.01.03 SOF Ground Testing")
+      2. Post Flight Report field (customfield_10042) for "FCC load X.XX.XX"
+
+    API note: merlinlabs.atlassian.net/rest/api/3/issue/search returns 404 for
+    search queries; Atlassian Cloud requires api.atlassian.com/ex/jira/{cloudId}.
+    The cloud ID is read from jiraCloudId in ~/.cia_config.json.
     """
     try:
         cfg_path = pathlib.Path.home() / '.cia_config.json'
         if not cfg_path.exists():
             return None
-        cfg = json.loads(cfg_path.read_text())
+        cfg = json.loads(cfg_path.read_text(encoding='utf-8-sig'))
         token = cfg.get('jiraToken', '')
         auth_type = cfg.get('jiraAuthType', 'Basic')
-        base_url = cfg.get('jiraBaseUrl', 'https://merlinlabs.atlassian.net').rstrip('/')
         if not token:
             return None
 
-        search_tag = sortie_name.replace('_', '')  # S140_N208B -> S140N208B
+        parts = sortie_name.split('_')
+        if len(parts) == 3 and parts[1].isdigit():
+            search_tag = parts[0] + parts[2]   # S140_1_N208B -> S140N208B
+        else:
+            search_tag = sortie_name.replace('_', '')  # S140_N208B -> S140N208B
+
         jql = (f'project = FFT AND issuetype = "Flight Test" '
                f'AND summary ~ "{search_tag}" ORDER BY updated DESC')
-        url = (f'{base_url}/rest/api/3/issue/search'
-               f'?jql={urllib.parse.quote(jql)}&fields=summary&maxResults=1')
-
+        url = ('https://merlinlabs.atlassian.net/rest/api/3/search/jql'
+               f'?jql={urllib.parse.quote(jql)}'
+               f'&fields=summary,customfield_10042&maxResults=1')
         req = urllib.request.Request(url, headers={
             'Authorization': f'{auth_type} {token}',
             'Accept': 'application/json',
@@ -62,41 +74,64 @@ def _jira_sw_version(sortie_name):
         issues = data.get('issues', [])
         if not issues:
             return None
-        summary = issues[0].get('fields', {}).get('summary', '')
-        m = re.search(r'\b(\d+\.\d+\.\d+)\b', summary)
-        return m.group(1) if m else None
+        fields = issues[0].get('fields', {})
+
+        # 1. Version in summary (ground-test issues: "G036N208B - 05.01.03 SOF")
+        summary = fields.get('summary', '')
+        m = re.search(r'\b(\d{1,2}\.\d{2}\.\d{2})\b', summary)
+        if m:
+            return m.group(1)
+
+        # 2. Post Flight Report (customfield_10042): "FCC load 5.00.07"
+        pfr = fields.get('customfield_10042')
+        if pfr:
+            pfr_text = json.dumps(pfr)
+            m = re.search(r'\bFCC\b[^"]{0,40}?(\d{1,2}\.\d{2}\.\d{2})\b', pfr_text)
+            if m:
+                return m.group(1)
+
+        return None
     except Exception:
         return None
 
 
-_FLIGHT_CARDS_FOLDER = '10E-pP0fwACMaOvoeYGLaePEyl4kZH9zV'
+def _gdrive_sw_version(sortie_name):
+    """Search Google Drive for a flight-card doc and extract the FCC SW version.
 
+    Searches across all accessible Google Docs whose title contains the sortie tag
+    (e.g. 'S140N208B'), exports each as plain text, and returns the first FCC
+    version string found.  Does not restrict to a single folder so it works for
+    both N208B (folder 10E-pP0fwACMaOvoeYGLaePEyl4kZH9zV) and ZKMLN
+    (folder 1W0_tQLH9sU0DG6c2HFW9RP7RsethLldM) cards.
 
-def _gdrive_sw_version(sortie_name, folder_id=_FLIGHT_CARDS_FOLDER):
-    """Fallback: search the Flight Cards Google Drive folder for SW version.
+    Supported formats:
+      - "FCC - 05.01.04"   (N208B Software Versions section)
+      - "FCC LOAD: 5.00.07" (ZKMLN card header)
 
-    Looks for a Google Doc whose title contains the sortie tag, exports it as
-    plain text, and extracts the FCC/FTS version line (e.g. 'FCC - 05.01.04').
-    Uses googleToken from ~/.cia_config.json (refresh with setupCiaAuth.m if expired).
+    Requires googleToken in ~/.cia_config.json to have drive.readonly scope.
+    Refresh with setupCiaAuth.m if the token returns 401 or 403.
     """
     try:
         cfg_path = pathlib.Path.home() / '.cia_config.json'
         if not cfg_path.exists():
             return None
-        cfg = json.loads(cfg_path.read_text())
+        cfg = json.loads(cfg_path.read_text(encoding='utf-8-sig'))
         token = cfg.get('googleToken', '')
         if not token:
             return None
 
-        search_tag = sortie_name.replace('_', '')  # S140_N208B -> S140N208B
-        query = f"'{folder_id}' in parents and title contains '{search_tag}'"
+        parts_g = sortie_name.split('_')
+        search_tag = (parts_g[0] + parts_g[2]) if len(parts_g) == 3 and parts_g[1].isdigit() else sortie_name.replace('_', '')
+        # Search all accessible Google Docs — no folder restriction
+        query = (f"name contains '{search_tag}' and "
+                 f"mimeType = 'application/vnd.google-apps.document'")
         search_url = (
             'https://www.googleapis.com/drive/v3/files'
             f'?q={urllib.parse.quote(query)}'
             '&fields=files(id,name)'
             '&includeItemsFromAllDrives=true'
             '&supportsAllDrives=true'
-            '&pageSize=1'
+            '&pageSize=3'
         )
         req = urllib.request.Request(search_url, headers={
             'Authorization': f'Bearer {token}',
@@ -109,20 +144,25 @@ def _gdrive_sw_version(sortie_name, folder_id=_FLIGHT_CARDS_FOLDER):
         if not files:
             return None
 
-        file_id = files[0]['id']
-        export_url = (
-            f'https://www.googleapis.com/drive/v3/files/{file_id}/export'
-            '?mimeType=text/plain'
-        )
-        req = urllib.request.Request(export_url, headers={
-            'Authorization': f'Bearer {token}',
-        })
-        with urllib.request.urlopen(req, timeout=15) as resp:
-            content = resp.read().decode('utf-8', errors='replace')
+        for f in files:
+            try:
+                export_url = (
+                    f'https://www.googleapis.com/drive/v3/files/{f["id"]}/export'
+                    '?mimeType=text/plain'
+                )
+                req = urllib.request.Request(export_url, headers={
+                    'Authorization': f'Bearer {token}',
+                })
+                with urllib.request.urlopen(req, timeout=15) as resp:
+                    content = resp.read().decode('utf-8', errors='replace')
+                # "FCC - 05.01.04"  OR  "FCC LOAD: 5.00.07"
+                m = re.search(r'\bFCC\b[^\n]{0,25}?(\d{1,2}\.\d{2}\.\d{2})\b', content)
+                if m:
+                    return m.group(1)
+            except Exception:
+                continue
 
-        # Match "FCC - 05.01.04" or "FTS - 05.01.04" (zero-padded format)
-        m = re.search(r'\b(?:FCC|FTS)\s*[-–]\s*(\d{2}\.\d{2}\.\d{2})\b', content)
-        return m.group(1) if m else None
+        return None
     except Exception:
         return None
 
@@ -347,6 +387,9 @@ def main():
                          "Overrides skip_existing for matching sorties; pre-date sorties "
                          "are skipped regardless of skip_existing. Requires ZIPs to be "
                          "present (sorties without ZIPs are always skipped).")
+    ap.add_argument("--sortie", default=None,
+                    help="Comma-separated sortie name(s) to process. Overrides skip_existing "
+                         "for matching sorties so they are always re-analyzed.")
     args = ap.parse_args()
 
     config_path = os.path.abspath(args.config)
@@ -458,6 +501,20 @@ def main():
         print()
 
     sortie_dirs = find_sortie_dirs(data_root)
+    if args.sortie:
+        _sortie_names = {s.strip() for s in args.sortie.split(",") if s.strip()}
+        # Also search data_root_map roots so ZKMLN (and other tails) are reachable
+        _raw_map = cfg.get("data_root_map", {})
+        _extra_roots = set()
+        for _dr in _raw_map.values():
+            if not os.path.isabs(_dr):
+                _dr = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(config_path)), _dr))
+            _extra_roots.add(_dr)
+        for _extra in sorted(_extra_roots):
+            if _extra != data_root:
+                sortie_dirs += find_sortie_dirs(_extra)
+        sortie_dirs = [d for d in sortie_dirs if os.path.basename(d) in _sortie_names]
+        skip_existing = False  # always re-analyze when explicitly named
     if args.zips_only:
         before = len(sortie_dirs)
         sortie_dirs = [d for d in sortie_dirs
@@ -557,7 +614,7 @@ def main():
             return {"sortie": name, "json": None, "status": "dry-run"}
 
         # ── SW version lookup (quick Jira/GDrive call before analysis) ──────────
-        jira_ver = _jira_sw_version(name) or _gdrive_sw_version(name)
+        jira_ver = _gdrive_sw_version(name) or _jira_sw_version(name)
         sw_tag = f"  sw={jira_ver}" if jira_ver else ""
 
         # ── Run ───────────────────────────────────────────────────────────────

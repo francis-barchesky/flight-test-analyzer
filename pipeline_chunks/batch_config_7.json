@@ -4,8 +4,8 @@
   "data_root": "pipeline_chunks/data_7",
   "output_dir": null,
   "download_script": "/c/Users/FrancisBarchesky/Documents/GitHub/iads-export/scripts/iads_export_manual_multiple_download.sh",
-  "download_start_date": "2026-05-19",
-  "download_end_date": "2026-05-26",
+  "download_start_date": "2026-03-12",
+  "download_end_date": "2026-05-18",
   "_comment_download_pattern": "Regex(es) matched against S3 keys. String or array of regexes; arrays become an OR alternation. Only ZIPs with signals used for plots/analysis are kept; the rest are listed in exclude_zip_patterns below and would just be downloaded then ignored.",
   "download_pattern": [
     "AFCS_del",
@@ -13,12 +13,14 @@
     "iads_servo_torques_datagroup",
     "iads_radar_altitude_datagroup",
     "iads_pressure_altitude_datagroup",
-    "iads_weight_datagroup"
+    "iads_weight_datagroup",
+    "208B_IadsDataExport",
+    "208B_Controls_IadsDataExport"
   ],
   "trigger": "afcsCapable",
   "trigger_from": 1.0,
   "trigger_to": 0.0,
-  "workers": 1,
+  "workers": 2,
   "parallel_sorties": 8,
   "_comment_pre_vote_radar": "The FCC1A/FCC1B g_radaraltitude_mdlrefdw pre-vote ports (source1Value/source2Value/source1status/source2status) feed vert-alt-estimator's eval/sortie_eval.py. Plain port names would silently grab source1Value from the engine-torque source selector, so we use the fully-qualified paths below. Signals are pulled in via the iads_radar_altitude_datagroup ZIP; sorties whose datagroup ZIP hasn't been generated will just log 'signal not found' warnings. The g_pressurealtitude_mdlrefdw per-source signals follow the same pattern and are pulled via the iads_pressure_altitude_datagroup ZIP.",
   "plot_signals": "atSatTorqueCmd,yawServoTorqueFilt,throttleServoTorqueFilt,rollServoTorqueFilt,pitchServoTorqueFilt,torqueVoted,radAltVoted,FCC1A.g_radaraltitude_mdlrefdw.rtb.source1Value,FCC1A.g_radaraltitude_mdlrefdw.rtb.source2Value,FCC1A.g_radaraltitude_mdlrefdw.rtb.source1status,FCC1A.g_radaraltitude_mdlrefdw.rtb.source2status,FCC1B.g_radaraltitude_mdlrefdw.rtb.source1Value,FCC1B.g_radaraltitude_mdlrefdw.rtb.source2Value,FCC1B.g_radaraltitude_mdlrefdw.rtb.source1status,FCC1B.g_radaraltitude_mdlrefdw.rtb.source2status,FCC1A.g_pressurealtitude_mdlrefdw.rtb.source1Value,FCC1A.g_pressurealtitude_mdlrefdw.rtb.source2Value,FCC1A.g_pressurealtitude_mdlrefdw.rtb.source1status,FCC1A.g_pressurealtitude_mdlrefdw.rtb.source2status,FCC1B.g_pressurealtitude_mdlrefdw.rtb.source1Value,FCC1B.g_pressurealtitude_mdlrefdw.rtb.source2Value,FCC1B.g_pressurealtitude_mdlrefdw.rtb.source1status,FCC1B.g_pressurealtitude_mdlrefdw.rtb.source2status,gndSpdVoted,latDevSel,vertDevSel,GNSS_Latitude,GNSS_Latitude_Fine,GNSS_Longitude,GNSS_Longitude_Fine,casVoted,pfdCasTarget,pitchAngleVoted,rollAngleVoted,fgPitchCmd,fgRollCmd,flapAngleVoted,magHeadingVoted,vertAccelFilt,vertAccelUnfilt,selValue,aptTrimRateServoCmd,srvPtTrqRunningAvgVal,trqRunningAvgVal,afcsEngageEnum,landConfigFail,landFail,lpvApprFail,takeoffConfigFail,lnavModeFail,gpsApprIntegrityValid,gpsApprAnnun,apprLatDevValid,Pitch_Servo.PSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Servo.PSRV_A429_TX_2.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_1.106.Torque_Running_Avg,Roll_Servo.RSRV_A429_TX_2.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_1.106.Torque_Running_Avg,Yaw_Servo.YSRV_A429_TX_2.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_1.106.Torque_Running_Avg,Throttle_Servo.THSRV_A429_TX_2.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_1.106.Torque_Running_Avg,Pitch_Trim_Servo.PTSRV_A429_TX_2.106.Torque_Running_Avg,RDC1.RDC1_A429_TX_1.315.Elev_Trim_Tab_Capstan_Pos,RDC2.RDC2_A429_TX_1.315.Elev_Trim_Tab_Capstan_Pos,RDC1.RDC1_A429_TX_1.310.Aileron_Capstan_Pos,RDC2.RDC2_A429_TX_1.310.Aileron_Capstan_Pos,RDC1.RDC1_A429_TX_1.312.Rudder_Capstan_Pos,RDC2.RDC2_A429_TX_1.312.Rudder_Capstan_Pos,RDC1.RDC1_A429_TX_1.314.Elevator_Capstan_Pos,RDC2.RDC2_A429_TX_1.314.Elevator_Capstan_Pos,Left_Aileron_lvdt2deg,Right_Aileron_lvdt2deg,Elevator_lvdt2deg,Rudder_lvdt2deg,Roll_Servo.RSRV_A429_TX_1.104.Inst_Abs_Pinion_Pos,Roll_Servo.RSRV_A429_TX_2.104.Inst_Abs_Pinion_Pos,Pitch_Servo.PSRV_A429_TX_1.104.Inst_Abs_Pinion_Pos,Pitch_Servo.PSRV_A429_TX_2.104.Inst_Abs_Pinion_Pos,Yaw_Servo.YSRV_A429_TX_1.104.Inst_Abs_Pinion_Pos,Yaw_Servo.YSRV_A429_TX_2.104.Inst_Abs_Pinion_Pos,Pitch_Trim_Servo.PTSRV_A429_TX_1.104.Inst_Abs_Pinion_Pos,Pitch_Trim_Servo.PTSRV_A429_TX_2.104.Inst_Abs_Pinion_Pos,bodyRollRateVotedValue,bodyPitchRateVotedValue,bodyYawRateVotedValue,latAccelVoted,normalAccelVoted,tasVoted,RDC1.RDC1_A429_TX_1.247.Left_Fuel_Quantity,RDC1.RDC1_A429_TX_1.255.Right_Fuel_Quantity,lt_fuel_wt,rt_fuel_wt,total_fuel,ZFW_updated,ZFWCG_updated,CG_current,WT_current",
@@ -30,9 +32,10 @@
     "AFCS_SlipClutch",
     "AFCS_StatusValidAssessment",
     "MBD_InputProcessing",
-    "_test_points_"
+    "_test_points_",
+    "ZKMLN"
   ],
-  "delete_zips_after": false,
+  "delete_zips_after": true,
   "_comment_trace_graph_map": "Maps sortie name to expected trace graph version. Keys with '_' (e.g. 'S125_N208B') match sortie prefix + tail \u00e2\u20ac\u201d so S125_2_N208B also matches. Plain keys fall back to substring match.",
   "trace_graph_map": {
     "S152_N208B": "5.0.7",

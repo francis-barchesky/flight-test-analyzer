@@ -31,13 +31,15 @@ CONFIG="$SCRIPT_DIR/batch_config.json"
 DRY_RUN=0
 RESET_MARKERS=0
 SCAN_ONLY=0
+NO_EMPTY_MARKERS=0
 
 for arg in "$@"; do
     case "$arg" in
-        --dry-run)       DRY_RUN=1 ;;
-        --reset-markers) RESET_MARKERS=1 ;;
-        --scan-only)     SCAN_ONLY=1 ;;
-        *.json)          CONFIG="$(realpath "$arg")" ;;
+        --dry-run)          DRY_RUN=1 ;;
+        --reset-markers)    RESET_MARKERS=1 ;;
+        --scan-only)        SCAN_ONLY=1 ;;
+        --no-empty-markers) NO_EMPTY_MARKERS=1 ;;
+        *.json)             CONFIG="$(realpath "$arg")" ;;
     esac
 done
 
@@ -292,11 +294,6 @@ for DAY in $DAYS; do
 
     if [[ -f "$DONE_MARKER" ]]; then
         echo "  [1/2] Skipping download — already processed ($DONE_MARKER)"
-    elif [[ $FLAT_ZIPS -gt 0 ]]; then
-        echo "  [1/2] Skipping download — $FLAT_ZIPS flat ZIP(s) already on disk"
-    elif [[ $DRY_RUN -eq 1 ]]; then
-        echo "  [1/2] Downloading $DAY... [dry-run]"
-        echo "  [dry-run] would download: $DAY (pattern '$PATTERN') -> $DATA_ROOT"
     elif [[ $SCAN_ONLY -eq 1 ]]; then
         echo "  [1/2] Scanning $DAY... [scan-only]"
         TMPSCRIPT="$(mktemp /tmp/iads_dl_XXXX.sh)"
@@ -319,6 +316,11 @@ for DAY in $DAYS; do
         DL_ELAPSED=$(( SECONDS - DL_START ))
         TOTAL_DL_S=$(( TOTAL_DL_S + DL_ELAPSED ))
         continue
+    elif [[ $FLAT_ZIPS -gt 0 ]]; then
+        echo "  [1/2] Skipping download — $FLAT_ZIPS flat ZIP(s) already on disk"
+    elif [[ $DRY_RUN -eq 1 ]]; then
+        echo "  [1/2] Downloading $DAY... [dry-run]"
+        echo "  [dry-run] would download: $DAY (pattern '$PATTERN') -> $DATA_ROOT"
     else
         echo "  [1/2] Downloading $DAY..."
         check_disk_space "$MIN_FREE_GB" "$DATA_ROOT"
@@ -372,9 +374,11 @@ for DAY in $DAYS; do
             mkdir -p "$DATA_ROOT/.pipeline_done"
             touch "$DONE_MARKER"
             TOTAL_TRULY_DONE=$(( TOTAL_TRULY_DONE + 1 ))
-        elif (( HAD_ZIPS == 0 && POST_DL_FLAT == 0 )); then
+        elif (( HAD_ZIPS == 0 && POST_DL_FLAT == 0 )) && [[ $NO_EMPTY_MARKERS -eq 0 ]]; then
             # Nothing was downloaded and nothing was on disk — S3 had no data
             # for this day. Mark it so subsequent runs skip the S3 listing.
+            # Suppressed by --no-empty-markers (used when listing is filtered per-sortie
+            # so empty-day detection relies on scan_parallel.sh pre-marking instead).
             mkdir -p "$DATA_ROOT/.pipeline_done"
             touch "$DONE_MARKER"
         else

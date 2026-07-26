@@ -61,10 +61,12 @@ def show_cursor():
 
 # ── Log parsing ───────────────────────────────────────────────────────────────
 
-RE_DATES  = re.compile(r"dates\s*:\s*(\d{4}-\d{2}-\d{2})\s*->\s*(\d{4}-\d{2}-\d{2})\s*\((\d+)\s*day")
-RE_DAY    = re.compile(r"Day\s+(\d+)\s*/\s*(\d+)\s*.{1,6}(\d{4}-\d{2}-\d{2})")
-RE_DONE   = re.compile(r"Pipeline complete|pipeline complete|All chunks finished")
-RE_SORTIE = re.compile(r"\[(\d+)/(\d+)\]\s+(\S+)\s+\(")
+RE_DATES        = re.compile(r"dates\s*:\s*(\d{4}-\d{2}-\d{2})\s*->\s*(\d{4}-\d{2}-\d{2})\s*\((\d+)\s*day")
+RE_DAY          = re.compile(r"Day\s+(\d+)\s*/\s*(\d+)\s*.{1,6}(\d{4}-\d{2}-\d{2})")
+RE_DONE         = re.compile(r"Pipeline complete|pipeline complete|All chunks finished")
+RE_SORTIE       = re.compile(r"\[(\d+)/(\d+)\]\s+(\S+)\s+\(")
+RE_CHUNK_SORTIES = re.compile(r"#\s*chunk_sorties:\s*(\d+)")
+RE_CHUNK_STAGE   = re.compile(r"#\s*chunk_stage_dir:\s*(.+)")
 
 
 def parse_log(log_path: str) -> dict:
@@ -79,6 +81,8 @@ def parse_log(log_path: str) -> dict:
         "mtime": 0,
         "last_line": "",
         "started_at": None,
+        "chunk_sorties": None,
+        "stage_dir": None,
     }
     try:
         with open(log_path, "r", errors="replace") as f:
@@ -99,6 +103,12 @@ def parse_log(log_path: str) -> dict:
         if m:
             info["current_day_num"] = int(m.group(1))
             info["current_date"]    = datetime.date.fromisoformat(m.group(3))
+        m = RE_CHUNK_SORTIES.search(line)
+        if m:
+            info["chunk_sorties"] = int(m.group(1))
+        m = RE_CHUNK_STAGE.search(line)
+        if m:
+            info["stage_dir"] = m.group(1).strip()
         if "started" in line.lower():
             ts_m = re.search(r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", line)
             if ts_m:
@@ -155,18 +165,18 @@ def bar(done: int, total: int, width: int = 20) -> str:
 
 # ── Status detection ──────────────────────────────────────────────────────────
 
-STALE_SECS = 180   # no log update in 3 min = stalled
+STALE_SECS = 600   # no log update in 10 min = stalled (analysis can take ~5-8 min per sortie)
 
 
 def chunk_status(info: dict, markers_done: int) -> tuple[str, str]:
     """Returns (label, color_code)."""
     if not info["exists"]:
-        return "NO LOG", DIM
+        return "NO LOG ", DIM
+    age = time.time() - info["mtime"]
     if info["done"] or (info["total_days"] > 0 and markers_done >= info["total_days"]):
         return "DONE   ", GREEN
-    age = time.time() - info["mtime"]
     if age > STALE_SECS:
-        return f"STALLED", YELLOW
+        return "STALLED", YELLOW
     return "running", CYAN
 
 
@@ -175,16 +185,13 @@ def chunk_status(info: dict, markers_done: int) -> tuple[str, str]:
 def render(chunks: list[dict], data_root: str, refresh_interval: int):
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # Totals
-    total_days_all = sum(c["log"]["total_days"] for c in chunks)
-    total_markers  = sum(c["markers"] for c in chunks)
-    total_sorties  = sum(c["sorties"] for c in chunks)
+    # Totals — use sortie counts when available, fall back to marker counts
+    sortie_mode = any(c["log"]["chunk_sorties"] is not None for c in chunks)
+    total_assigned = sum(c["log"]["chunk_sorties"] or 0 for c in chunks)
+    total_staged   = sum(c["sorties"] for c in chunks if c["sorties"] >= 0)
 
     lines = []
-    W = 100
-
-    def hdr(text):
-        return clr(f"  {text}", BOLD, CYAN)
+    W = 90
 
     lines.append(clr("═" * W, CYAN))
     lines.append(clr(
@@ -198,45 +205,44 @@ def render(chunks: list[dict], data_root: str, refresh_interval: int):
     # Column header
     lines.append(
         clr("  Ch  ", BOLD) +
-        clr("Date Range             ", BOLD) +
-        clr("Progress     ", BOLD) +
-        clr("Current Date  ", BOLD) +
-        clr("Markers  ", BOLD) +
-        clr("Sorties  ", BOLD) +
+        clr("Assigned      ", BOLD) +
+        clr("Progress (staged/assigned)     ", BOLD) +
         clr("Status   ", BOLD) +
         clr("Last activity", BOLD)
     )
     lines.append(clr("  " + "─" * (W - 2), DIM))
 
     for c in chunks:
-        log   = c["log"]
-        idx   = c["idx"]
-        mk    = c["markers"]
-        total = log["total_days"]
-        cur_d = c["latest_date"].isoformat() if c["latest_date"] else "—"
-        dr    = (
-            f"{log['start_date'].strftime('%m-%d')}→{log['end_date'].strftime('%m-%d')}"
-            if log["start_date"] else "—"
-        )
+        log    = c["log"]
+        idx    = c["idx"]
+        staged = c["sorties"] if c["sorties"] >= 0 else 0
+        assigned = log["chunk_sorties"]
 
-        status_label, status_color = chunk_status(log, mk)
+        if assigned is not None:
+            assigned_str = f"{assigned} sorties"
+            staged_disp = min(staged, assigned)
+            pbar = bar(staged_disp, assigned, 16)
+            prog_str = f"{pbar} {staged_disp}/{assigned}"
+        else:
+            # fallback: marker-based progress for old-style logs
+            mk    = c["markers"]
+            total = log["total_days"]
+            dr    = (f"{log['start_date'].strftime('%m-%d')}→{log['end_date'].strftime('%m-%d')}"
+                     if log["start_date"] else "—")
+            assigned_str = dr
+            pbar = bar(mk, total, 16)
+            prog_str = f"{pbar} {mk}/{total}"
 
-        # Progress bar (compact)
-        pct = mk / total if total else 0
-        pbar = bar(mk, total, 12)
-        prog_str = f"{pbar} {mk:3}/{total:3}"
+        status_label, status_color = chunk_status(log, c["markers"])
 
         last = log["last_line"]
-        if len(last) > 32:
-            last = last[:29] + "..."
+        if len(last) > 36:
+            last = last[:33] + "..."
 
         line = (
             clr(f"  {idx:2}  ", BOLD) +
-            f"{dr:<23}" +
-            f"{prog_str:<25}" +
-            f"{cur_d:<14}" +
-            f"{mk:^9}" +
-            f"{c['sorties']:^9}" +
+            f"{assigned_str:<14}" +
+            f"{prog_str:<31}" +
             clr(f"{status_label:<9}", status_color) +
             clr(last, DIM)
         )
@@ -245,16 +251,27 @@ def render(chunks: list[dict], data_root: str, refresh_interval: int):
     lines.append(clr("  " + "─" * (W - 2), DIM))
 
     # Totals row
-    total_pct = total_markers / total_days_all * 100 if total_days_all else 0
-    lines.append(
-        clr("  ──  ", BOLD) +
-        clr(f"{'TOTAL':<23}", BOLD) +
-        clr(f"{bar(total_markers, total_days_all, 12)} {total_markers:3}/{total_days_all:3}", BOLD) +
-        " " * 14 +
-        clr(f"{total_markers:^9}", BOLD) +
-        clr(f"{total_sorties:^9}", BOLD) +
-        clr(f"{total_pct:5.1f}%", GREEN if total_pct == 100 else YELLOW)
-    )
+    if sortie_mode and total_assigned > 0:
+        total_staged_disp = min(total_staged, total_assigned)
+        total_pct = min(total_staged_disp / total_assigned * 100, 100.0)
+        lines.append(
+            clr("  ──  ", BOLD) +
+            clr(f"{'TOTAL':<14}", BOLD) +
+            clr(f"{bar(total_staged_disp, total_assigned, 16)} {total_staged_disp}/{total_assigned}", BOLD) +
+            "          " +
+            clr(f"{total_pct:5.1f}%", GREEN if total_pct == 100 else YELLOW)
+        )
+    else:
+        total_days_all = sum(c["log"]["total_days"] for c in chunks)
+        total_markers  = sum(c["markers"] for c in chunks)
+        total_pct = total_markers / total_days_all * 100 if total_days_all else 0
+        lines.append(
+            clr("  ──  ", BOLD) +
+            clr(f"{'TOTAL':<14}", BOLD) +
+            clr(f"{bar(total_markers, total_days_all, 16)} {total_markers}/{total_days_all}", BOLD) +
+            "          " +
+            clr(f"{total_pct:5.1f}%", GREEN if total_pct == 100 else YELLOW)
+        )
     lines.append("")
 
     # Elapsed / ETA
@@ -323,17 +340,38 @@ def main():
 
     try:
         while True:
+            # Fall back to main data_root markers when no staging dirs exist
+            staging_root = os.path.join(data_root, ".stage")
+            has_staging  = os.path.isdir(staging_root)
+            main_marker_dir = os.path.join(data_root, ".pipeline_done")
+
             chunks = []
             for i in range(1, n_chunks + 1):
-                log_path   = os.path.join(args.log_dir, f"pipeline_chunk_{i}.log")
-                stage_dir  = os.path.join(data_root, ".stage", f"chunk_{i}")
-                marker_dir = os.path.join(stage_dir, ".pipeline_done")
-                log              = parse_log(log_path)
-                markers, latest  = (
+                log_path  = os.path.join(args.log_dir, f"pipeline_chunk_{i}.log")
+                log       = parse_log(log_path)
+
+                # Prefer stage_dir from log header (supports data_root_map multi-tail)
+                if log["stage_dir"] and os.path.isdir(log["stage_dir"]):
+                    stage_dir  = log["stage_dir"]
+                    marker_dir = os.path.join(stage_dir, ".pipeline_done")
+                    sorties    = count_sortie_dirs(stage_dir)
+                elif has_staging:
+                    stage_dir = os.path.join(staging_root, f"chunk_{i}")
+                    if os.path.isdir(stage_dir):
+                        marker_dir = os.path.join(stage_dir, ".pipeline_done")
+                        sorties    = count_sortie_dirs(stage_dir)
+                    else:
+                        marker_dir = main_marker_dir
+                        sorties    = -1
+                else:
+                    # No staging — read from main pipeline_done, sorties N/A
+                    marker_dir = main_marker_dir
+                    sorties    = -1  # sentinel: display as "—"
+
+                markers, latest = (
                     count_markers_in_range(marker_dir, log["start_date"], log["end_date"])
                     if log["start_date"] else (0, None)
                 )
-                sorties = count_sortie_dirs(stage_dir)
                 chunks.append({
                     "idx": i, "log": log,
                     "markers": markers, "latest_date": latest,
@@ -346,9 +384,8 @@ def main():
                 print(output)
                 break
 
-            cursor_home()
+            clear_screen()
             sys.stdout.write(output)
-            sys.stdout.write("\033[J")   # clear from cursor to end of screen
             sys.stdout.flush()
             time.sleep(args.interval)
 

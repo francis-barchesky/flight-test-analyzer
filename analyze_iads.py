@@ -876,6 +876,7 @@ def _phase_window(mode_transitions, phase_vals):
 
 
 _FULL_FLIGHT_MAX_PTS = 4000
+_WINDOW_MAX_PTS      = 4000   # per-signal cap for phase-window plots (flight/takeoff)
 
 # Running-avg A429 torque signals captured across the entire flight when no
 # AFCS disengagement episodes are detected. The episode-bound flight_plots view
@@ -944,7 +945,9 @@ def _save_flight_plots(result, plot_series):
             pts = [p for p in pts if t_lo <= p[0] <= t_hi]
         if sig in _GNSS_SIGS:
             pts = [p for p in pts if p[1] != 0.0]
-        if not has_window:
+        if has_window:
+            pts = _downsample_pts(pts, _WINDOW_MAX_PTS)
+        else:
             pts = _downsample_pts(pts, _FALLBACK_MAX_PTS)
         plots[sig] = [[p[0], p[1]] for p in pts]
     result["flight_plots"] = plots
@@ -970,6 +973,7 @@ def _save_takeoff_plots(result, plot_series):
         pts = [p for p in pts if t_lo <= p[0] <= t_hi]
         if sig in _GNSS_SIGS:
             pts = [p for p in pts if p[1] != 0.0]
+        pts = _downsample_pts(pts, _WINDOW_MAX_PTS)
         plots[sig] = [[p[0], p[1]] for p in pts]
     result["takeoff_plots"] = plots
 
@@ -1054,6 +1058,7 @@ def _write_or_merge_result(out_path, result, plot_series=None):
             return json.load(f)
 
     def _write_json(path, obj):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
         payload = json.dumps(sanitize_for_json(obj), separators=(",", ":"), allow_nan=False)
         if path.endswith('.json.gz'):
             with gzip.open(path, 'wt', encoding='utf-8') as f:
