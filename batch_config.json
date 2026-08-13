@@ -44,7 +44,7 @@
     "_test_points_",
     "tspi-testing"
   ],
-  "delete_zips_after": true,
+  "delete_zips_after": false,
   "_comment_trace_graph_map": "Maps sortie name to expected trace graph version. Keys with '_' (e.g. 'S125_N208B') match sortie prefix + tail \u2014 so S125_2_N208B also matches. Plain keys fall back to substring match.",
   "trace_graph_map": {
     "G0001_ZKMLN": "05.00.07",
@@ -238,10 +238,10 @@
     "S124_N208B": "05.01.02",
     "S125_N208B": "05.01.03",
     "S126_N208B": "05.01.03",
-    "S127_N208B": "05.01.03",
-    "S128_N208B": "05.01.03",
-    "S129_N208B": "05.01.03",
-    "S130_N208B": "05.01.03",
+    "S127_N208B": "02.00.11",
+    "S128_N208B": "02.00.11",
+    "S129_N208B": "02.00.11",
+    "S130_N208B": "02.00.11",
     "S131_N208B": "05.01.04",
     "S132_N208B": "05.01.04",
     "S133_N208B": "05.01.04",

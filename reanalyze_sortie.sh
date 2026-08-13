@@ -11,6 +11,10 @@
 set -euo pipefail
 unset PYTHONHOME PYTHONPATH
 
+# Minimum free disk space that must remain after the download completes.
+# The script aborts before downloading if this floor would be breached.
+MIN_FREE_GB=5
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG="$SCRIPT_DIR/batch_config.json"
 SORTIES=()
@@ -78,6 +82,71 @@ else
     aws s3 ls s3://merlin-pilot-iads-analysis --recursive > "$ANALYSIS_CACHE"
     echo "  S3 analysis listing: $(wc -l < "$ANALYSIS_CACHE") entries cached"
 fi
+echo
+
+# ── Disk space pre-flight check ───────────────────────────────────────────────
+# Build IADS-style tags for all requested sorties so we can grep the S3 listing.
+SORTIE_TAGS=()
+for _S in "${SORTIES[@]}"; do
+    _TAG=$("$PYTHON" -c "
+parts = '$_S'.split('_')
+if len(parts) == 3:
+    prefix, leg, tail = parts
+    print(f'{prefix}{tail}_{leg}')
+else:
+    prefix, tail = parts[0], parts[-1]
+    print(f'{prefix}{tail}')
+" | tr -d '\r')
+    SORTIE_TAGS+=("$_TAG")
+done
+
+# Sum bytes for all files in the S3 listings that match any of our sortie tags.
+# `aws s3 ls --recursive` format: "date time size key"
+TOTAL_BYTES=0
+for _TAG in "${SORTIE_TAGS[@]}"; do
+    _BYTES=$(grep -h "$_TAG" "$EXPORTS_CACHE" "$ANALYSIS_CACHE" 2>/dev/null \
+             | awk '{sum += $3} END {print sum+0}')
+    TOTAL_BYTES=$(( TOTAL_BYTES + _BYTES ))
+done
+TOTAL_MB=$(( TOTAL_BYTES / 1048576 ))
+TOTAL_GB_FRAC=$(awk "BEGIN {printf \"%.1f\", $TOTAL_BYTES/1073741824}")
+
+# Available bytes on the data_root filesystem (use df on the script dir as proxy).
+AVAIL_BYTES=$(df -B1 "$SCRIPT_DIR" 2>/dev/null | awk 'NR==2{print $4}')
+AVAIL_MB=$(( ${AVAIL_BYTES:-0} / 1048576 ))
+AVAIL_GB_FRAC=$(awk "BEGIN {printf \"%.1f\", ${AVAIL_BYTES:-0}/1073741824}")
+
+# Require 10 % headroom above the estimated download size.
+REQUIRED_BYTES=$(awk "BEGIN {printf \"%d\", $TOTAL_BYTES * 1.10}")
+
+MIN_FREE_BYTES=$(awk "BEGIN {printf \"%d\", $MIN_FREE_GB * 1073741824}")
+
+echo "  Disk space check:"
+echo "    estimated download : ${TOTAL_GB_FRAC} GB  (${TOTAL_MB} MB across ${#SORTIES[@]} sortie(s))"
+echo "    available on disk  : ${AVAIL_GB_FRAC} GB  (${AVAIL_MB} MB)"
+echo "    minimum free after : ${MIN_FREE_GB} GB  (hardcoded protection)"
+
+FAILED=0
+
+# Check 1: enough room for the download + 10% headroom
+if [[ "${AVAIL_BYTES:-0}" -lt "${REQUIRED_BYTES}" && "${TOTAL_BYTES}" -gt 0 ]]; then
+    NEEDED_GB=$(awk "BEGIN {printf \"%.1f\", $REQUIRED_BYTES/1073741824}")
+    echo "  ERROR: not enough space for download. Need ~${NEEDED_GB} GB (10% headroom), only ${AVAIL_GB_FRAC} GB available."
+    FAILED=1
+fi
+
+# Check 2: after download, at least MIN_FREE_GB must remain free
+POST_AVAIL_BYTES=$(( ${AVAIL_BYTES:-0} - TOTAL_BYTES ))
+if [[ $POST_AVAIL_BYTES -lt $MIN_FREE_BYTES && $MIN_FREE_GB -gt 0 ]]; then
+    POST_GB=$(awk "BEGIN {printf \"%.1f\", $POST_AVAIL_BYTES/1073741824}")
+    echo "  ERROR: post-download free space would be ${POST_GB} GB, below --min-free-gb ${MIN_FREE_GB} GB floor."
+    FAILED=1
+fi
+
+if [[ $FAILED -eq 1 ]]; then
+    exit 1
+fi
+echo "    check passed"
 echo
 
 # ── Read download_script from config ──────────────────────────────────────────
@@ -177,11 +246,16 @@ with open(r'$TMP_CFG_WIN', 'w') as f:
     json.dump(c, f, indent=2)
 "
 
-    # Organize flat ZIPs then immediately analyze — combined so the batch triggered
-    # by --organize doesn't delete the freshly-moved ZIPs before --sortie sees them
+    # Organize flat ZIPs under a shared lock so parallel instances don't race
+    # when moving newly-downloaded ZIPs into their per-sortie subdirectories.
+    # The lock covers only the organize step; analysis runs without it so
+    # multiple sorties can analyze concurrently.
+    ORGANIZE_LOCK="/tmp/iads_organize.lock"
     echo
     echo "  [2/2] Organizing & analyzing..."
-    "$PYTHON" "$SCRIPT_DIR/run_batch.py" "$TMP_CFG" --organize --sortie "$SORTIE"
+    flock -x "$ORGANIZE_LOCK" \
+        "$PYTHON" "$SCRIPT_DIR/run_batch.py" "$TMP_CFG" --organize
+    "$PYTHON" "$SCRIPT_DIR/run_batch.py" "$TMP_CFG" --sortie "$SORTIE"
 
     rm -f "$TMP_CFG"
     trap - EXIT
